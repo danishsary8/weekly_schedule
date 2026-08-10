@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /auth/
+Disallow: /email-verified
+Disallow: /password/
+
+Sitemap: https://daycraft.example/sitemap.xml

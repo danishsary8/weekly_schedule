@@ -1,0 +1,40 @@
+{
+  "name": "daycraft",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently --kill-others --names frontend,backend --prefix-colors cyan,magenta \"npm:dev:frontend\" \"npm:dev:backend\"",
+    "dev:frontend": "vite --host=127.0.0.1",
+    "dev:backend": "php backend/artisan serve --host=127.0.0.1 --port=8000",
+    "build": "vite build",
+    "test": "vitest run --pool=threads --maxWorkers=1 --no-file-parallelism",
+    "test:watch": "vitest",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@sentry/react": "^10.69.0",
+    "axios": "^1.19.0",
+    "framer-motion": "^11.11.17",
+    "lucide-react": "^0.454.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.6.0",
+    "react-joyride": "^2.9.3",
+    "react-router-dom": "^6.30.3",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@sentry/vite-plugin": "^5.4.0",
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.3.2",
+    "@vitejs/plugin-react": "^6.0.5",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^10.0.4",
+    "jsdom": "^29.1.1",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "vite": "^8.2.0",
+    "vitest": "^4.1.10"
+  }
+}

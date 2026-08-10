@@ -1,0 +1,5 @@
+import { useEffect, useRef, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import AuthLayout from '../components/auth/AuthLayout.jsx'
+import { useAuthStore } from '../store/authStore.js'
+export default function GoogleCallbackPage(){const[params]=useSearchParams(),navigate=useNavigate(),complete=useAuthStore(s=>s.completeGoogleLogin),[error,setError]=useState('');const once=useRef(false);useEffect(()=>{if(once.current)return;once.current=true;const code=params.get('code');if(!code){setError('Google did not return a valid sign-in code.');return}complete(code).then(()=>navigate('/',{replace:true})).catch(err=>setError(err.message))},[complete,navigate,params]);return <AuthLayout title="Finishing sign in" subtitle="Securely connecting your Google account.">{error?<div role="alert" className="rounded-xl bg-language/10 p-4 font-sans text-sm text-language">{error}<Link to="/login" className="mt-3 block font-bold underline">Return to sign in</Link></div>:<div role="status" className="p-5 text-center font-sans text-sm text-ink/60">Completing Google sign-in…</div>}</AuthLayout>}

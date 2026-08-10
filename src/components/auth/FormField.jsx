@@ -1,0 +1,68 @@
+import { useId, useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
+
+/**
+ * Labelled input with inline error text (visible label, not placeholder-only).
+ * 44px min height for comfortable touch targets.
+ */
+export default function FormField({
+  label,
+  type = 'text',
+  value,
+  onChange,
+  error,
+  autoComplete,
+  hint,
+  required = false,
+}) {
+  const id = useId()
+  const [revealed, setRevealed] = useState(false)
+  const isPassword = type === 'password'
+  const resolvedType = isPassword && revealed ? 'text' : type
+
+  return (
+    <div>
+      <label htmlFor={id} className="block font-sans text-xs font-bold uppercase tracking-wide text-ink/60">
+        {label}
+      </label>
+
+      <div className="relative mt-1.5">
+        <input
+          id={id}
+          type={resolvedType}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          autoComplete={autoComplete}
+          required={required}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
+          className={`min-h-[44px] w-full rounded-xl bg-cream/70 px-3.5 font-sans text-[15px] font-medium text-ink ring-1 transition-shadow placeholder:text-ink/30 focus:outline-none focus-visible:ring-2 ${
+            error ? 'ring-language' : 'ring-black/15'
+          } ${isPassword ? 'pr-12' : ''}`}
+          style={{ ['--tw-ring-color']: error ? '#E11D48' : '#0F766E' }}
+        />
+
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setRevealed((v) => !v)}
+            aria-label={revealed ? 'Hide password' : 'Show password'}
+            className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg text-ink/50 transition-colors hover:bg-black/5 hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-career"
+          >
+            {revealed ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        )}
+      </div>
+
+      {error ? (
+        <p id={`${id}-error`} className="mt-1 font-sans text-xs font-semibold text-language">
+          {error}
+        </p>
+      ) : hint ? (
+        <p id={`${id}-hint`} className="mt-1 font-sans text-xs text-ink/45">
+          {hint}
+        </p>
+      ) : null}
+    </div>
+  )
+}

@@ -1,0 +1,7 @@
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import AuthLayout from '../components/auth/AuthLayout.jsx'
+import FormField from '../components/auth/FormField.jsx'
+import SubmitButton from '../components/auth/SubmitButton.jsx'
+import { requestPasswordReset } from '../api/services.js'
+export default function ForgotPasswordPage(){const[email,setEmail]=useState(''),[loading,setLoading]=useState(false),[sent,setSent]=useState(false),[error,setError]=useState('');const submit=async e=>{e.preventDefault();setLoading(true);setError('');try{await requestPasswordReset(email);setSent(true)}catch(err){setError(err.status===422?err.fieldError('email'):err.message)}finally{setLoading(false)}};return <AuthLayout title="Reset your password" subtitle="We’ll send a secure reset link if an account matches that email." footer={<Link to="/login" className="font-semibold text-career hover:underline">Back to sign in</Link>}>{sent?<div role="status" className="rounded-2xl bg-career/10 p-5 font-sans text-sm leading-relaxed text-ink/70 ring-1 ring-career/20"><h2 className="font-bold text-ink">Check your inbox</h2><p className="mt-2">If an account exists for that email, a password reset link has been sent.</p></div>:<form onSubmit={submit} className="space-y-4" noValidate><FormField label="Email" type="email" value={email} onChange={setEmail} error={error} autoComplete="email" required/><SubmitButton loading={loading}>{loading?'Sending…':'Send reset link'}</SubmitButton></form>}</AuthLayout>}
