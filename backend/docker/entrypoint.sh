@@ -7,7 +7,6 @@ sed -ri "s/<VirtualHost \*:[0-9]+>/<VirtualHost *:${port}>/" /etc/apache2/sites-
 
 php artisan config:cache
 php artisan route:cache
-php artisan view:cache
 php artisan migrate --force
 
 exec "$@"
