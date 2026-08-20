@@ -15,6 +15,7 @@ import { PrivacyPage, TermsPage } from './pages/LegalPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import LandingPage from './pages/LandingPage.jsx'
 import InternalAnalyticsPage from './pages/InternalAnalyticsPage.jsx'
+import ProfilePage from './pages/ProfilePage.jsx'
 import FullScreenLoader from './components/ui/FullScreenLoader.jsx'
 import SplashScreen from './components/ui/SplashScreen.jsx'
 import { setMonitoringUser } from './monitoring.js'
@@ -41,7 +42,7 @@ function PageTransition({ children }) {
 function RouteMetadata({ pathname }) {
   useEffect(() => {
     const landing = pathname === '/'
-    document.title = landing ? 'Daycraft — Custom Daily Routine Planner' : pathname === '/dashboard' ? 'Your dashboard — Daycraft' : 'Daycraft — Craft your day.'
+    document.title = landing ? 'Daycraft — Custom Daily Routine Planner' : pathname === '/dashboard' ? 'Your dashboard — Daycraft' : pathname === '/profile' ? 'Profile & settings — Daycraft' : 'Daycraft — Craft your day.'
     const description = document.querySelector('meta[name="description"]')
     if (description) description.content = landing
       ? 'Build custom weekly routines, track daily progress, and stay focused on what matters now with Daycraft, a calm routine planner for everyday life.'
@@ -149,6 +150,7 @@ export default function AppRoutes() {
             }
           />
           <Route path="/dashboard" element={<ProtectedRoute><PageTransition><DashboardPage /></PageTransition></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><PageTransition><ProfilePage /></PageTransition></ProtectedRoute>} />
           <Route path="/internal/analytics" element={<ProtectedRoute><PageTransition><InternalAnalyticsPage /></PageTransition></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

@@ -14,19 +14,18 @@ describe('day-group creation', () => {
   it('creates a group, first block, and optional habits', async () => {
     const onComplete = vi.fn()
     render(<DayGroupBuilder onComplete={onComplete} />)
-    fireEvent.change(screen.getByLabelText(/group name/i), { target: { value: 'Work days' } })
+    fireEvent.change(screen.getByLabelText(/routine name/i), { target: { value: 'Work days' } })
     fireEvent.change(screen.getByLabelText(/block description/i), { target: { value: 'Deep work' } })
     fireEvent.change(screen.getByLabelText(/checklist items/i), { target: { value: 'Plan day\nReview notes' } })
-    fireEvent.click(screen.getByRole('button', { name: /create routine/i }))
+    fireEvent.click(screen.getByRole('button', { name: /create my routine/i }))
     await waitFor(() => expect(onComplete).toHaveBeenCalledWith(21))
     expect(createDayGroup).toHaveBeenCalledWith(expect.objectContaining({ name: 'Work days' }))
     expect(createTimelineEntry).toHaveBeenCalledWith(21, expect.objectContaining({ description: 'Deep work' }))
     expect(createChecklistItem).toHaveBeenCalledTimes(2)
   })
-  it('prevents partial writes when required input is missing', () => {
+  it('keeps submission disabled while required input is missing', () => {
     render(<DayGroupBuilder />)
-    fireEvent.click(screen.getByRole('button', { name: /create routine/i }))
-    expect(screen.getByRole('alert')).toHaveTextContent(/name your group/i)
+    expect(screen.getByRole('button', { name: /create my routine/i })).toBeDisabled()
     expect(createDayGroup).not.toHaveBeenCalled()
   })
 })

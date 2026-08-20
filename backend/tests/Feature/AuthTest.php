@@ -59,13 +59,13 @@ final class AuthTest extends TestCase
             ->assertJsonStructure(['error' => ['code', 'message', 'details' => ['email']]]);
     }
 
-    public function test_register_rejects_weak_password(): void
+    public function test_register_rejects_password_shorter_than_eight_characters(): void
     {
         $this->postJson('/api/v1/auth/register', [
             'name' => 'Weak Pass',
             'email' => 'weak@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            'password' => 'short',
+            'password_confirmation' => 'short',
             'terms_accepted' => true,
         ])
             ->assertStatus(422)

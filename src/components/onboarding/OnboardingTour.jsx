@@ -31,10 +31,10 @@ const STEPS = [
     placement: 'bottom',
   },
   {
-    target: '[data-tour="checklist"]',
-    title: 'Daily checklist',
+    target: '[data-tour="today-progress"]',
+    title: 'Your next small win',
     content:
-      'Check off habits as you complete them. Only today is interactive; other days remain previews so your daily progress stays clear.',
+      'Your next incomplete checklist item stays one tap away here, with today’s completion progress beside it.',
     placement: 'bottom',
   },
   {

@@ -105,7 +105,7 @@ export default function RegisterPage() {
           onChange={set('password')}
           error={errors.password}
           autoComplete="new-password"
-          hint="Use at least 8 characters with upper and lower case letters and a number. Common or previously leaked passwords are not accepted."
+          hint="Use at least 8 characters."
           required
         />
 

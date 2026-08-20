@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\DayGroupController;
 use App\Http\Controllers\Api\V1\EmailVerificationController;
 use App\Http\Controllers\Api\V1\GoogleAuthController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\MailDiagnosticController;
 use App\Http\Controllers\Api\V1\NotificationSettingController;
 use App\Http\Controllers\Api\V1\PasswordResetController;
 use App\Http\Controllers\Api\V1\PrayerTimeController;
@@ -30,6 +31,15 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->name('api.v1.')->group(function (): void {
     // ---- Public ----------------------------------------------------------
     Route::get('health', HealthController::class)->name('health');
+
+    // TEMPORARY — DELETE AFTER USE: protected production mail diagnostics.
+    Route::get('internal/mail-diagnostic', [MailDiagnosticController::class, 'configuration'])
+        ->middleware('throttle:5,60')
+        ->name('internal.mail-diagnostic');
+    // TEMPORARY — DELETE AFTER USE: performs one real provider delivery test.
+    Route::get('internal/mail-test', [MailDiagnosticController::class, 'sendTest'])
+        ->middleware('throttle:5,60')
+        ->name('internal.mail-test');
     Route::post('analytics/page-view', [AnalyticsController::class, 'pageView'])->middleware('throttle:60,1')->name('analytics.page-view');
     Route::get('email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
     Route::post('password/forgot', [PasswordResetController::class, 'forgot'])->middleware('throttle:5,1')->name('password.forgot');

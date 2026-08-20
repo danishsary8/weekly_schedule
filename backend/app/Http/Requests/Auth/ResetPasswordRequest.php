@@ -16,6 +16,6 @@ final class ResetPasswordRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['token' => ['required', 'string'], 'email' => ['required', 'email:rfc'], 'password' => ['required', 'confirmed', Password::min(8)->letters()->mixedCase()->numbers()]];
+        return ['token' => ['required', 'string'], 'email' => ['required', 'email:rfc'], 'password' => ['required', 'confirmed', Password::min(8)]];
     }
 }

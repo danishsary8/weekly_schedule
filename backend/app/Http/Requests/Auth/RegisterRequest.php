@@ -19,18 +19,6 @@ final class RegisterRequest extends FormRequest
      */
     public function rules(): array
     {
-        $password = Password::min(8)
-            ->letters()
-            ->mixedCase()
-            ->numbers();
-
-        // The compromised-password check calls an external service. Keep the
-        // stronger production policy without making local registration depend
-        // on internet availability.
-        if (app()->isProduction()) {
-            $password->uncompromised();
-        }
-
         return [
             'name' => ['required', 'string', 'min:2', 'max:255'],
             'email' => ['required', 'string', 'email:rfc', 'max:255', 'unique:users,email'],
@@ -40,7 +28,7 @@ final class RegisterRequest extends FormRequest
                 'required',
                 'string',
                 'confirmed',
-                $password,
+                Password::min(8),
             ],
         ];
     }

@@ -139,7 +139,7 @@ const HELP_RULES = [
   },
   {
     keywords: ['logout', 'log out', 'sign out', 'account'],
-    answer: 'Use the sign-out button in the top-right of the header. Your data stays saved to your account.',
+    answer: 'Open your profile from the initial button in the top-right. You can sign out there, and your routines stay saved to your account.',
   },
   {
     keywords: ['tour', 'guide', 'onboarding', 'help me', 'walkthrough'],

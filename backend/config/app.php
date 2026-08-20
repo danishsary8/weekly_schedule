@@ -56,6 +56,9 @@ return [
 
     'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
 
+    // Temporary production mail diagnostics. Remove after email delivery is verified.
+    'diagnostic_token' => env('DIAGNOSTIC_TOKEN'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
