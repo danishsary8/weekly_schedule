@@ -7,6 +7,18 @@ import Card from '../components/Card.jsx'
 import AccountDeletionPanel from '../components/AccountDeletionPanel.jsx'
 import { clearUserCache } from '../api/offlineCache.js'
 import { useAuthStore } from '../store/authStore.js'
+import {
+  BLOCK_GAP,
+  CARD_PADDING,
+  CARD_PADDING_LG,
+  DURATION,
+  EASE,
+  PAGE_GUTTER,
+  PAGE_VERTICAL,
+  SECTION_GAP,
+  TIGHT_GAP,
+  TOUCH_TARGET,
+} from '../config/layout.js'
 
 function formatMemberSince(value) {
   if (!value) return 'Member date unavailable'
@@ -40,17 +52,17 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream px-4 py-6 text-ink sm:px-6 sm:py-10">
+    <div className={`min-h-screen bg-cream text-ink ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
       <main className="mx-auto w-full max-w-3xl">
-        <Link to="/dashboard" className="inline-flex min-h-[44px] items-center gap-2 rounded-xl px-2 font-sans text-sm font-bold text-ink/65 hover:bg-black/5 hover:text-ink"><ChevronLeft className="h-4 w-4" aria-hidden="true" />Back to today</Link>
+        <Link to="/dashboard" className={`${TOUCH_TARGET} inline-flex items-center gap-2 rounded-xl px-2 font-sans text-sm font-bold text-ink/65 hover:bg-black/5 hover:text-ink`}><ChevronLeft className="h-4 w-4" aria-hidden="true" />Back to today</Link>
 
-        <motion.header className="mt-4" initial={reduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
-          <p className="font-sans text-xs font-bold uppercase tracking-[.18em] text-career">Profile & settings</p>
-          <h1 className="mt-2 display-title text-5xl sm:text-6xl">Your Daycraft space</h1>
-          <p className="mt-2 max-w-xl font-sans text-sm leading-relaxed text-ink/60">Your account details and controls, kept separate from the rhythm of your day.</p>
+        <motion.header className={BLOCK_GAP} initial={reduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: DURATION.base, ease: EASE }}>
+          <p className="font-sans text-xs font-bold uppercase tracking-[.18em] text-career">Profile &amp; settings</p>
+          <h1 className={`${TIGHT_GAP} display-title text-5xl sm:text-6xl`}>Your Daycraft space</h1>
+          <p className={`${TIGHT_GAP} max-w-xl font-sans text-sm leading-relaxed text-ink/60`}>Your account details and controls, kept separate from the rhythm of your day.</p>
         </motion.header>
 
-        <Card tone="black" accentColor="#0F766E" className="mt-7 p-6 sm:p-8">
+        <Card tone="black" accentColor="#0F766E" className={`${SECTION_GAP} ${CARD_PADDING_LG}`}>
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
             <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-[24px] bg-white font-sans text-3xl font-black text-ink shadow-card" aria-label={`${user?.name || 'User'} avatar`}>{initial}</div>
             <div className="min-w-0 flex-1">
@@ -62,7 +74,7 @@ export default function ProfilePage() {
           </div>
         </Card>
 
-        <Card tone="white" accentColor="#7C8B9C" className="mt-5 p-5 sm:p-6">
+        <Card tone="white" accentColor="#7C8B9C" className={`${BLOCK_GAP} ${CARD_PADDING}`}>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div><h2 className="font-sans text-base font-bold">Session</h2><p className="mt-1 font-sans text-sm leading-relaxed text-ink/55">Sign out safely. Your routines stay synced to this account.</p></div>
             {!confirmLogout && <button type="button" onClick={() => setConfirmLogout(true)} className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-xl bg-ink px-5 font-sans text-sm font-bold text-white"><LogOut className="h-4 w-4" aria-hidden="true" />Sign out</button>}
@@ -71,7 +83,7 @@ export default function ProfilePage() {
         </Card>
 
         <AccountDeletionPanel onDeleted={accountDeleted} />
-        <footer className="mt-10 flex items-center justify-center gap-2 font-sans text-xs text-ink/40"><UserRound className="h-4 w-4" aria-hidden="true" />Daycraft account settings</footer>
+        <footer className="mt-12 flex items-center justify-center gap-2 font-sans text-xs text-ink/40"><UserRound className="h-4 w-4" aria-hidden="true" />Daycraft account settings</footer>
       </main>
     </div>
   )

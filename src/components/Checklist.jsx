@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { Check, Pencil, Trash2 } from 'lucide-react'
+import { Check, ListPlus, Pencil, Trash2 } from 'lucide-react'
 import { getCategory } from '../config/categories.js'
+import EmptyState from './ui/EmptyState.jsx'
 
 function withAlpha(hex, alpha) {
   const h = hex.replace('#', '')
@@ -69,7 +70,20 @@ export default function Checklist({
   const [savedId, setSavedId] = useState(null)
   const [savingId, setSavingId] = useState(null)
   const [celebrate, setCelebrate] = useState(false)
+  const [pulseId, setPulseId] = useState(null)
   const prevAllDone = useRef(allDone)
+
+  /**
+   * Fires the row pulse only when checking ON (un-checking should feel neutral,
+   * not rewarded), then hands off to the parent's toggle.
+   */
+  const handleToggle = (itemId) => {
+    if (!checked.has(itemId)) {
+      setPulseId(itemId)
+      window.setTimeout(() => setPulseId((current) => (current === itemId ? null : current)), 320)
+    }
+    onToggle?.(itemId)
+  }
 
   useEffect(() => {
     if (allDone && !prevAllDone.current && editable) {
@@ -203,21 +217,34 @@ export default function Checklist({
             )
           }
 
+          const justCompleted = pulseId === item.id
+
           return (
             <motion.li key={item.id} variants={rowVariants}>
               <motion.button
                 type="button"
-                onClick={editable ? () => onToggle?.(item.id) : undefined}
+                onClick={editable ? () => handleToggle(item.id) : undefined}
                 aria-pressed={isChecked}
                 disabled={!editable}
-                animate={reduceMotion ? {} : { scale: isChecked ? [1, 1.015, 1] : 1 }}
-                transition={{ duration: 0.26, ease: 'easeOut' }}
+                /*
+                 * Micro-celebration: a single scale pop plus a brief wash of the
+                 * category colour on the row that was just completed. Both land
+                 * inside 300ms so it reads as tactile feedback, not decoration.
+                 */
+                animate={
+                  reduceMotion
+                    ? {}
+                    : justCompleted
+                      ? { scale: [1, 1.035, 1], backgroundColor: [withAlpha(cat.color, 0), withAlpha(cat.color, 0.22), withAlpha(cat.color, 0)] }
+                      : { scale: 1 }
+                }
+                transition={{ duration: 0.3, ease: 'easeOut' }}
                 whileHover={editable && !reduceMotion ? { x: 2 } : undefined}
-                className={`flex min-h-[44px] w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left ring-1 transition-[background-color,opacity,transform] focus:outline-none focus-visible:ring-2 ${editable ? 'cursor-pointer hover:bg-white active:scale-[0.99]' : 'cursor-default'} ${isChecked ? 'bg-black/[0.025] opacity-65 ring-transparent' : 'bg-cream/55 ring-black/[0.06]'}`}
+                className={`flex min-h-[44px] w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left ring-1 transition-[opacity,box-shadow] focus:outline-none focus-visible:ring-2 ${editable ? 'cursor-pointer hover:bg-white active:scale-[0.99]' : 'cursor-default'} ${isChecked ? 'bg-black/[0.025] opacity-65 ring-transparent' : 'bg-cream/55 ring-black/[0.06]'}`}
                 style={{ ['--tw-ring-color']: cat.color }}
               >
                 <AnimatedCheckbox color={cat.color} checkColor={cat.onColor} checked={isChecked} reduceMotion={reduceMotion} />
-                <span className={`font-sans text-[15px] font-medium transition-colors ${isChecked ? 'text-ink/40 line-through' : 'text-ink'}`}>{item.label}</span>
+                <span className={`min-w-0 break-words font-sans text-[15px] font-medium transition-colors ${isChecked ? 'text-ink/40 line-through' : 'text-ink'}`}>{item.label}</span>
               </motion.button>
             </motion.li>
           )
@@ -225,18 +252,24 @@ export default function Checklist({
       </motion.ul>
 
       {items.length === 0 && (
-        <p className="mt-4 rounded-xl bg-cream/60 p-4 text-center font-sans text-sm text-ink/60 ring-1 ring-black/5">
-          No checklist items are configured for this day.
-        </p>
+        <div className="mt-4">
+          <EmptyState
+            icon={ListPlus}
+            accent={accentColor}
+            title="No habits here yet"
+            body={editMode
+              ? 'Add your first habit from the panel above — something small you can finish today.'
+              : 'Turn on edit mode to add a habit you can tick off each time this routine runs.'}
+            compact
+          />
+        </div>
       )}
 
-      <AnimatePresence>
-        {allDone && editable && (
-          <motion.p key="alldone" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} transition={{ duration: 0.3 }} className="mt-3 font-display text-2xl" style={{ color: accentTextColor }}>
-            All done for today — nice work!
-          </motion.p>
-        )}
-      </AnimatePresence>
+      {/*
+        The day-completion message intentionally lives only in
+        TodayProgressCard. Repeating it here made two celebration lines stack on
+        mobile; this card keeps the subtler accent glow above as its own signal.
+      */}
     </motion.section>
   )
 }

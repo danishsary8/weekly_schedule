@@ -10,7 +10,10 @@
     "build": "vite build",
     "test": "vitest run --pool=threads --maxWorkers=1 --no-file-parallelism",
     "test:watch": "vitest",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "audit:seed": "node scripts/seed-audit-user.mjs",
+    "audit:responsive": "node scripts/audit-responsive.mjs",
+    "audit:celebration": "node scripts/audit-celebration.mjs"
   },
   "dependencies": {
     "@sentry/react": "^10.69.0",

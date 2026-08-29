@@ -90,7 +90,13 @@ export default function LoginPage() {
         <SubmitButton loading={loading}>{loading ? 'Signing in…' : 'Sign in'}</SubmitButton>
       </form>
       <GoogleButton onError={setFormError} />
-      <p className="mt-3 text-center font-sans text-[11px] leading-relaxed text-ink/45">If Google creates a new account for you, continuing means you agree to the <Link to="/terms" className="font-semibold text-career underline">Terms</Link> and acknowledge the <Link to="/privacy" className="font-semibold text-career underline">Privacy Policy</Link>.</p>
+      {/*
+        Inline links inside a sentence are exempt from WCAG 2.5.8 target size,
+        so they stay in the text flow. The negative-margin padding still widens
+        the tap area vertically without shifting the surrounding layout, and the
+        body size was raised from 11px to 12px for legibility.
+      */}
+      <p className="mt-3 text-center font-sans text-xs leading-relaxed text-ink/50">If Google creates a new account for you, continuing means you agree to the <Link to="/terms" className="inline-block py-1.5 -my-1.5 font-semibold text-career underline">Terms</Link> and acknowledge the <Link to="/privacy" className="inline-block py-1.5 -my-1.5 font-semibold text-career underline">Privacy Policy</Link>.</p>
     </AuthLayout>
   )
 }

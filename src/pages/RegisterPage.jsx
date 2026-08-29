@@ -119,7 +119,9 @@ export default function RegisterPage() {
           required
         />
 
-        <p className="font-sans text-xs leading-relaxed text-ink/55">By signing up, you agree to our <Link to="/terms" className="font-semibold text-career underline underline-offset-2">Terms of Service</Link> and acknowledge our <Link to="/privacy" className="font-semibold text-career underline underline-offset-2">Privacy Policy</Link>.</p>
+        {/* Inline sentence links: WCAG 2.5.8 exempt, but the tap area is still
+            widened vertically via padding + negative margin (no layout shift). */}
+        <p className="font-sans text-xs leading-relaxed text-ink/55">By signing up, you agree to our <Link to="/terms" className="inline-block py-1.5 -my-1.5 font-semibold text-career underline underline-offset-2">Terms of Service</Link> and acknowledge our <Link to="/privacy" className="inline-block py-1.5 -my-1.5 font-semibold text-career underline underline-offset-2">Privacy Policy</Link>.</p>
 
         <SubmitButton loading={loading}>{loading ? 'Creating account…' : 'Create account'}</SubmitButton>
       </form>

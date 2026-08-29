@@ -306,7 +306,8 @@ export default function Assistant({
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: 6, scale: 0.95 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="max-w-[min(15rem,60vw)] rounded-2xl bg-ink px-3 py-2 text-left font-sans text-[12px] font-medium leading-snug text-white shadow-lift focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+              /* min-h keeps this tappable badge at the 44px accessibility floor. */
+              className="flex min-h-[44px] max-w-[min(15rem,60vw)] items-center rounded-2xl bg-ink px-3.5 py-2.5 text-left font-sans text-[12px] font-medium leading-snug text-white shadow-lift focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
               style={{ borderRight: `4px solid ${accent}`, ['--tw-ring-color']: accent }}
             >
               {pendingTip.text}
