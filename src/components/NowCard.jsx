@@ -30,10 +30,12 @@ export default function NowCard({ schedule = [], liveId = null, isViewingToday =
 
   // --- Non-today: calm preview state ---
   if (!isViewingToday || !liveId) {
+    // p-5 sm:p-6 matches every peer card (Checklist, TodayProgressCard) so
+    // mobile padding is uniform at 375px instead of 24px next to 20px.
     return (
-      <div className="relative overflow-hidden rounded-card bg-taupe p-6 text-ink shadow-card">
+      <div className="relative overflow-hidden rounded-card bg-taupe p-5 text-ink shadow-card sm:p-6">
         <span className="absolute inset-y-0 left-0 w-1.5 bg-ink/30" aria-hidden="true" />
-        <p className="font-sans text-xs font-bold uppercase tracking-[0.18em] text-ink/70">Preview</p>
+        <p className="eyebrow text-ink/70">Preview</p>
         <p className="mt-2 font-display text-3xl leading-tight">{dayName}</p>
         <p className="mt-1 font-sans text-sm text-ink/75">
           {dayType} · {schedule.length} blocks. Switch to today to track live progress.
@@ -58,7 +60,7 @@ export default function NowCard({ schedule = [], liveId = null, isViewingToday =
   const pct = Math.round((elapsed / dur) * 100)
 
   return (
-    <div className="relative overflow-hidden rounded-card bg-ink p-6 text-white shadow-lift">
+    <div className="relative overflow-hidden rounded-card bg-ink p-5 text-white shadow-lift sm:p-6">
       <span className="absolute inset-y-0 left-0 w-1.5" style={{ backgroundColor: cat.color }} aria-hidden="true" />
       {/* soft accent glow */}
       <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full blur-3xl" style={{ backgroundColor: withAlpha(cat.color, 0.35) }} aria-hidden="true" />
@@ -71,7 +73,7 @@ export default function NowCard({ schedule = [], liveId = null, isViewingToday =
             animate={reduceMotion ? {} : { opacity: [1, 0.3, 1], scale: [1, 1.3, 1] }}
             transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
           />
-          <span className="font-sans text-xs font-bold uppercase tracking-[0.18em] text-white/70">Happening now</span>
+          <span className="eyebrow text-white/70">Happening now</span>
         </div>
 
         <div className="mt-3 flex items-start gap-3">

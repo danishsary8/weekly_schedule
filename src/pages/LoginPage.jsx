@@ -49,7 +49,7 @@ export default function LoginPage() {
       footer={
         <>
           New here?{' '}
-          <Link to="/register" className="inline-flex min-h-[44px] items-center rounded-lg px-1 font-semibold text-career underline-offset-2 hover:underline focus-visible:outline-none">
+          <Link to="/register" className="inline-flex min-h-touch items-center rounded-lg px-1 font-semibold text-career underline-offset-2 hover:underline focus-visible:outline-none">
             Create an account
           </Link>
         </>
@@ -85,7 +85,7 @@ export default function LoginPage() {
           required
         />
 
-        <div className="text-right"><Link to="/password/forgot" className="inline-flex min-h-[44px] items-center font-sans text-sm font-semibold text-career hover:underline">Forgot password?</Link></div>
+        <div className="text-right"><Link to="/password/forgot" className="inline-flex min-h-touch items-center font-sans text-sm font-semibold text-career hover:underline">Forgot password?</Link></div>
 
         <SubmitButton loading={loading}>{loading ? 'Signing in…' : 'Sign in'}</SubmitButton>
       </form>

@@ -61,7 +61,7 @@ const TimelineItem = forwardRef(function TimelineItem(
     <motion.li ref={ref} variants={itemVariants} initial={animateIn ? undefined : false} className="relative pl-14 sm:pl-16">
       {/* Node on the ruler line */}
       <span
-        className="absolute left-[18px] sm:left-[22px] top-6 flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full ring-4 ring-cream"
+        className="absolute left-rail sm:left-rail-sm top-6 flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full ring-4 ring-cream"
         style={{ backgroundColor: cat.color }}
         aria-hidden="true"
       >
@@ -119,7 +119,7 @@ const TimelineItem = forwardRef(function TimelineItem(
                   {formatRange(entry.start, entry.end)}
                 </span>
                 {durLabel && (
-                  <span className={`rounded-full px-2 py-0.5 font-sans text-[10px] font-bold tabular-nums ${isDark ? 'bg-white/15 text-white/80' : 'bg-black/[0.06] text-ink/60'}`}>
+                  <span className={`rounded-full px-2 py-0.5 font-sans text-label font-bold tabular-nums ${isDark ? 'bg-white/15 text-white/80' : 'bg-black/[0.06] text-ink/60'}`}>
                     {durLabel}
                   </span>
                 )}
@@ -148,7 +148,7 @@ const TimelineItem = forwardRef(function TimelineItem(
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.7 }}
                       transition={{ duration: 0.3 }}
-                      className="flex items-center gap-1 rounded-full px-2.5 py-0.5 font-sans text-[11px] font-bold uppercase tracking-wide"
+                      className="flex items-center gap-1 rounded-full px-2.5 py-0.5 font-sans text-label font-bold uppercase tracking-wide"
                       style={{ backgroundColor: cat.color, color: cat.onColor }}
                     >
                       <motion.span
@@ -162,7 +162,7 @@ const TimelineItem = forwardRef(function TimelineItem(
                   )}
                   {!isLive && (
                     <span
-                      className="rounded-full px-2.5 py-0.5 font-sans text-[11px] font-semibold uppercase tracking-wide"
+                      className="rounded-full px-2.5 py-0.5 font-sans text-label font-semibold uppercase tracking-wide"
                       style={{ color: isDark ? '#FFFFFF' : cat.textColor, backgroundColor: withAlpha(cat.color, isDark ? 0.3 : 0.14) }}
                     >
                       {cat.label}
@@ -172,7 +172,7 @@ const TimelineItem = forwardRef(function TimelineItem(
               </div>
             </div>
 
-            <p className="mt-2 break-words font-sans text-[15px] font-medium leading-snug">
+            <p className="mt-2 break-words font-sans text-body font-medium leading-snug">
               {entry.description}
             </p>
 

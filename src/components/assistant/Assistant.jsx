@@ -155,8 +155,8 @@ export default function Assistant({
                 <RobotIcon className="h-5 w-5" accent="#1A1A1A" awake={!quiet} />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="font-sans text-[15px] font-bold leading-tight">Daycraft guide</p>
-                <p className="mt-0.5 font-sans text-[11px] text-white/65">
+                <p className="font-sans text-body font-bold leading-tight">Daycraft guide</p>
+                <p className="mt-0.5 font-sans text-label text-white/65">
                   {quiet ? 'Quiet mode — tips paused' : 'Here to keep you on track'}
                 </p>
               </div>
@@ -187,14 +187,14 @@ export default function Assistant({
                   initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.22 }}
-                  className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 font-sans text-[13px] leading-relaxed shadow-sm ${
+                  className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 font-sans text-body-sm leading-relaxed shadow-sm ${
                     message.from === 'user'
                       ? 'ml-auto bg-ink text-white'
                       : 'bg-cream text-ink ring-1 ring-black/5'
                   }`}
                   style={message.from === 'bot' ? { borderLeft: `3px solid ${accent}` } : undefined}
                 >
-                  <span className={`mb-1 block text-[10px] font-bold uppercase tracking-wider ${message.from === 'user' ? 'text-white/55' : 'text-ink/45'}`}>
+                  <span className={`mb-1 block text-label font-bold uppercase tracking-wider ${message.from === 'user' ? 'text-white/55' : 'text-ink/45'}`}>
                     {message.from === 'user' ? 'You' : 'Daycraft guide'}
                   </span>
                   <span className="break-words">{message.text}</span>
@@ -204,14 +204,14 @@ export default function Assistant({
 
             {/* suggestions */}
             <div className="flex-shrink-0 border-t border-black/5 bg-paper px-4 pb-3 pt-3">
-              <p className="mb-2 font-sans text-[10px] font-bold uppercase tracking-[0.12em] text-ink/40">Quick questions</p>
+              <p className="eyebrow mb-2 text-ink/40">Quick questions</p>
               <div className="grid grid-cols-2 gap-2">
               {ASSISTANT_SUGGESTIONS.map((suggestion) => (
                 <button
                   key={suggestion}
                   type="button"
                   onClick={() => ask(suggestion)}
-                  className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-cream px-2.5 text-center font-sans text-[11px] font-semibold leading-tight text-ink/70 ring-1 ring-black/10 transition-colors hover:bg-black/5 focus:outline-none focus-visible:ring-2"
+                  className="inline-flex min-h-touch items-center justify-center rounded-xl bg-cream px-2.5 text-center font-sans text-label font-semibold leading-tight text-ink/70 ring-1 ring-black/10 transition-colors hover:bg-black/5 focus:outline-none focus-visible:ring-2"
                   style={{ ['--tw-ring-color']: accent }}
                 >
                   {suggestion}
@@ -238,7 +238,7 @@ export default function Assistant({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask how something works…"
-                className="min-h-[48px] min-w-0 flex-1 rounded-xl bg-cream px-3.5 font-sans text-[13px] text-ink ring-1 ring-black/15 placeholder:text-ink/45 focus:outline-none focus-visible:ring-2"
+                className="min-h-touch-lg min-w-0 flex-1 rounded-xl bg-cream px-3.5 font-sans text-body-sm text-ink ring-1 ring-black/15 placeholder:text-ink/45 focus:outline-none focus-visible:ring-2"
                 style={{ ['--tw-ring-color']: accent }}
               />
               <button
@@ -307,7 +307,7 @@ export default function Assistant({
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: 6, scale: 0.95 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
               /* min-h keeps this tappable badge at the 44px accessibility floor. */
-              className="flex min-h-[44px] max-w-[min(15rem,60vw)] items-center rounded-2xl bg-ink px-3.5 py-2.5 text-left font-sans text-[12px] font-medium leading-snug text-white shadow-lift focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+              className="flex min-h-touch max-w-[min(15rem,60vw)] items-center rounded-2xl bg-ink px-3.5 py-2.5 text-left font-sans text-xs font-medium leading-snug text-white shadow-lift focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
               style={{ borderRight: `4px solid ${accent}`, ['--tw-ring-color']: accent }}
             >
               {pendingTip.text}

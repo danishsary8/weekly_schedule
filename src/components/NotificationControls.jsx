@@ -55,15 +55,17 @@ export default function NotificationControls({
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
             transition={{ duration: 0.3 }}
-            className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-card bg-ink px-4 py-3 text-white"
+            /* p-4 keeps this banner on the card scale; px-4/py-3 gave it an
+               off-grid 12px vertical inset next to 20px sibling cards. */
+            className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-card bg-ink p-4 text-white"
           >
             <div className="flex items-center gap-2.5">
               <BellIcon active color={accentColor} />
               <p className="font-sans text-sm font-medium">Get a quiet heads-up before each scheduled block.</p>
             </div>
             <div className="flex items-center gap-2">
-              <button type="button" disabled={permissionBusy} onClick={async () => { setPermissionBusy(true); await onRequestPermission(); setPermissionBusy(false) }} className="min-h-[44px] rounded-full px-4 font-sans text-sm font-bold text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-ink disabled:cursor-wait disabled:opacity-60" style={{ backgroundColor: '#FFFFFF', ['--tw-ring-color']: accentColor }}>{permissionBusy ? 'Requesting…' : 'Turn on reminders'}</button>
-              <button type="button" disabled={permissionBusy} onClick={() => setBannerDismissed(true)} className="min-h-[44px] rounded-full px-3 font-sans text-sm text-white/70 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:opacity-50">Not now</button>
+              <button type="button" disabled={permissionBusy} onClick={async () => { setPermissionBusy(true); await onRequestPermission(); setPermissionBusy(false) }} className="min-h-touch rounded-full px-4 font-sans text-sm font-bold text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-ink disabled:cursor-wait disabled:opacity-60" style={{ backgroundColor: '#FFFFFF', ['--tw-ring-color']: accentColor }}>{permissionBusy ? 'Requesting…' : 'Turn on reminders'}</button>
+              <button type="button" disabled={permissionBusy} onClick={() => setBannerDismissed(true)} className="min-h-touch rounded-full px-3 font-sans text-sm text-white/70 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:opacity-50">Not now</button>
             </div>
           </motion.div>
         )}
@@ -76,7 +78,7 @@ export default function NotificationControls({
           onClick={() => setPanelOpen((v) => !v)}
           aria-expanded={panelOpen}
           aria-label="Reminder settings"
-          className="flex min-h-[44px] items-center gap-2 rounded-full border-2 px-4 font-sans text-xs font-bold text-ink/70 transition-colors hover:bg-black/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+          className="flex min-h-touch items-center gap-2 rounded-full border-2 px-4 font-sans text-xs font-bold text-ink/70 transition-colors hover:bg-black/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
           style={{ borderColor: on ? accentColor : 'rgba(26,26,26,0.15)', color: on ? accentTextColor : undefined, ['--tw-ring-color']: accentColor }}
         >
           <BellIcon active={on} color={accentColor} />
@@ -125,7 +127,7 @@ export default function NotificationControls({
                   <div className="flex items-center justify-between gap-4">
                     <label htmlFor="notif-lead" className="font-sans text-sm text-ink/80">Remind me</label>
                     <div className="flex items-center gap-2">
-                      <input id="notif-lead" type="number" min={0} max={120} value={settings.leadMinutes} onChange={(e) => onLeadChange(e.target.value)} className="min-h-[44px] w-16 rounded-lg bg-cream/70 px-2 py-2 text-right font-sans text-sm font-semibold tabular-nums text-ink ring-1 ring-black/15 focus:outline-none focus-visible:ring-2" style={{ ['--tw-ring-color']: accentColor }} />
+                      <input id="notif-lead" type="number" min={0} max={120} value={settings.leadMinutes} onChange={(e) => onLeadChange(e.target.value)} className="min-h-touch w-16 rounded-lg bg-cream/70 px-2 py-2 text-right font-sans text-sm font-semibold tabular-nums text-ink ring-1 ring-black/15 focus:outline-none focus-visible:ring-2" style={{ ['--tw-ring-color']: accentColor }} />
                       <span className="font-sans text-sm text-ink/60">min before</span>
                     </div>
                   </div>

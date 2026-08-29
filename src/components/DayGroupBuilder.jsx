@@ -7,7 +7,7 @@ import Card from './Card.jsx'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const COLORS = ['#0F766E', '#E11D48', '#C9A227', '#65A30D', '#8A8378', '#7C8B9C']
-const field = 'min-h-[48px] w-full rounded-xl bg-cream/70 px-4 font-sans text-sm text-ink ring-1 ring-black/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-career'
+const field = 'min-h-touch-lg w-full rounded-xl bg-cream/70 px-4 font-sans text-sm text-ink ring-1 ring-black/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-career'
 
 export default function DayGroupBuilder({ onComplete, onCancel, compact = false }) {
   const reduceMotion = useReducedMotion()
@@ -62,11 +62,13 @@ export default function DayGroupBuilder({ onComplete, onCancel, compact = false 
 
   return (
     <section className={compact ? '' : 'mx-auto max-w-2xl'} data-tour="group-builder" aria-labelledby="builder-title">
-      <Card tone="white" accentColor={color} className={compact ? 'p-5 sm:p-6' : 'p-5 sm:p-8'}>
+      {/* Standard card ramp (20→24) when inline; hero ramp (24→32) standalone —
+          previously 20→32, which skipped a step in the scale. */}
+      <Card tone="white" accentColor={color} className={compact ? 'p-5 sm:p-6' : 'p-6 sm:p-8'}>
         <div className="flex items-start gap-3">
           <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-ink text-white"><Sparkles className="h-5 w-5" aria-hidden="true" /></span>
           <div className="min-w-0 flex-1">
-            <p className="font-sans text-[10px] font-bold uppercase tracking-[.18em] text-career">Step {step} of 3</p>
+            <p className="eyebrow text-career">Step {step} of 3</p>
             <h2 id="builder-title" className="mt-1 display-title text-3xl text-ink sm:text-4xl">Build your first rhythm</h2>
             <p className="mt-1 font-sans text-sm leading-relaxed text-ink/60">Two quick details are enough. You can refine everything later.</p>
           </div>
@@ -76,7 +78,7 @@ export default function DayGroupBuilder({ onComplete, onCancel, compact = false 
           {['Name it', 'Add a block', 'Ready'].map((label, index) => (
             <div key={label}>
               <span className="block h-1.5 rounded-full bg-ink/10"><motion.span className="block h-full rounded-full" style={{ backgroundColor: color }} animate={{ width: progress[index] ? '100%' : index < step ? '45%' : '0%' }} transition={reduceMotion ? { duration: 0 } : { duration: 0.3 }} /></span>
-              <span className="mt-1.5 block font-sans text-[10px] font-semibold text-ink/50">{label}</span>
+              <span className="mt-1.5 block font-sans text-label font-semibold text-ink/50">{label}</span>
             </div>
           ))}
         </div>
@@ -84,7 +86,7 @@ export default function DayGroupBuilder({ onComplete, onCancel, compact = false 
         <form onSubmit={submit} className="mt-6 space-y-5">
           <div><label htmlFor="group-name" className="font-sans text-xs font-bold uppercase tracking-wide text-ink/60">Routine name</label><input id="group-name" autoFocus value={name} onChange={(event) => setName(event.target.value)} placeholder="e.g. Weekdays or Study days" className={`${field} mt-2`} /></div>
 
-          <fieldset><legend className="font-sans text-xs font-bold uppercase tracking-wide text-ink/60">Repeats on</legend><p className="mt-1 font-sans text-xs text-ink/50">Today is selected to get you started.</p><div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-7">{DAYS.map((day, index) => <button key={day} type="button" aria-pressed={weekdays.includes(index)} onClick={() => toggleDay(index)} className="min-h-[44px] rounded-xl font-sans text-xs font-bold ring-1 ring-black/15" style={weekdays.includes(index) ? { backgroundColor: color, color: '#fff' } : {}}>{day}</button>)}</div></fieldset>
+          <fieldset><legend className="font-sans text-xs font-bold uppercase tracking-wide text-ink/60">Repeats on</legend><p className="mt-1 font-sans text-xs text-ink/50">Today is selected to get you started.</p><div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-7">{DAYS.map((day, index) => <button key={day} type="button" aria-pressed={weekdays.includes(index)} onClick={() => toggleDay(index)} className="min-h-touch rounded-xl font-sans text-xs font-bold ring-1 ring-black/15" style={weekdays.includes(index) ? { backgroundColor: color, color: '#fff' } : {}}>{day}</button>)}</div></fieldset>
 
           <fieldset className="rounded-2xl bg-cream/55 p-4 ring-1 ring-black/[0.07]">
             <legend className="px-2 font-sans text-xs font-bold uppercase tracking-wide text-ink/60">Your first schedule block</legend>
@@ -99,12 +101,12 @@ export default function DayGroupBuilder({ onComplete, onCancel, compact = false 
           <div className="rounded-2xl bg-cream/35 p-4 ring-1 ring-black/[0.07]"><label htmlFor="first-habits" className="font-sans text-xs font-bold uppercase tracking-wide text-ink/60">Your first quick win · checklist items <span className="normal-case font-medium">(optional)</span></label><p className="mt-1 font-sans text-xs leading-relaxed text-ink/50">Add one or more checklist items so you have something satisfying to complete today.</p><textarea id="first-habits" value={habits} onChange={(event) => setHabits(event.target.value)} rows="2" placeholder={'Drink water\nReview today’s priorities'} className={`${field} mt-2 py-3`} /></div>
 
           <details className="group rounded-2xl bg-cream/35 p-4 ring-1 ring-black/[0.07]">
-            <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-3 font-sans text-sm font-bold text-ink">Choose another accent color <span className="flex items-center gap-2 font-sans text-xs font-medium text-ink/45">Optional<ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" aria-hidden="true" /></span></summary>
+            <summary className="flex min-h-touch cursor-pointer list-none items-center justify-between gap-3 font-sans text-sm font-bold text-ink">Choose another accent color <span className="flex items-center gap-2 font-sans text-xs font-medium text-ink/45">Optional<ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" aria-hidden="true" /></span></summary>
             <fieldset className="mt-4 border-t border-black/10 pt-4"><legend className="sr-only">Accent color</legend><div className="flex flex-wrap gap-2">{COLORS.map((value) => <label key={value} className="cursor-pointer"><input className="peer sr-only" type="radio" name="color" checked={color === value} onChange={() => setColor(value)} /><span className="block h-11 w-11 rounded-xl ring-2 ring-transparent ring-offset-2 ring-offset-paper peer-checked:ring-ink" style={{ backgroundColor: value }}><span className="sr-only">Choose {value}</span></span></label>)}</div></fieldset>
           </details>
 
           {error && <p role="alert" className="rounded-xl bg-language/10 p-3 font-sans text-sm font-semibold text-language">{error}</p>}
-          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">{onCancel && <button type="button" onClick={onCancel} className="min-h-[48px] rounded-xl px-5 font-sans text-sm font-semibold ring-1 ring-black/15">Cancel</button>}<button disabled={saving || !ready} className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-ink px-5 font-sans text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-45">{saving ? <Loader2 className="h-4 w-4 motion-safe:animate-spin" aria-hidden="true" /> : <CheckCircle2 className="h-4 w-4" aria-hidden="true" />}{saving ? 'Creating…' : 'Create my routine'}</button></div>
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">{onCancel && <button type="button" onClick={onCancel} className="min-h-touch-lg rounded-xl px-5 font-sans text-sm font-semibold ring-1 ring-black/15">Cancel</button>}<button disabled={saving || !ready} className="flex min-h-touch-lg items-center justify-center gap-2 rounded-xl bg-ink px-5 font-sans text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-45">{saving ? <Loader2 className="h-4 w-4 motion-safe:animate-spin" aria-hidden="true" /> : <CheckCircle2 className="h-4 w-4" aria-hidden="true" />}{saving ? 'Creating…' : 'Create my routine'}</button></div>
         </form>
       </Card>
     </section>

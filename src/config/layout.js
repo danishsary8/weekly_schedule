@@ -35,11 +35,15 @@ export const PAGE_VERTICAL = 'pt-6 pb-32 sm:pt-10 lg:pb-16'
 /** Grid gap between the sidebar and timeline columns. 24px. */
 export const COLUMN_GAP = 'gap-6'
 
-/** Minimum interactive size. Anything tappable must reach 44px (WCAG 2.5.5). */
-export const TOUCH_TARGET = 'min-h-[44px]'
+/**
+ * Minimum interactive size. Anything tappable must reach 44px (WCAG 2.5.5).
+ * Backed by the `touch` spacing token in tailwind.config.js so the literal 44px
+ * lives in exactly one place.
+ */
+export const TOUCH_TARGET = 'min-h-touch'
 
-/** Primary action height — slightly larger than the 44px floor. */
-export const TOUCH_TARGET_LG = 'min-h-[48px]'
+/** Primary action height — slightly larger than the 44px floor (48px). */
+export const TOUCH_TARGET_LG = 'min-h-touch-lg'
 
 // ---- Motion -----------------------------------------------------------------
 // Shared easing/durations so animations feel like one product. All celebration

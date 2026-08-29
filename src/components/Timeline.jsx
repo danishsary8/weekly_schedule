@@ -47,7 +47,7 @@ export default function Timeline({
         />
         {/* Vertical ruler line */}
         <span
-          className="pointer-events-none absolute bottom-3 left-[18px] top-3 w-0.5 -translate-x-1/2 rounded-full bg-ink/15 sm:left-[22px]"
+          className="pointer-events-none absolute bottom-3 left-rail top-3 w-0.5 -translate-x-1/2 rounded-full bg-ink/15 sm:left-rail-sm"
           aria-hidden="true"
         />
 

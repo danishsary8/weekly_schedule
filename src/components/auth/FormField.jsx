@@ -36,7 +36,7 @@ export default function FormField({
           required={required}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
-          className={`min-h-[44px] w-full rounded-xl bg-cream/70 px-3.5 font-sans text-[15px] font-medium text-ink ring-1 transition-shadow placeholder:text-ink/30 focus:outline-none focus-visible:ring-2 ${
+          className={`min-h-touch w-full rounded-xl bg-cream/70 px-3.5 font-sans text-body font-medium text-ink ring-1 transition-shadow placeholder:text-ink/30 focus:outline-none focus-visible:ring-2 ${
             error ? 'ring-language' : 'ring-black/15'
           } ${isPassword ? 'pr-12' : ''}`}
           style={{ ['--tw-ring-color']: error ? '#E11D48' : '#0F766E' }}
@@ -59,7 +59,9 @@ export default function FormField({
           {error}
         </p>
       ) : hint ? (
-        <p id={`${id}-hint`} className="mt-1 font-sans text-xs text-ink/45">
+        /* 14px on phones (was 12px) — hints are body copy the user must read to
+           complete the form, so they respect the mobile legibility floor. */
+        <p id={`${id}-hint`} className="mt-1.5 font-sans text-body-sm text-ink/55 sm:text-xs">
           {hint}
         </p>
       ) : null}

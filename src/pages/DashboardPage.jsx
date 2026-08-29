@@ -206,7 +206,7 @@ export default function DashboardPage() {
           <DashboardHeader dayName="Your first routine" dayType="Start here" dateLabel={dateLabel} isViewingToday accentColor="#0F766E" editMode={false} userName={user?.name} onOpenProfile={() => navigate('/profile')} />
           {!verified && <div className={SECTION_GAP}><EmailVerificationBanner /></div>}
           <div className={`${SECTION_GAP} rounded-card bg-ink p-6 text-white sm:p-8`}>
-            <p className="font-sans text-xs font-bold uppercase tracking-[.2em] text-white/55">A blank canvas</p>
+            <p className="eyebrow-stamp text-white/55">A blank canvas</p>
             <h2 className={`${TIGHT_GAP} display-title text-4xl sm:text-5xl`}>Start with one simple block.</h2>
             <p className={`${TIGHT_GAP} max-w-xl font-sans text-sm leading-relaxed text-white/70`}>
               Name your routine and add what you want to do first. Today is already selected, and everything can be changed later.

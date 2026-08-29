@@ -125,7 +125,7 @@ export default function Checklist({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="display-title text-3xl text-ink">Daily Checklist</h2>
         {editMode && (
-          <span className="rounded-full bg-ink px-2.5 py-1 font-sans text-[10px] font-bold uppercase tracking-wider text-white">Editing</span>
+          <span className="rounded-full bg-ink px-2.5 py-1 font-sans text-label font-bold uppercase tracking-wider text-white">Editing</span>
         )}
         {!editable && (
           <span className="font-sans text-xs font-semibold uppercase tracking-wide text-ink/40">Preview · not today</span>
@@ -183,12 +183,12 @@ export default function Checklist({
                             if (e.key === 'Escape') { e.preventDefault(); cancelEdit() }
                           }}
                           aria-label="Checklist item label"
-                          className="min-h-[44px] min-w-0 flex-1 rounded-lg bg-white px-3 py-2 font-sans text-[15px] text-ink ring-1 ring-black/15 focus:outline-none focus-visible:ring-2"
+                          className="min-h-touch min-w-0 flex-1 rounded-lg bg-white px-3 py-2 font-sans text-body text-ink ring-1 ring-black/15 focus:outline-none focus-visible:ring-2"
                           style={{ ['--tw-ring-color']: cat.color }}
                         />
                         <div className="flex gap-2 sm:flex-shrink-0">
-                          <button type="button" disabled={savingId === item.id} onClick={() => commitEdit(item.id)} className="min-h-[44px] flex-1 rounded-lg px-3 font-sans text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 sm:flex-none" style={{ backgroundColor: cat.color, color: cat.onColor, ['--tw-ring-color']: cat.color }}>{savingId === item.id ? 'Saving…' : 'Save'}</button>
-                          <button type="button" disabled={savingId === item.id} onClick={cancelEdit} className="min-h-[44px] flex-1 rounded-lg px-3 font-sans text-sm text-ink/70 ring-1 ring-black/15 hover:bg-black/5 focus:outline-none focus-visible:ring-2 disabled:opacity-50 sm:flex-none">Cancel</button>
+                          <button type="button" disabled={savingId === item.id} onClick={() => commitEdit(item.id)} className="min-h-touch flex-1 rounded-lg px-3 font-sans text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 sm:flex-none" style={{ backgroundColor: cat.color, color: cat.onColor, ['--tw-ring-color']: cat.color }}>{savingId === item.id ? 'Saving…' : 'Save'}</button>
+                          <button type="button" disabled={savingId === item.id} onClick={cancelEdit} className="min-h-touch flex-1 rounded-lg px-3 font-sans text-sm text-ink/70 ring-1 ring-black/15 hover:bg-black/5 focus:outline-none focus-visible:ring-2 disabled:opacity-50 sm:flex-none">Cancel</button>
                         </div>
                       </div>
                       {labelError && <p className="mt-1 font-sans text-xs text-language">{labelError}</p>}
@@ -196,8 +196,8 @@ export default function Checklist({
                   ) : (
                     <>
                       <div className="min-w-0 flex-1">
-                        <span className="block break-words font-sans text-[15px] font-semibold leading-relaxed text-ink">{item.label}</span>
-                        <span className="mt-0.5 block font-sans text-[10px] font-bold uppercase tracking-wider" style={{ color: cat.textColor }}>{cat.label}</span>
+                        <span className="block break-words font-sans text-body font-semibold leading-relaxed text-ink">{item.label}</span>
+                        <span className="mt-0.5 block font-sans text-label font-bold uppercase tracking-wider" style={{ color: cat.textColor }}>{cat.label}</span>
                       </div>
                       {savedId === item.id && (
                         <span aria-live="polite"
@@ -240,11 +240,11 @@ export default function Checklist({
                 }
                 transition={{ duration: 0.3, ease: 'easeOut' }}
                 whileHover={editable && !reduceMotion ? { x: 2 } : undefined}
-                className={`flex min-h-[44px] w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left ring-1 transition-[opacity,box-shadow] focus:outline-none focus-visible:ring-2 ${editable ? 'cursor-pointer hover:bg-white active:scale-[0.99]' : 'cursor-default'} ${isChecked ? 'bg-black/[0.025] opacity-65 ring-transparent' : 'bg-cream/55 ring-black/[0.06]'}`}
+                className={`flex min-h-touch w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left ring-1 transition-[opacity,box-shadow] focus:outline-none focus-visible:ring-2 ${editable ? 'cursor-pointer hover:bg-white active:scale-[0.99]' : 'cursor-default'} ${isChecked ? 'bg-black/[0.025] opacity-65 ring-transparent' : 'bg-cream/55 ring-black/[0.06]'}`}
                 style={{ ['--tw-ring-color']: cat.color }}
               >
                 <AnimatedCheckbox color={cat.color} checkColor={cat.onColor} checked={isChecked} reduceMotion={reduceMotion} />
-                <span className={`min-w-0 break-words font-sans text-[15px] font-medium transition-colors ${isChecked ? 'text-ink/40 line-through' : 'text-ink'}`}>{item.label}</span>
+                <span className={`min-w-0 break-words font-sans text-body font-medium transition-colors ${isChecked ? 'text-ink/40 line-through' : 'text-ink'}`}>{item.label}</span>
               </motion.button>
             </motion.li>
           )

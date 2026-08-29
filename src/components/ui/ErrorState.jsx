@@ -31,7 +31,7 @@ export default function ErrorState({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       role="alert"
-      className={`rounded-card bg-paper ring-1 ring-black/10 ${compact ? 'p-4' : 'p-6'}`}
+      className={`rounded-card bg-paper ring-1 ring-black/10 ${compact ? 'p-4' : 'p-5 sm:p-6'}`}
     >
       <div className="flex items-start gap-3">
         <span
@@ -49,7 +49,7 @@ export default function ErrorState({
             <button
               type="button"
               onClick={onRetry}
-              className="mt-3 inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-ink px-4 font-sans text-sm font-bold text-white transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-career focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+              className="mt-3 inline-flex min-h-touch items-center gap-2 rounded-xl bg-ink px-4 font-sans text-sm font-bold text-white transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-career focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
             >
               <RefreshCw className="h-4 w-4" aria-hidden="true" />
               Try again
@@ -76,7 +76,7 @@ export function StaleBanner({ onRetry }) {
         <button
           type="button"
           onClick={onRetry}
-          className="ml-auto inline-flex min-h-[44px] items-center rounded-lg px-3 font-sans text-xs font-bold text-career underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-career"
+          className="ml-auto inline-flex min-h-touch items-center rounded-lg px-3 font-sans text-xs font-bold text-career underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-career"
         >
           Retry
         </button>

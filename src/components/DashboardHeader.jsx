@@ -10,10 +10,12 @@ export default function DashboardHeader({ dayName, dayType, dateLabel, isViewing
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <motion.h1 className="display-title text-[2.6rem] text-ink sm:text-6xl" initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>Daycraft</motion.h1>
+            <motion.h1 className="display-title text-display-md text-ink sm:text-6xl" initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>Daycraft</motion.h1>
             <motion.span initial={reduceMotion ? { opacity: 0 } : { opacity: 0, rotate: -30, scale: 0.6 }} animate={{ opacity: 1, rotate: 0, scale: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 300, damping: 15 }} className="flex-shrink-0"><Sparkles className="h-5 w-5 -translate-y-1 sm:h-6 sm:w-6" style={{ color: accentColor }} aria-hidden="true" /></motion.span>
           </div>
-          <p className="mt-1 font-sans text-xs font-medium text-ink/60 sm:text-sm">{userName ? `${userName.split(' ')[0]} · ` : ''}{isViewingToday ? 'Today' : 'Viewing'} · {dateLabel}</p>
+          {/* 14px on phones: this is the date/context line users actually read,
+              so it respects the mobile legibility floor rather than 12px. */}
+          <p className="mt-1 font-sans text-body-sm font-medium text-ink/60 sm:text-sm">{userName ? `${userName.split(' ')[0]} · ` : ''}{isViewingToday ? 'Today' : 'Viewing'} · {dateLabel}</p>
         </div>
 
         <div className="flex flex-shrink-0 items-center gap-2">
@@ -25,7 +27,7 @@ export default function DashboardHeader({ dayName, dayType, dateLabel, isViewing
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
-        <motion.span key={dayType} initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, rotate: -2 }} animate={{ opacity: 1, scale: 1, rotate: -1.5 }} transition={{ type: 'spring', stiffness: 260, damping: 18 }} className="inline-block rounded-xl bg-ink px-3 py-1.5 font-sans text-[10px] font-bold uppercase tracking-[0.15em] text-white shadow-card sm:px-4 sm:text-xs">{dayType}</motion.span>
+        <motion.span key={dayType} initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, rotate: -2 }} animate={{ opacity: 1, scale: 1, rotate: -1.5 }} transition={{ type: 'spring', stiffness: 260, damping: 18 }} className="inline-block rounded-xl bg-ink eyebrow-stamp px-3 py-1.5 text-white shadow-card sm:px-4">{dayType}</motion.span>
         <span className="font-display text-xl text-ink/70 sm:text-2xl">{dayName}</span>
       </div>
     </header>

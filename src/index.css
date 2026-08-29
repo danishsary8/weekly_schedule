@@ -26,6 +26,22 @@ body {
   .display-title {
     @apply font-display font-bold leading-[0.95] tracking-[0.015em];
   }
+
+  /*
+   * Canonical small-caps section label ("eyebrow"). Replaces the repeated
+   * `text-[10px] font-bold uppercase tracking-[…]` cluster, which had drifted
+   * into seven different letter-spacing values (including duplicate `.18em` and
+   * `0.18em` spellings). 11px is the floor for uppercase micro-labels — below
+   * that, letter-spaced caps become hard to read on a 375px screen.
+   */
+  .eyebrow {
+    @apply font-sans text-label font-bold uppercase tracking-eyebrow;
+  }
+
+  /* Widest treatment, used for the day-type "stamp" pill. */
+  .eyebrow-stamp {
+    @apply font-sans text-label font-bold uppercase tracking-stamp;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

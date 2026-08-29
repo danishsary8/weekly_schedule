@@ -18,7 +18,7 @@ export default function SplashScreen() {
           <motion.rect x="10" y="12" width="44" height="42" rx="13" stroke="currentColor" strokeWidth="3" initial={reduceMotion ? false : { pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, ease }} />
           <motion.path d="M21 9v9M43 9v9M20 28h24M23 39l6 6 13-14" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" initial={reduceMotion ? false : { pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }} transition={{ duration: 0.7, delay: 0.2, ease }} />
         </motion.svg>
-        <h1 className="display-title mt-5 w-full whitespace-nowrap text-center text-[1.75rem] text-ink min-[400px]:text-4xl sm:text-5xl">
+        <h1 className="display-title mt-5 w-full whitespace-nowrap text-center text-display-sm text-ink min-[400px]:text-4xl sm:text-5xl">
           Daycraft
         </h1>
         <p className="mt-2 font-sans text-xs font-medium tracking-wide text-ink/55 sm:text-sm">

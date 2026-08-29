@@ -91,9 +91,7 @@ export default function TodayProgressCard({
           </div>
 
           <div className="min-w-0">
-            <p className="font-sans text-[10px] font-bold uppercase tracking-[.18em] text-ink/45">
-              Today’s progress
-            </p>
+            <p className="eyebrow text-ink/45">Today’s progress</p>
             <h2 className="mt-1 font-sans text-lg font-bold leading-snug text-ink">{headline}</h2>
             <p className="mt-1 font-sans text-sm text-ink/55">
               {total ? (

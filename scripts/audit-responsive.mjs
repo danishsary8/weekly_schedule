@@ -147,13 +147,66 @@ const PROBE = `(() => {
     }
   }
 
+  // ---- Edge proximity: real content must not hug the screen edge ----------
+  const minGutter = vw <= 640 ? 12 : 16;
+  const tooCloseToEdge = [];
+  for (const el of document.querySelectorAll('main, main > *, [class*="rounded-card"], h1, h2')) {
+    const style = getComputedStyle(el);
+    if (style.display === 'none' || style.position === 'fixed') continue;
+    if (el.closest('[aria-hidden="true"]')) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.width < 40 || rect.height < 10) continue;
+
+    /*
+     * A full-bleed element whose own horizontal padding supplies the gutter is
+     * correct (that is how page shells are built). Measure the *content* inset,
+     * not the border box, so padding-based gutters are not false positives.
+     */
+    const padL = parseFloat(style.paddingLeft) || 0;
+    const padR = parseFloat(style.paddingRight) || 0;
+    const contentLeft = rect.left + padL;
+    const contentRight = rect.right - padR;
+    if (contentLeft < minGutter || vw - contentRight < minGutter) {
+      tooCloseToEdge.push({
+        tag: el.tagName.toLowerCase(),
+        cls: (el.className || '').toString().slice(0, 44),
+        left: Math.round(contentLeft), rightGap: Math.round(vw - contentRight)
+      });
+    }
+  }
+
+  // ---- Body copy that is uncomfortably small on phones -------------------
+  const tinyText = [];
+  if (vw <= 640) {
+    for (const el of document.querySelectorAll('p, li, span, div, label, input, td')) {
+      if (el.children.length > 0) continue;
+      const content = el.textContent.trim();
+      if (content.length < 25) continue; // labels/badges are allowed to be small
+      const style = getComputedStyle(el);
+      if (style.display === 'none' || (el.className || '').toString().includes('sr-only')) continue;
+      const size = parseFloat(style.fontSize);
+      const upper = style.textTransform === 'uppercase';
+      if (size < 13.5 && !upper) {
+        tinyText.push({ px: Math.round(size * 10) / 10, text: content.slice(0, 40) });
+      }
+    }
+  }
+
+  // ---- Card padding consistency ------------------------------------------
+  const cardPadding = {};
+  for (const el of document.querySelectorAll('[class*="rounded-card"]')) {
+    const style = getComputedStyle(el);
+    const key = parseFloat(style.paddingTop) + '/' + parseFloat(style.paddingLeft);
+    cardPadding[key] = (cardPadding[key] || 0) + 1;
+  }
+
   return {
     viewport: vw,
     route: location.pathname,
     docOverflowPx: docOverflow,
     hasMain: Boolean(document.querySelector('main')),
     h1: document.querySelector('h1')?.textContent?.trim()?.slice(0, 50) ?? null,
-    wide, smallTargets, clipped,
+    wide, smallTargets, clipped, tooCloseToEdge, tinyText, cardPadding,
     reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches
   };
 })()`
@@ -165,6 +218,15 @@ async function auditRoute(route, width, height, reducedMotion = false) {
   })
   await send('Page.navigate', { url: `${origin}${route}` })
   await pause(3800)
+
+  /*
+   * Wait for entrance animations and web fonts to settle before measuring.
+   * Sampling mid-transform previously reported a 44px control as 43px, because
+   * getBoundingClientRect returns the *animated* box, not the resting layout.
+   */
+  await evaluate(`document.fonts?.ready?.then(() => true) ?? true`)
+  await pause(1200)
+
   const report = await evaluate(PROBE)
   return { route, width, reducedMotion, ...report }
 }
@@ -198,6 +260,8 @@ try {
     if (report.wide.length) problems.push(`${report.wide.length} element(s) wider than viewport`)
     if (report.smallTargets.length) problems.push(`${report.smallTargets.length} sub-44px target(s)`)
     if (report.clipped.length) problems.push(`${report.clipped.length} clipped text node(s)`)
+    if (report.tooCloseToEdge?.length) problems.push(`${report.tooCloseToEdge.length} element(s) hugging the screen edge`)
+    if (report.tinyText?.length) problems.push(`${report.tinyText.length} body text node(s) under 13.5px`)
 
     const tag = `${report.route} @ ${report.width}px${report.reducedMotion ? ' (reduced-motion)' : ''}`
     if (problems.length) {
@@ -206,8 +270,13 @@ try {
       if (report.wide.length) console.log('      wide:', JSON.stringify(report.wide.slice(0, 6)))
       if (report.smallTargets.length) console.log('      small:', JSON.stringify(report.smallTargets.slice(0, 8)))
       if (report.clipped.length) console.log('      clipped:', JSON.stringify(report.clipped.slice(0, 6)))
+      if (report.tooCloseToEdge?.length) console.log('      edge:', JSON.stringify(report.tooCloseToEdge.slice(0, 6)))
+      if (report.tinyText?.length) console.log('      tiny:', JSON.stringify(report.tinyText.slice(0, 6)))
     } else {
       console.log(`PASS  ${tag}  route=${report.route} main=${report.hasMain}`)
+    }
+    if (report.cardPadding && Object.keys(report.cardPadding).length > 1) {
+      console.log(`      card padding variants (top/left px): ${JSON.stringify(report.cardPadding)}`)
     }
   }
 

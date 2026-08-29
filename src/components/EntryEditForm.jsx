@@ -9,7 +9,7 @@ const CATEGORY_KEYS = Object.keys(CATEGORIES)
 
 const labelCls = 'block font-sans text-xs font-bold uppercase tracking-wide text-ink/60'
 const fieldCls =
-  'mt-1 w-full rounded-xl bg-cream/70 px-3 py-2 font-sans text-[15px] font-medium text-ink ring-1 ring-black/15 focus:outline-none focus-visible:ring-2'
+  'mt-1 w-full rounded-xl bg-cream/70 px-3 py-2 font-sans text-body font-medium text-ink ring-1 ring-black/15 focus:outline-none focus-visible:ring-2'
 const errorCls = 'mt-1 font-sans text-xs font-semibold text-language'
 
 /**
@@ -108,7 +108,7 @@ export default function EntryEditForm({ entry, accent = '#8A8378', onAccent = '#
               return (
                 <label key={key} className="cursor-pointer">
                   <input type="radio" name="entry-category" value={key} checked={selected} onChange={() => setDraft((current) => ({ ...current, category: key }))} className="peer sr-only" />
-                  <span className="flex min-h-[46px] items-center gap-2 rounded-xl px-3 font-sans text-xs font-bold ring-1 transition-[background-color,box-shadow,transform] peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 active:scale-[0.98]" style={{ backgroundColor: selected ? `${option.color}24` : '#F5EDE6', color: option.textColor, boxShadow: selected ? `inset 0 0 0 2px ${option.color}` : 'inset 0 0 0 1px rgba(26,26,26,0.08)', ['--tw-ring-color']: option.color }}>
+                  <span className="flex min-h-touch-lg items-center gap-2 rounded-xl px-3 font-sans text-xs font-bold ring-1 transition-[background-color,box-shadow,transform] peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 active:scale-[0.98]" style={{ backgroundColor: selected ? `${option.color}24` : '#F5EDE6', color: option.textColor, boxShadow: selected ? `inset 0 0 0 2px ${option.color}` : 'inset 0 0 0 1px rgba(26,26,26,0.08)', ['--tw-ring-color']: option.color }}>
                     <span className="h-3 w-3 flex-shrink-0 rounded-full" style={{ backgroundColor: option.color }} aria-hidden="true" />
                     {option.label}
                     {selected && <Check className="ml-auto h-3.5 w-3.5" aria-hidden="true" />}
@@ -130,8 +130,8 @@ export default function EntryEditForm({ entry, accent = '#8A8378', onAccent = '#
           <Check className="h-4 w-4" aria-hidden="true" />
           Saved
         </span>
-        <button type="button" disabled={saving} onClick={onClose} className="min-h-[44px] flex-1 rounded-xl px-4 font-sans text-sm font-semibold text-ink/70 ring-1 ring-black/15 transition-colors hover:bg-black/5 focus:outline-none focus-visible:ring-2 disabled:opacity-50 sm:flex-none">Cancel</button>
-        <button type="submit" disabled={saving} className="flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-xl px-4 font-sans text-sm font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-wait disabled:opacity-60 sm:flex-none" style={{ backgroundColor: accent, color: onAccent, ['--tw-ring-color']: accent }}>
+        <button type="button" disabled={saving} onClick={onClose} className="min-h-touch flex-1 rounded-xl px-4 font-sans text-sm font-semibold text-ink/70 ring-1 ring-black/15 transition-colors hover:bg-black/5 focus:outline-none focus-visible:ring-2 disabled:opacity-50 sm:flex-none">Cancel</button>
+        <button type="submit" disabled={saving} className="flex min-h-touch flex-1 items-center justify-center gap-2 rounded-xl px-4 font-sans text-sm font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-wait disabled:opacity-60 sm:flex-none" style={{ backgroundColor: accent, color: onAccent, ['--tw-ring-color']: accent }}>
           {saving && <Loader2 className="h-4 w-4 motion-safe:animate-spin" aria-hidden="true" />}
           {saving ? 'Saving…' : 'Save'}
         </button>
