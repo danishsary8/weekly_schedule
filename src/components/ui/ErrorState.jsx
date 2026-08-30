@@ -66,9 +66,9 @@ export function StaleBanner({ onRetry }) {
   return (
     <div
       role="status"
-      className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl bg-faith/10 px-3.5 py-2.5 ring-1 ring-faith/25"
+      className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl bg-notice/10 px-4 py-3 ring-1 ring-notice/25"
     >
-      <CloudOff className="h-4 w-4 flex-shrink-0 text-faith" aria-hidden="true" />
+      <CloudOff className="h-4 w-4 flex-shrink-0 text-notice" aria-hidden="true" />
       <p className="font-sans text-xs font-semibold text-ink/70">
         Offline — showing your last saved data.
       </p>

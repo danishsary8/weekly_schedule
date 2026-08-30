@@ -52,7 +52,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className={`min-h-screen bg-cream text-ink ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
+    <div className={`min-h-viewport bg-cream text-ink ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
       <main className="mx-auto w-full max-w-3xl">
         <Link to="/dashboard" className={`${TOUCH_TARGET} inline-flex items-center gap-2 rounded-xl px-2 font-sans text-sm font-bold text-ink/65 hover:bg-black/5 hover:text-ink`}><ChevronLeft className="h-4 w-4" aria-hidden="true" />Back to today</Link>
 
@@ -64,13 +64,13 @@ export default function ProfilePage() {
 
         <Card tone="black" accentColor="#0F766E" className={`${SECTION_GAP} ${CARD_PADDING_LG}`}>
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-            <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-[24px] bg-white font-sans text-3xl font-black text-ink shadow-card" aria-label={`${user?.name || 'User'} avatar`}>{initial}</div>
+            <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-3xl bg-white font-sans text-3xl font-black text-ink shadow-card" aria-label={`${user?.name || 'User'} avatar`}>{initial}</div>
             <div className="min-w-0 flex-1">
               <h2 className="break-words font-sans text-2xl font-bold text-white">{user?.name || 'Daycraft member'}</h2>
               <div className="mt-2 flex min-w-0 items-start gap-2 font-sans text-sm text-white/65"><Mail className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" /><span className="break-all">{user?.email}</span></div>
               <div className="mt-2 flex items-center gap-2 font-sans text-sm text-white/65"><CalendarDays className="h-4 w-4 flex-shrink-0" aria-hidden="true" /><span>{formatMemberSince(user?.created_at)}</span></div>
             </div>
-            <span className="inline-flex min-h-[36px] items-center gap-1.5 self-start rounded-full bg-white/10 px-3 font-sans text-xs font-bold text-white/80"><ShieldCheck className="h-4 w-4" aria-hidden="true" />{user?.is_email_verified ? 'Verified' : 'Verification pending'}</span>
+            <span className="inline-flex min-h-9 items-center gap-1.5 self-start rounded-full bg-white/10 px-3 font-sans text-body-sm font-bold text-white/80"><ShieldCheck className="h-4 w-4" aria-hidden="true" />{user?.is_email_verified ? 'Verified' : 'Verification pending'}</span>
           </div>
         </Card>
 

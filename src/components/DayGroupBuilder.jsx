@@ -1,12 +1,17 @@
 import { useMemo, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Check, CheckCircle2, ChevronDown, Loader2, Sparkles } from 'lucide-react'
-import { CATEGORIES } from '../config/categories.js'
+import { CATEGORY_COLORS, CATEGORY_KEYS } from '../config/categories.js'
 import { createChecklistItem, createDayGroup, createTimelineEntry } from '../api/services.js'
 import Card from './Card.jsx'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const COLORS = ['#0F766E', '#E11D48', '#C9A227', '#65A30D', '#8A8378', '#7C8B9C']
+
+/*
+ * Group accent swatches reuse the live category palette instead of repeating
+ * hexes, so the two can never fall out of sync.
+ */
+const COLORS = CATEGORY_COLORS
 const field = 'min-h-touch-lg w-full rounded-xl bg-cream/70 px-4 font-sans text-sm text-ink ring-1 ring-black/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-career'
 
 export default function DayGroupBuilder({ onComplete, onCancel, compact = false }) {
@@ -94,7 +99,7 @@ export default function DayGroupBuilder({ onComplete, onCancel, compact = false 
               <div><label htmlFor="first-start" className="mb-1.5 block font-sans text-xs font-semibold text-ink/55">Starts</label><input id="first-start" type="time" value={entry.start} onChange={(event) => setEntry({ ...entry, start: event.target.value })} className={field} /></div>
               <div><label htmlFor="first-end" className="mb-1.5 block font-sans text-xs font-semibold text-ink/55">Ends</label><input id="first-end" type="time" value={entry.end} onChange={(event) => setEntry({ ...entry, end: event.target.value })} className={field} /></div>
               <div className="sm:col-span-2"><label htmlFor="first-description" className="mb-1.5 block font-sans text-xs font-semibold text-ink/55">What will you do?</label><input id="first-description" aria-label="Block description" value={entry.description} onChange={(event) => setEntry({ ...entry, description: event.target.value })} placeholder="e.g. Plan the day" className={field} /></div>
-              <div className="sm:col-span-2"><label htmlFor="first-category" className="mb-1.5 block font-sans text-xs font-semibold text-ink/55">Category</label><select id="first-category" aria-label="Block category" value={entry.category} onChange={(event) => setEntry({ ...entry, category: event.target.value })} className={field}>{Object.keys(CATEGORIES).map((key) => <option key={key}>{key}</option>)}</select></div>
+              <div className="sm:col-span-2"><label htmlFor="first-category" className="mb-1.5 block font-sans text-xs font-semibold text-ink/55">Category</label><select id="first-category" aria-label="Block category" value={entry.category} onChange={(event) => setEntry({ ...entry, category: event.target.value })} className={field}>{CATEGORY_KEYS.map((key) => <option key={key}>{key}</option>)}</select></div>
             </div>
           </fieldset>
 

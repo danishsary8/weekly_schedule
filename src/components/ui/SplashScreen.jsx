@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion'
+import { BRAND_PULSE_COLORS_COMPACT } from '../../config/brand.js'
 
 const ease = [0.22, 1, 0.36, 1]
 
@@ -7,7 +8,7 @@ export default function SplashScreen() {
 
   return (
     <motion.div
-      className="fixed inset-0 z-[100] flex min-h-[100dvh] items-center justify-center overflow-hidden bg-cream px-6"
+      className="min-h-viewport fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-cream px-6"
       exit={{ opacity: 0 }}
       transition={{ duration: reduceMotion ? 0 : 0.42, ease }}
       role="status"
@@ -26,7 +27,7 @@ export default function SplashScreen() {
         </p>
         <span className="sr-only">Preparing Daycraft</span>
         <div className="mt-6 flex items-center gap-2" aria-hidden="true">
-          {['#C9A227', '#0F766E', '#E11D48'].map((color, index) => (
+          {BRAND_PULSE_COLORS_COMPACT.map((color, index) => (
             <motion.span key={color} className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} animate={reduceMotion ? { opacity: 0.7 } : { y: [0, -4, 0], opacity: [0.45, 1, 0.45] }} transition={{ duration: 1.35, repeat: Infinity, ease: 'easeInOut', delay: index * 0.16 }} />
           ))}
         </div>

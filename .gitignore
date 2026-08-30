@@ -27,3 +27,9 @@ Thumbs.db
 .env.*
 !.env.example
 !.env.production.example
+
+# Local audit artifacts
+# seed-audit-user.mjs writes a real Sanctum bearer token here, so it must never
+# be committed. Regenerate it with:
+#   node scripts/seed-audit-user.mjs > .audit-seed.json
+.audit-seed.json

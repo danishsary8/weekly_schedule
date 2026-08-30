@@ -28,7 +28,7 @@ export function buildProactiveMessage({
 }) {
   const nowMin = now.getHours() * 60 + now.getMinutes()
 
-  // --- 1. Imminent optional faith event (highest priority when configured) ---
+  // --- 1. Imminent optional prayer time (highest priority when configured) ---
   if (prayerTimings) {
     for (const [name, hm] of Object.entries(prayerTimings)) {
       const start = toMinutes(hm)
@@ -38,8 +38,8 @@ export function buildProactiveMessage({
       if (diff > 0 && diff <= 15) {
         return {
           id: `prayer-${name}-${hm}`,
-          text: `🕌 ${name} is coming up in ${diff} minute${diff === 1 ? '' : 's'}.`,
-          tone: 'faith',
+          text: `${name} is coming up in ${diff} minute${diff === 1 ? '' : 's'}.`,
+          tone: 'notice',
         }
       }
     }
@@ -115,7 +115,7 @@ const HELP_RULES = [
   {
     keywords: ['notification', 'notifications', 'reminder', 'reminders', 'alert', 'bell'],
     answer:
-      'Open the Reminders button under the day tabs. You can switch reminders on or off and set how many minutes before each block you want a heads-up (default 5). Prayer blocks get their own distinct reminder text.',
+      'Open the Reminders button under the day tabs. You can switch reminders on or off and set how many minutes before each block you want a heads-up (default 5).',
   },
   {
     keywords: ['checklist', 'check', 'tick', 'progress'],
@@ -130,7 +130,7 @@ const HELP_RULES = [
   {
     keywords: ['prayer', 'fajr', 'dhuhr', 'asr', 'maghrib', 'isha'],
     answer:
-      'Prayer times are fetched for your location each day and shown as a small line under each Faith block. If you have edited a Faith block yourself, your time stays the headline and the real time appears beneath it.',
+      'Prayer times are fetched for your location each day. Name a schedule block after a prayer and the looked-up time appears as a small line beneath it. Your own start time always stays the headline.',
   },
   {
     keywords: ['day', 'switch', 'tab', 'week', 'monday', 'sunday'],

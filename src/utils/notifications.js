@@ -61,19 +61,21 @@ export function getDueEntries(entries = [], now = new Date(), leadMinutes = 5) {
   return due
 }
 
-// Distinct copy for prayer (Faith) blocks vs everything else.
+/**
+ * Reminder copy for an upcoming block.
+ *
+ * Deliberately category-agnostic — one code path for every block, so the copy
+ * cannot drift as categories are added or retired.
+ *
+ * @param {{description: string, start: string, end: string}} entry
+ * @param {number} minutes Minutes until the block starts; <= 0 means now.
+ * @returns {{title: string, body: string}}
+ */
 export function buildNotificationContent(entry, minutes) {
-  const isPrayer = entry.category === 'Faith'
-  const soon = minutes <= 0 ? 'now' : `in ${minutes} minute${minutes === 1 ? '' : 's'}`
+  const timing = minutes <= 0 ? 'starting now' : `starts in ${minutes} minute${minutes === 1 ? '' : 's'}`
 
-  if (isPrayer) {
-    return {
-      title: `🕌 ${entry.description} ${minutes <= 0 ? 'now' : soon}`,
-      body: minutes <= 0 ? 'It’s time — prepare for prayer.' : 'Time to prepare for prayer.',
-    }
-  }
   return {
-    title: `⏰ ${entry.description} ${minutes <= 0 ? 'starting now' : `starts ${soon}`}`,
+    title: `⏰ ${entry.description} ${timing}`,
     body: `${entry.start}–${entry.end}`,
   }
 }

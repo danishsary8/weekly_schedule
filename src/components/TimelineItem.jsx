@@ -43,7 +43,12 @@ const TimelineItem = forwardRef(function TimelineItem(
   const t = TONES[tone] ?? TONES.white
   const isDark = tone === 'black'
 
-  const prayerKey = entry.category === 'Faith' ? matchPrayerKey(entry.description) : null
+  /*
+   * Optional prayer-time annotation. Matched on the block description alone, so
+   * it is independent of the category system — any block a user names after a
+   * prayer gets the annotation, and no category needs to exist to enable it.
+   */
+  const prayerKey = matchPrayerKey(entry.description)
   const prayerTime = prayerKey && prayerTimings ? prayerTimings[prayerKey] : null
 
   const mutedText = isDark ? 'text-white/70' : 'text-ink/60'
@@ -177,7 +182,7 @@ const TimelineItem = forwardRef(function TimelineItem(
             </p>
 
             {prayerTime && (
-              <p className={`mt-1 font-sans text-xs ${mutedText}`}>
+              <p className={`mt-2 font-sans text-body-sm ${mutedText}`}>
                 {hasTimeOverride ? `Actual ${prayerKey} today: ${to12h(prayerTime)}` : `${prayerKey}: ${to12h(prayerTime)}`}
                 {prayerSource === 'default' && <span className="opacity-70"> · using default times</span>}
               </p>

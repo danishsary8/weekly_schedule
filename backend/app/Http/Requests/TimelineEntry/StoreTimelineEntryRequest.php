@@ -17,6 +17,6 @@ final class StoreTimelineEntryRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['start_time' => ['required', 'date_format:H:i'], 'end_time' => ['required', 'date_format:H:i'], 'description' => ['required', 'string', 'max:180'], 'category' => ['required', Rule::enum(Category::class)], 'sort_order' => ['sometimes', 'integer', 'min:0', 'max:65535']];
+        return ['start_time' => ['required', 'date_format:H:i'], 'end_time' => ['required', 'date_format:H:i'], 'description' => ['required', 'string', 'max:180'], 'category' => ['required', Rule::enum(Category::class)->except(Category::retired())], 'sort_order' => ['sometimes', 'integer', 'min:0', 'max:65535']];
     }
 }

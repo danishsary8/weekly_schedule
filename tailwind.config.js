@@ -9,8 +9,13 @@ export default {
         ink: '#1A1A1A', // black card shell
         paper: '#FFFFFF', // white card shell
         taupe: '#8A8378', // taupe/gray card shell
+        /*
+         * Standalone amber notice accent. Used by the offline banner and the
+         * email-verification banner — it is NOT a category color, so it lives
+         * outside the category block below and has no entry in categories.js.
+         */
+        notice: '#C9A227',
         // Category accents (single source of truth also in config/categories.js)
-        faith: '#C9A227',
         career: '#0F766E',
         health: '#65A30D',
         language: '#E11D48',
@@ -34,6 +39,8 @@ export default {
         // and the loading Skeleton — these MUST match or the rail misaligns.
         rail: '18px',
         'rail-sm': '22px',
+        // Public header height. On the 4px grid but not a default Tailwind step.
+        nav: '72px',
       },
       /*
        * Two tracking tokens replace seven ad-hoc values (including the duplicate

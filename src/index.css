@@ -42,6 +42,32 @@ body {
   .eyebrow-stamp {
     @apply font-sans text-label font-bold uppercase tracking-stamp;
   }
+
+  /*
+   * Full-viewport minimum height for page and overlay shells.
+   *
+   * `100vh` is wrong on mobile: it measures the viewport as though the
+   * browser's collapsible toolbars were hidden, so a "full height" box ends up
+   * taller than what the user can actually see. `100dvh` tracks the live
+   * viewport instead.
+   *
+   * The fallback is expressed as a separate `@supports` rule rather than two
+   * `min-height` declarations in one block — the CSS minifier collapses
+   * duplicate declarations and silently discards the `100vh` fallback.
+   *
+   * For centred content, pair this with `my-auto` on the child rather than
+   * `items-center` on the container, so content taller than the viewport
+   * scrolls into reach instead of being clipped past the top edge.
+   */
+  .min-h-viewport {
+    min-height: 100vh;
+  }
+
+  @supports (min-height: 100dvh) {
+    .min-h-viewport {
+      min-height: 100dvh;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { CATEGORIES } from '../../config/categories.js'
+import { CATEGORY_COLORS } from '../../config/categories.js'
 import { DURATION, EASE } from '../../config/layout.js'
 
 // ---------------------------------------------------------------------------
@@ -8,11 +8,12 @@ import { DURATION, EASE } from '../../config/layout.js'
 // or animation library added. Particles are plain divs animated along a
 // pre-computed vector, which keeps this to one render and no canvas/RAF loop.
 //
-// Colours come from the existing six category accents so the celebration reads
-// as Daycraft rather than generic party colours.
+// Colours come from the live category accent palette so the celebration reads
+// as Daycraft rather than generic party colours, and stays correct whenever the
+// category set changes.
 // ---------------------------------------------------------------------------
 
-const PALETTE = Object.values(CATEGORIES).map((category) => category.color)
+const PALETTE = CATEGORY_COLORS
 
 /**
  * Deterministic pseudo-random so a given particle index always produces the same

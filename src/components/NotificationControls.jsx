@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Bell, BellRing } from 'lucide-react'
 import { useFocusTrap } from '../hooks/useFocusTrap.js'
+import { CARD_PADDING, TIGHT_GAP } from '../config/layout.js'
 
 function withAlpha(hex, alpha) {
   const h = hex.replace('#', '')
@@ -55,9 +56,10 @@ export default function NotificationControls({
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
             transition={{ duration: 0.3 }}
-            /* p-4 keeps this banner on the card scale; px-4/py-3 gave it an
-               off-grid 12px vertical inset next to 20px sibling cards. */
-            className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-card bg-ink p-4 text-white"
+            /* Shares CARD_PADDING with every sibling dashboard card. A flat
+               p-4 here read 16px against their 20/24px and showed up as a
+               padding variant in the responsive audit. */
+            className={`mb-4 flex flex-wrap items-center justify-between gap-3 rounded-card bg-ink ${CARD_PADDING} text-white`}
           >
             <div className="flex items-center gap-2.5">
               <BellIcon active color={accentColor} />
@@ -97,7 +99,7 @@ export default function NotificationControls({
             transition={{ duration: 0.25, ease: 'easeOut' }}
             className="overflow-hidden"
           >
-            <div className="mt-2 rounded-card bg-paper p-4 ring-1 ring-black/10">
+            <div className={`${TIGHT_GAP} rounded-card bg-paper ${CARD_PADDING} ring-1 ring-black/10`}>
               {permission === 'denied' ? (
                 <p className="font-sans text-sm text-ink/70">Reminders are blocked in your browser settings. Re-enable notifications for this site to turn them on.</p>
               ) : (

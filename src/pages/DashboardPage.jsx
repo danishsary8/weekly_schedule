@@ -71,7 +71,7 @@ const EMPTY = []
 /** Designed first-paint state — replaces the previous bare "Loading…" text. */
 function DashboardSkeleton() {
   return (
-    <div className={`min-h-screen bg-cream ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
+    <div className={`min-h-viewport bg-cream ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
       {/* <main> keeps the landmark stable between the loading and loaded views. */}
       <main className="mx-auto w-full max-w-5xl">
         <Skeleton className="h-10 w-3/4 max-w-sm" />
@@ -190,7 +190,7 @@ export default function DashboardPage() {
   if (groups.loading && groups.data === null) return <DashboardSkeleton />
   if (groups.error && groups.data === null) {
     return (
-      <div className={`min-h-screen bg-cream ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
+      <div className={`min-h-viewport bg-cream ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
         <div className="mx-auto w-full max-w-3xl">
           <ErrorState error={groups.error} onRetry={groups.refetch} />
         </div>
@@ -201,7 +201,7 @@ export default function DashboardPage() {
   // --- First-run: no routines yet ------------------------------------------
   if (list.length === 0 && !building) {
     return (
-      <div className={`min-h-screen bg-cream ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
+      <div className={`min-h-viewport bg-cream ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
         <div className="mx-auto w-full max-w-3xl">
           <DashboardHeader dayName="Your first routine" dayType="Start here" dateLabel={dateLabel} isViewingToday accentColor="#0F766E" editMode={false} userName={user?.name} onOpenProfile={() => navigate('/profile')} />
           {!verified && <div className={SECTION_GAP}><EmailVerificationBanner /></div>}
@@ -228,7 +228,7 @@ export default function DashboardPage() {
 
   if (list.length === 0 && building) {
     return (
-      <div className={`min-h-screen bg-cream ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
+      <div className={`min-h-viewport bg-cream ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
         <DayGroupBuilder onComplete={async (id) => { await groups.refetch(); setSelectedId(id); setBuilding(false); toast.success('Your first routine is ready') }} />
       </div>
     )
@@ -240,7 +240,7 @@ export default function DashboardPage() {
   const loadingGroup = selected.loading && selected.data === null
 
   return (
-    <div className="min-h-screen bg-cream text-ink">
+    <div className="min-h-viewport bg-cream text-ink">
       <main className={`mx-auto w-full max-w-5xl ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
         <DashboardHeader dayName={dayName} dayType={group?.name ?? 'Routine'} dateLabel={dateLabel} isViewingToday={viewingToday} accentColor={color} editMode={editMode} onToggleEdit={verified ? () => setEditMode((value) => !value) : null} userName={user?.name} onOpenProfile={() => navigate('/profile')} />
 

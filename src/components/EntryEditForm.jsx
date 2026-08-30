@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Check, Loader2, Palette } from 'lucide-react'
-import { CATEGORIES, getCategory } from '../config/categories.js'
+import { CATEGORIES, CATEGORY_KEYS, getCategory } from '../config/categories.js'
 import { validateEntryDraft } from '../utils/validateEntry.js'
 import { useFocusTrap } from '../hooks/useFocusTrap.js'
-
-const CATEGORY_KEYS = Object.keys(CATEGORIES)
 
 const labelCls = 'block font-sans text-xs font-bold uppercase tracking-wide text-ink/60'
 const fieldCls =
@@ -101,7 +99,12 @@ export default function EntryEditForm({ entry, accent = '#8A8378', onAccent = '#
         <fieldset className="sm:col-span-2" aria-describedby={errors.category ? 'edit-cat-error' : 'edit-cat-hint'}>
           <legend className={labelCls}>Color &amp; category</legend>
           <p id="edit-cat-hint" className="mt-1 font-sans text-xs text-ink/50">The selected category controls the accent color shown on this block.</p>
-          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {/*
+            Wrapping chip group rather than a fixed grid: the set flows to fill
+            each row whatever its length, so retiring or adding a category never
+            leaves an empty cell.
+          */}
+          <div className="mt-2 flex flex-wrap gap-2">
             {CATEGORY_KEYS.map((key) => {
               const option = CATEGORIES[key]
               const selected = draft.category === key

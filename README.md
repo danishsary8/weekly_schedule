@@ -84,8 +84,12 @@ analytics events.
 
 - Canvas: cream `#F5EDE6`.
 - Card tones: ink `#1A1A1A`, white `#FFFFFF`, and taupe `#8A8378`.
-- Category accents: gold, teal, sage, rose, warm gray and dusty blue.
+- Category accents: teal (Career), sage (Health), rose (Language), warm gray (Life) and dusty blue (Rest).
+- Standalone notice accent: amber `#C9A227`, used by the offline and email-verification banners. It is not a category color.
 - Typography: Caveat for expressive display headings and Poppins for interface copy.
+
+`src/config/categories.js` is the single source of truth for category labels and
+accents; `CATEGORY_KEYS` drives every picker so the two cannot drift.
 
 ## Project structure
 
