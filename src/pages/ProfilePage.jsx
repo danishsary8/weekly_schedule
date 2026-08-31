@@ -1,30 +1,31 @@
 import { useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { CalendarDays, CheckCircle2, ChevronLeft, LogOut, Mail, ShieldCheck, UserRound } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { ArrowLeft, KeyRound, LogOut, MailCheck, ScrollText, ShieldCheck, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import Card from '../components/Card.jsx'
 import AccountDeletionPanel from '../components/AccountDeletionPanel.jsx'
+import ProfileIdentityCard from '../components/settings/ProfileIdentityCard.jsx'
+import SettingsGroup from '../components/settings/SettingsGroup.jsx'
+import SettingsRow from '../components/settings/SettingsRow.jsx'
 import { clearUserCache } from '../api/offlineCache.js'
+import { resendVerificationEmail } from '../api/services.js'
 import { useAuthStore } from '../store/authStore.js'
 import {
   BLOCK_GAP,
-  CARD_PADDING,
-  CARD_PADDING_LG,
   DURATION,
   EASE,
   PAGE_GUTTER,
   PAGE_VERTICAL,
   SECTION_GAP,
-  TIGHT_GAP,
   TOUCH_TARGET,
 } from '../config/layout.js'
 
+/** "Member since March 2026", or null when the date is missing/unparseable. */
 function formatMemberSince(value) {
-  if (!value) return 'Member date unavailable'
+  if (!value) return null
   const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return 'Member date unavailable'
-  return `Member since ${date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}`
+  if (Number.isNaN(date.getTime())) return null
+  return `Since ${date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}`
 }
 
 export default function ProfilePage() {
@@ -33,9 +34,13 @@ export default function ProfilePage() {
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const forceLogout = useAuthStore((state) => state.forceLogout)
+
   const [confirmLogout, setConfirmLogout] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
-  const initial = user?.name?.trim()?.charAt(0)?.toUpperCase() || 'U'
+  const [resending, setResending] = useState(false)
+
+  const isVerified = Boolean(user?.is_email_verified)
 
   const signOut = async () => {
     setSigningOut(true)
@@ -51,39 +56,139 @@ export default function ProfilePage() {
     navigate('/register', { replace: true })
   }
 
+  const resendVerification = async () => {
+    setResending(true)
+    try {
+      const data = await resendVerificationEmail()
+      toast.success(data.message)
+    } catch (error) {
+      toast.error(error.message || 'Could not resend the verification email.')
+    } finally {
+      setResending(false)
+    }
+  }
+
   return (
     <div className={`min-h-viewport bg-cream text-ink ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
-      <main className="mx-auto w-full max-w-3xl">
-        <Link to="/dashboard" className={`${TOUCH_TARGET} inline-flex items-center gap-2 rounded-xl px-2 font-sans text-sm font-bold text-ink/65 hover:bg-black/5 hover:text-ink`}><ChevronLeft className="h-4 w-4" aria-hidden="true" />Back to today</Link>
+      <main className="mx-auto w-full max-w-2xl">
+        {/*
+          Compact title bar. The previous 48px display heading belonged to a
+          landing page, not a settings screen — a circular back affordance plus a
+          plain title is the established pattern and leaves the content room.
+        */}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard')}
+            aria-label="Back to today"
+            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-paper text-ink shadow-card ring-1 ring-black/10 transition-colors hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-career focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+          >
+            <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+          </button>
+          <h1 className="font-sans text-2xl font-bold tracking-tight">Profile</h1>
+        </div>
 
-        <motion.header className={BLOCK_GAP} initial={reduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: DURATION.base, ease: EASE }}>
-          <p className="eyebrow text-career">Profile &amp; settings</p>
-          <h1 className={`${TIGHT_GAP} display-title text-5xl sm:text-6xl`}>Your Daycraft space</h1>
-          <p className={`${TIGHT_GAP} max-w-xl font-sans text-sm leading-relaxed text-ink/60`}>Your account details and controls, kept separate from the rhythm of your day.</p>
-        </motion.header>
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: DURATION.base, ease: EASE }}
+        >
+          <ProfileIdentityCard
+            className={BLOCK_GAP}
+            name={user?.name}
+            email={user?.email}
+            memberSince={formatMemberSince(user?.created_at)}
+            isVerified={isVerified}
+          />
 
-        <Card tone="black" accentColor="#0F766E" className={`${SECTION_GAP} ${CARD_PADDING_LG}`}>
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-            <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-3xl bg-white font-sans text-3xl font-black text-ink shadow-card" aria-label={`${user?.name || 'User'} avatar`}>{initial}</div>
-            <div className="min-w-0 flex-1">
-              <h2 className="break-words font-sans text-2xl font-bold text-white">{user?.name || 'Daycraft member'}</h2>
-              <div className="mt-2 flex min-w-0 items-start gap-2 font-sans text-sm text-white/65"><Mail className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" /><span className="break-all">{user?.email}</span></div>
-              <div className="mt-2 flex items-center gap-2 font-sans text-sm text-white/65"><CalendarDays className="h-4 w-4 flex-shrink-0" aria-hidden="true" /><span>{formatMemberSince(user?.created_at)}</span></div>
+          <SettingsGroup label="Account" className={SECTION_GAP}>
+            {/*
+              Password changes reuse the existing recovery flow, which mails a
+              signed single-use link — deliberately not a new endpoint.
+            */}
+            <SettingsRow
+              icon={KeyRound}
+              label="Change password"
+              description="We’ll email you a secure link"
+              to="/password/forgot"
+            />
+            {!isVerified && (
+              <SettingsRow
+                icon={MailCheck}
+                label="Resend verification email"
+                description="Required before you can edit routines"
+                onClick={resendVerification}
+                loading={resending}
+              />
+            )}
+          </SettingsGroup>
+
+          <SettingsGroup label="About" className={SECTION_GAP}>
+            <SettingsRow icon={ShieldCheck} label="Privacy Policy" to="/privacy" />
+            <SettingsRow icon={ScrollText} label="Terms of Service" to="/terms" />
+          </SettingsGroup>
+
+          <SettingsGroup label="Session" className={SECTION_GAP}>
+            <SettingsRow
+              icon={LogOut}
+              label="Sign out"
+              description="Your routines stay synced to this account"
+              onClick={() => setConfirmLogout(true)}
+            />
+          </SettingsGroup>
+
+          {confirmLogout && (
+            <div
+              role="group"
+              aria-label="Confirm sign out"
+              className={`${BLOCK_GAP} rounded-card bg-paper p-4 shadow-card ring-1 ring-black/10`}
+            >
+              <p className="font-sans text-body-sm leading-relaxed text-ink/70">
+                Ready to leave? Everything you created is already saved to your account.
+              </p>
+              <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  disabled={signingOut}
+                  onClick={() => setConfirmLogout(false)}
+                  className={`${TOUCH_TARGET} rounded-xl px-4 font-sans text-sm font-semibold ring-1 ring-black/15 disabled:opacity-50`}
+                >
+                  Stay signed in
+                </button>
+                <button
+                  type="button"
+                  disabled={signingOut}
+                  onClick={signOut}
+                  className={`${TOUCH_TARGET} inline-flex items-center justify-center gap-2 rounded-xl bg-ink px-4 font-sans text-sm font-bold text-white disabled:cursor-wait disabled:opacity-60`}
+                >
+                  <LogOut className="h-4 w-4" aria-hidden="true" />
+                  {signingOut ? 'Signing out…' : 'Confirm sign out'}
+                </button>
+              </div>
             </div>
-            <span className="inline-flex min-h-9 items-center gap-1.5 self-start rounded-full bg-white/10 px-3 font-sans text-body-sm font-bold text-white/80"><ShieldCheck className="h-4 w-4" aria-hidden="true" />{user?.is_email_verified ? 'Verified' : 'Verification pending'}</span>
-          </div>
-        </Card>
+          )}
 
-        <Card tone="white" accentColor="#7C8B9C" className={`${BLOCK_GAP} ${CARD_PADDING}`}>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div><h2 className="font-sans text-base font-bold">Session</h2><p className="mt-1 font-sans text-sm leading-relaxed text-ink/55">Sign out safely. Your routines stay synced to this account.</p></div>
-            {!confirmLogout && <button type="button" onClick={() => setConfirmLogout(true)} className="inline-flex min-h-touch-lg items-center justify-center gap-2 rounded-xl bg-ink px-5 font-sans text-sm font-bold text-white"><LogOut className="h-4 w-4" aria-hidden="true" />Sign out</button>}
-          </div>
-          {confirmLogout && <div role="group" aria-label="Confirm sign out" className="mt-4 rounded-2xl bg-cream/65 p-4 ring-1 ring-black/[.07]"><div className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-career" aria-hidden="true" /><p className="font-sans text-sm leading-relaxed text-ink/65">Ready to leave? Everything you created is already saved to your account.</p></div><div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"><button type="button" disabled={signingOut} onClick={() => setConfirmLogout(false)} className="min-h-touch rounded-xl px-4 font-sans text-sm font-semibold ring-1 ring-black/15">Stay signed in</button><button type="button" disabled={signingOut} onClick={signOut} className="inline-flex min-h-touch items-center justify-center gap-2 rounded-xl bg-ink px-4 font-sans text-sm font-bold text-white disabled:cursor-wait disabled:opacity-60"><LogOut className="h-4 w-4" aria-hidden="true" />{signingOut ? 'Signing out…' : 'Confirm sign out'}</button></div></div>}
-        </Card>
-
-        <AccountDeletionPanel onDeleted={accountDeleted} />
-        <footer className="mt-12 flex items-center justify-center gap-2 font-sans text-xs text-ink/40"><UserRound className="h-4 w-4" aria-hidden="true" />Daycraft account settings</footer>
+          <SettingsGroup
+            label="Danger zone"
+            tone="danger"
+            className={SECTION_GAP}
+            description="Permanent and cannot be undone."
+          >
+            <SettingsRow
+              icon={Trash2}
+              label="Delete account"
+              description="Removes your routines, history and settings"
+              tone="danger"
+              onClick={() => setConfirmDelete((value) => !value)}
+              trailing={confirmDelete ? 'Cancel' : undefined}
+            />
+            <AccountDeletionPanel
+              open={confirmDelete}
+              onCancel={() => setConfirmDelete(false)}
+              onDeleted={accountDeleted}
+            />
+          </SettingsGroup>
+        </motion.div>
       </main>
     </div>
   )

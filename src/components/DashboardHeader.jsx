@@ -1,9 +1,17 @@
 import { motion, useReducedMotion } from 'framer-motion'
-import { Check, Pencil, Sparkles, UserRound } from 'lucide-react'
+import { Sparkles, UserRound } from 'lucide-react'
+import Avatar from './ui/Avatar.jsx'
 
-export default function DashboardHeader({ dayName, dayType, dateLabel, isViewingToday, accentColor, editMode, onToggleEdit, userName, onOpenProfile }) {
+/**
+ * Dashboard title bar.
+ *
+ * Routine-management controls (Edit, New routine) deliberately do NOT live here.
+ * A lone pencil in the account corner reads as "edit my account", not "edit this
+ * routine", so those actions sit next to the routine context in the day
+ * switcher row instead. This corner is reserved for the profile entry point.
+ */
+export default function DashboardHeader({ dayName, dayType, dateLabel, isViewingToday, accentColor, userName, onOpenProfile }) {
   const reduceMotion = useReducedMotion()
-  const initial = userName?.trim()?.charAt(0)?.toUpperCase() || 'U'
 
   return (
     <header>
@@ -21,9 +29,14 @@ export default function DashboardHeader({ dayName, dayType, dateLabel, isViewing
         </div>
 
         <div className="flex flex-shrink-0 items-center gap-2">
-          {onToggleEdit && <button type="button" onClick={onToggleEdit} aria-pressed={editMode} aria-label={editMode ? 'Exit edit mode' : 'Edit schedule'} title={editMode ? 'Done editing' : 'Edit schedule'} data-tour="edit-toggle" className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-ink transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream" style={{ color: editMode ? '#FFFFFF' : '#1A1A1A', backgroundColor: editMode ? '#1A1A1A' : 'transparent', ['--tw-ring-color']: accentColor }}>{editMode ? <Check className="h-5 w-5" /> : <Pencil className="h-5 w-5" />}</button>}
-          <button type="button" onClick={onOpenProfile} aria-label="Open profile and settings" title="Profile and settings" className="flex h-11 min-w-11 items-center justify-center rounded-full font-sans text-sm font-black text-white ring-2 ring-white shadow-card focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream" style={{ backgroundColor: accentColor, ['--tw-ring-color']: accentColor }}>
-            {userName ? initial : <UserRound className="h-5 w-5" aria-hidden="true" />}
+          <button type="button" onClick={onOpenProfile} aria-label="Open profile and settings" title="Profile and settings" className="flex flex-shrink-0 rounded-full shadow-card focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream" style={{ ['--tw-ring-color']: accentColor }}>
+            {userName
+              ? <Avatar name={userName} color={accentColor} size="sm" ring />
+              : (
+                <span className="flex h-11 w-11 items-center justify-center rounded-full text-white ring-2 ring-white" style={{ backgroundColor: accentColor }}>
+                  <UserRound className="h-5 w-5" aria-hidden="true" />
+                </span>
+              )}
           </button>
         </div>
       </div>

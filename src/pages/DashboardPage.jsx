@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import toast from 'react-hot-toast'
-import { CalendarPlus, ListChecks, Plus, Sunrise } from 'lucide-react'
+import { CalendarPlus, Check, ListChecks, Pencil, Plus, Sunrise } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore.js'
 import { useApiResource } from '../hooks/useScheduleData.js'
@@ -203,7 +203,7 @@ export default function DashboardPage() {
     return (
       <div className={`min-h-viewport bg-cream ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
         <div className="mx-auto w-full max-w-3xl">
-          <DashboardHeader dayName="Your first routine" dayType="Start here" dateLabel={dateLabel} isViewingToday accentColor="#0F766E" editMode={false} userName={user?.name} onOpenProfile={() => navigate('/profile')} />
+          <DashboardHeader dayName="Your first routine" dayType="Start here" dateLabel={dateLabel} isViewingToday accentColor="#0F766E" userName={user?.name} onOpenProfile={() => navigate('/profile')} />
           {!verified && <div className={SECTION_GAP}><EmailVerificationBanner /></div>}
           <div className={`${SECTION_GAP} rounded-card bg-ink p-6 text-white sm:p-8`}>
             <p className="eyebrow-stamp text-white/55">A blank canvas</p>
@@ -242,33 +242,46 @@ export default function DashboardPage() {
   return (
     <div className="min-h-viewport bg-cream text-ink">
       <main className={`mx-auto w-full max-w-5xl ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
-        <DashboardHeader dayName={dayName} dayType={group?.name ?? 'Routine'} dateLabel={dateLabel} isViewingToday={viewingToday} accentColor={color} editMode={editMode} onToggleEdit={verified ? () => setEditMode((value) => !value) : null} userName={user?.name} onOpenProfile={() => navigate('/profile')} />
+        <DashboardHeader dayName={dayName} dayType={group?.name ?? 'Routine'} dateLabel={dateLabel} isViewingToday={viewingToday} accentColor={color} userName={user?.name} onOpenProfile={() => navigate('/profile')} />
 
         {!verified && <div className={BLOCK_GAP}><EmailVerificationBanner /></div>}
 
-        {/*
-          The "new routine" control rides along at the end of the switcher row
-          rather than owning a line of its own — a whole 44px row for one
-          secondary action is expensive above the fold on a phone.
-        */}
         <div className={BLOCK_GAP} data-tour="day-switcher">
-          <DaySwitcher
-            groups={list}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-            todayGroupIds={todayIds}
-            action={(
-              <button
-                disabled={!verified}
-                onClick={() => setBuilding((value) => !value)}
-                className={`${TOUCH_TARGET} inline-flex items-center gap-2 rounded-full px-4 font-sans text-sm font-bold text-ink/65 ring-1 ring-black/15 hover:bg-white disabled:cursor-not-allowed disabled:opacity-45`}
-              >
-                <Plus className="h-4 w-4" aria-hidden="true" />
-                {building ? 'Close' : 'New routine'}
-              </button>
-            )}
-          />
+          <DaySwitcher groups={list} selectedId={selectedId} onSelect={setSelectedId} todayGroupIds={todayIds} />
         </div>
+
+        {/*
+          Routine-management actions on their own always-visible row, directly
+          under the switcher and left-aligned so they read immediately. They are
+          deliberately NOT inside the switcher's horizontal scroll: a long
+          routine name filled the strip and pushed these off-screen. Both edit
+          the routine context, so they sit together rather than in the account
+          corner (where a lone pencil read as an account action).
+        */}
+        {verified && (
+          <div className={`${TIGHT_GAP} flex flex-wrap items-center gap-2`}>
+            <button
+              type="button"
+              onClick={() => setEditMode((value) => !value)}
+              aria-pressed={editMode}
+              data-tour="edit-toggle"
+              className={`${TOUCH_TARGET} inline-flex items-center gap-2 rounded-full border-2 px-4 font-sans text-sm font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream`}
+              style={{ borderColor: '#1A1A1A', backgroundColor: editMode ? '#1A1A1A' : 'transparent', color: editMode ? '#FFFFFF' : '#1A1A1A', ['--tw-ring-color']: color }}
+            >
+              {editMode ? <Check className="h-4 w-4" aria-hidden="true" /> : <Pencil className="h-4 w-4" aria-hidden="true" />}
+              {editMode ? 'Done editing' : 'Edit routine'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setBuilding((value) => !value)}
+              className={`${TOUCH_TARGET} inline-flex items-center gap-2 rounded-full px-4 font-sans text-sm font-bold text-ink/65 ring-1 ring-black/15 transition-colors hover:bg-white focus:outline-none focus-visible:ring-2`}
+              style={{ ['--tw-ring-color']: color }}
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              {building ? 'Close' : 'New routine'}
+            </button>
+          </div>
+        )}
 
         {building && (
           <div className={BLOCK_GAP}>

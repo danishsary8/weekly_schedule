@@ -33,3 +33,6 @@ Thumbs.db
 # be committed. Regenerate it with:
 #   node scripts/seed-audit-user.mjs > .audit-seed.json
 .audit-seed.json
+
+# Scratch capture files from audit/probe runs (dot-prefixed .txt at the root).
+.*.txt

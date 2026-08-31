@@ -13,11 +13,8 @@ import { motion, useReducedMotion } from 'framer-motion'
  * @param {number}    props.selectedId     Currently selected group id.
  * @param {Function}  props.onSelect       Called with the chosen group id.
  * @param {Array}     props.todayGroupIds  Ids assigned to the current weekday.
- * @param {ReactNode} props.action         Optional trailing control (e.g. "New
- *                                         routine"), placed at the end of the
- *                                         row so it does not claim its own line.
  */
-export default function DaySwitcher({ groups = [], selectedId, onSelect, todayGroupIds = [], action = null }) {
+export default function DaySwitcher({ groups = [], selectedId, onSelect, todayGroupIds = [] }) {
   const reduceMotion = useReducedMotion()
 
   return (
@@ -38,8 +35,16 @@ export default function DaySwitcher({ groups = [], selectedId, onSelect, todayGr
                 type="button"
                 onClick={() => onSelect(group.id)}
                 aria-current={active ? 'page' : undefined}
+                title={group.name}
                 whileTap={reduceMotion ? undefined : { scale: 0.96 }}
-                className="inline-flex min-h-touch items-center gap-2 rounded-full border-2 px-4 font-sans text-sm font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                /*
+                 * max-w-[70vw] on phones caps a very long routine name so the
+                 * pill can't shoot past the viewport edge; the name wraps within
+                 * the cap rather than clipping. Desktop (sm+) uses the wrapping
+                 * flex row and has room, so the cap is lifted. Kept as a bare
+                 * text node so it wraps naturally.
+                 */
+                className="inline-flex min-h-touch max-w-[70vw] items-center gap-2 rounded-2xl border-2 px-4 py-1.5 text-left font-sans text-sm font-bold leading-tight focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:max-w-none sm:rounded-full sm:py-0"
                 style={{ borderColor: group.color, backgroundColor: active ? group.color : `${group.color}18`, color: active ? '#fff' : group.color, ['--tw-ring-color']: group.color }}
               >
                 {isToday && (
@@ -56,7 +61,6 @@ export default function DaySwitcher({ groups = [], selectedId, onSelect, todayGr
           )
         })}
 
-        {action && <li className="flex-shrink-0">{action}</li>}
       </ul>
     </nav>
   )
