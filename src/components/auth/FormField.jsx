@@ -7,6 +7,7 @@ import { Eye, EyeOff } from 'lucide-react'
  */
 export default function FormField({
   label,
+  labelAction = null,
   type = 'text',
   value,
   onChange,
@@ -19,12 +20,24 @@ export default function FormField({
   const [revealed, setRevealed] = useState(false)
   const isPassword = type === 'password'
   const resolvedType = isPassword && revealed ? 'text' : type
+  const labelClass = 'block font-sans text-xs font-bold uppercase tracking-wide text-ink/60'
 
   return (
     <div>
-      <label htmlFor={id} className="block font-sans text-xs font-bold uppercase tracking-wide text-ink/60">
-        {label}
-      </label>
+      {/*
+        `labelAction` lets a related control (e.g. "Forgot password?") share the
+        label's row instead of claiming a separate 44px row beneath the input.
+        That keeps the tap target full size while removing ~60px of height from
+        the form, which matters on short laptop viewports.
+      */}
+      {labelAction ? (
+        <div className="flex items-center justify-between gap-3">
+          <label htmlFor={id} className={labelClass}>{label}</label>
+          {labelAction}
+        </div>
+      ) : (
+        <label htmlFor={id} className={labelClass}>{label}</label>
+      )}
 
       <div className="relative mt-1.5">
         <input

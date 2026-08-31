@@ -55,7 +55,7 @@ export default function LoginPage() {
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-3" noValidate>
         {formError && (
           <div
             role="alert"
@@ -75,6 +75,10 @@ export default function LoginPage() {
           required
         />
 
+        {/*
+          "Forgot password?" shares the label's row rather than occupying its own
+          44px row below the input. Same tap target, ~60px less form height.
+        */}
         <FormField
           label="Password"
           type="password"
@@ -83,9 +87,12 @@ export default function LoginPage() {
           error={errors.password}
           autoComplete="current-password"
           required
+          labelAction={
+            <Link to="/password/forgot" className="inline-flex min-h-touch items-center font-sans text-body-sm font-semibold text-career hover:underline">
+              Forgot password?
+            </Link>
+          }
         />
-
-        <div className="text-right"><Link to="/password/forgot" className="inline-flex min-h-touch items-center font-sans text-sm font-semibold text-career hover:underline">Forgot password?</Link></div>
 
         <SubmitButton loading={loading}>{loading ? 'Signing in…' : 'Sign in'}</SubmitButton>
       </form>
