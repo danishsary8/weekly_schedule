@@ -52,7 +52,7 @@ export default function Timeline({
         />
 
         {schedule.length === 0 ? (
-          <div className="ml-12 rounded-card bg-paper p-5 text-center ring-1 ring-black/10 sm:ml-14 sm:p-6">
+          <div className="ml-10 rounded-card bg-paper p-5 text-center ring-1 ring-black/10 sm:ml-16 sm:p-6">
             <p className="font-sans text-sm font-semibold text-ink/65">No blocks scheduled for this day.</p>
           </div>
         ) : (

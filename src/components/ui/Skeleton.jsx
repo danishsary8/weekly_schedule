@@ -33,7 +33,8 @@ export function TimelineSkeleton({ rows = 6 }) {
   return (
     <section>
       <Skeleton className="mb-4 h-8 w-40" />
-      <div className="relative space-y-3 pl-14 sm:pl-16">
+      {/* Must match TimelineItem's inset exactly or the rail jumps on load. */}
+      <div className="relative space-y-3 pl-10 sm:pl-16">
         <span className="absolute bottom-3 left-rail top-3 w-0.5 -translate-x-1/2 rounded-full bg-ink/10 sm:left-rail-sm" aria-hidden="true" />
         {Array.from({ length: rows }).map((_, i) => (
           <Skeleton key={i} className="h-24 w-full" />

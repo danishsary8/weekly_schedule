@@ -62,8 +62,13 @@ const TimelineItem = forwardRef(function TimelineItem(
   })()
   const durLabel = durMin == null ? '' : durMin >= 60 ? `${Math.floor(durMin / 60)}h${durMin % 60 ? ` ${durMin % 60}m` : ''}` : `${durMin}m`
 
+  // Row inset is pl-10 on phones rather than pl-14: the rail sits at `left-rail`
+  // (18px), so a 56px inset spent 30px of a 320px screen on empty space and
+  // squeezed the card to 73% of the viewport. The rail position itself is
+  // unchanged, so this stays aligned with Timeline's ruler and TimelineSkeleton
+  // — those three MUST keep the same `left-rail` offset.
   return (
-    <motion.li ref={ref} variants={itemVariants} initial={animateIn ? undefined : false} className="relative pl-14 sm:pl-16">
+    <motion.li ref={ref} variants={itemVariants} initial={animateIn ? undefined : false} className="relative pl-10 sm:pl-16">
       {/* Node on the ruler line */}
       <span
         className="absolute left-rail sm:left-rail-sm top-6 flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full ring-4 ring-cream"
@@ -124,7 +129,7 @@ const TimelineItem = forwardRef(function TimelineItem(
                   {formatRange(entry.start, entry.end)}
                 </span>
                 {durLabel && (
-                  <span className={`rounded-full px-2 py-0.5 font-sans text-label font-bold tabular-nums ${isDark ? 'bg-white/15 text-white/80' : 'bg-black/[0.06] text-ink/60'}`}>
+                  <span className={`rounded-full px-2 py-0.5 font-sans text-body-sm font-bold tabular-nums ${isDark ? 'bg-white/15 text-white/80' : 'bg-black/[0.06] text-ink/60'}`}>
                     {durLabel}
                   </span>
                 )}

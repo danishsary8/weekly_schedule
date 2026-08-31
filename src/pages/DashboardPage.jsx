@@ -246,19 +246,28 @@ export default function DashboardPage() {
 
         {!verified && <div className={BLOCK_GAP}><EmailVerificationBanner /></div>}
 
+        {/*
+          The "new routine" control rides along at the end of the switcher row
+          rather than owning a line of its own — a whole 44px row for one
+          secondary action is expensive above the fold on a phone.
+        */}
         <div className={BLOCK_GAP} data-tour="day-switcher">
-          <DaySwitcher groups={list} selectedId={selectedId} onSelect={setSelectedId} todayGroupIds={todayIds} />
-        </div>
-
-        <div className={`${TIGHT_GAP} flex justify-end`}>
-          <button
-            disabled={!verified}
-            onClick={() => setBuilding((value) => !value)}
-            className={`${TOUCH_TARGET} inline-flex items-center gap-2 rounded-xl px-4 font-sans text-sm font-bold text-ink/65 ring-1 ring-black/15 hover:bg-white disabled:cursor-not-allowed disabled:opacity-45`}
-          >
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            {building ? 'Close builder' : 'New routine'}
-          </button>
+          <DaySwitcher
+            groups={list}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+            todayGroupIds={todayIds}
+            action={(
+              <button
+                disabled={!verified}
+                onClick={() => setBuilding((value) => !value)}
+                className={`${TOUCH_TARGET} inline-flex items-center gap-2 rounded-full px-4 font-sans text-sm font-bold text-ink/65 ring-1 ring-black/15 hover:bg-white disabled:cursor-not-allowed disabled:opacity-45`}
+              >
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                {building ? 'Close' : 'New routine'}
+              </button>
+            )}
+          />
         </div>
 
         {building && (
