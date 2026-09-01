@@ -14,9 +14,8 @@ export default function Timeline({
   schedule = [],
   liveId = null,
   staggerOnMount = false,
-  editMode = false,
-  onSaveEntry,
-  onDeleteEntry,
+  onSelectEntry,
+  emptyMessage = 'No blocks scheduled for this day.',
   prayerTimings = null,
   prayerSource = null,
   overriddenTimeIds,
@@ -53,7 +52,7 @@ export default function Timeline({
 
         {schedule.length === 0 ? (
           <div className="ml-10 rounded-card bg-paper p-5 text-center ring-1 ring-black/10 sm:ml-16 sm:p-6">
-            <p className="font-sans text-sm font-semibold text-ink/65">No blocks scheduled for this day.</p>
+            <p className="font-sans text-body-sm font-semibold text-ink/65">{emptyMessage}</p>
           </div>
         ) : (
           <motion.ul
@@ -68,10 +67,8 @@ export default function Timeline({
                 entry={entry}
                 isLive={entry.id === liveId}
                 animateIn={staggerOnMount}
-                editMode={editMode}
                 tone={TONE_ORDER[i % TONE_ORDER.length]}
-                onSaveEntry={onSaveEntry}
-                onDeleteEntry={onDeleteEntry}
+                onSelect={onSelectEntry}
                 prayerTimings={prayerTimings}
                 prayerSource={prayerSource}
                 hasTimeOverride={overriddenTimeIds?.has(entry.id) ?? false}

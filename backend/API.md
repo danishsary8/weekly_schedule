@@ -25,7 +25,11 @@ Send protected requests with `Authorization: Bearer <token>`. Schedule mutations
 - `GET /auth/me`
 - `POST /auth/logout`
 - `POST /email/verification-notification`
-- `DELETE /account` with `{ "confirmation": "DELETE" }` — permanently deletes the user and all owned data.
+- `DELETE /account` — permanently deletes the user and all owned data. Re-authentication is required and depends on how the account signs in:
+  - Accounts with a password send `{ "password": "<current password>" }`. A wrong or missing password returns `422 validation_failed` with `error.details.password`.
+  - Google-created accounts store a null password, so they send `{ "confirmation": "DELETE" }` instead. Without this fallback those accounts could never be deleted.
+
+  Clients can choose the correct field from `has_password` on the user resource.
 
 Password and first-time Google registration record `terms_accepted_at`. Google matches a verified provider email to an existing account instead of creating a duplicate.
 

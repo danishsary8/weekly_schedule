@@ -57,7 +57,8 @@ final class AnalyticsTest extends TestCase
         $this->putJson('/api/v1/checklist/2026-08-10', ['checked_ids' => [$item]])->assertOk();
         $this->putJson('/api/v1/checklist/2026-08-10', ['checked_ids' => [$item]])->assertOk();
         $this->deleteJson("/api/v1/day-groups/{$first}?confirm=true")->assertOk();
-        $this->deleteJson('/api/v1/account', ['confirmation' => 'DELETE'])->assertOk();
+        // Password-backed account, so deletion re-authenticates with the password.
+        $this->deleteJson('/api/v1/account', ['password' => 'StrongPass9'])->assertOk();
 
         $this->assertSame(1, AnalyticsEvent::where('event_name', 'signup_completed')->count());
         $this->assertSame('email', AnalyticsEvent::where('event_name', 'signup_completed')->firstOrFail()->properties['method']);

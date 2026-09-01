@@ -20,7 +20,7 @@ Daycraft is a general-purpose daily routine and habit planner built with React, 
 - Nested resource queries are constrained through the authenticated owner.
 - Foreign records return `404` to avoid exposing ownership information.
 - Group deletion requires both client confirmation and `confirm=true` at the API boundary, then cascades dependent records.
-- Account deletion requires typing `DELETE`; the API explicitly removes non-cascaded authentication records, then force-deletes the user so database foreign keys cascade all product data.
+- Account deletion re-authenticates before destroying data: password accounts must submit their current password, and Google-only accounts (null password) type `DELETE`. The API then removes non-cascaded authentication records and force-deletes the user so database foreign keys cascade all product data.
 
 See `README.md` for setup and `backend/API.md` for the current endpoint contract.
 

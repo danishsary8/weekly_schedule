@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Check, ListPlus, Pencil, Trash2 } from 'lucide-react'
 import { getCategory } from '../config/categories.js'
+import { TOUCH_TARGET } from '../config/layout.js'
 import EmptyState from './ui/EmptyState.jsx'
+import AddHabitForm from './AddHabitForm.jsx'
 
 function withAlpha(hex, alpha) {
   const h = hex.replace('#', '')
@@ -53,11 +55,22 @@ export default function Checklist({
   accentColor = '#8A8378',
   accentTextColor = '#5F5A52',
   staggerOnMount = false,
-  editMode = false,
+  canManage = false,
   onSaveLabel,
   onDeleteItem,
+  onAddItem,
 }) {
   const reduceMotion = useReducedMotion()
+  /*
+   * Habit management is owned here rather than driven by a page-wide "edit mode".
+   * The control sits on the card it affects, so renaming a habit no longer
+   * requires discovering a global toggle first.
+   *
+   * Its trigger uses `aria-expanded`, never `aria-pressed`: it discloses the
+   * rename/delete controls, and it keeps `button[aria-pressed]` meaning exactly
+   * "a habit row" — which the rows themselves and the celebration audit rely on.
+   */
+  const [editMode, setEditMode] = useState(false)
   const checked = checkedIds ?? new Set()
   const total = items.length
   const done = items.reduce((n, item) => (checked.has(item.id) ? n + 1 : n), 0)
@@ -124,17 +137,30 @@ export default function Checklist({
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="display-title text-3xl text-ink">Daily Checklist</h2>
-        {editMode && (
-          <span className="rounded-full bg-ink px-2.5 py-1 font-sans text-label font-bold uppercase tracking-wider text-white">Editing</span>
-        )}
-        {!editable && (
-          <span className="font-sans text-xs font-semibold uppercase tracking-wide text-ink/40">Preview · not today</span>
-        )}
+        <div className="flex items-center gap-2">
+          {!editable && (
+            <span className="font-sans text-label font-semibold uppercase tracking-wide text-ink/40">Preview · not today</span>
+          )}
+          {canManage && (
+            <button
+              type="button"
+              onClick={() => setEditMode((value) => !value)}
+              aria-expanded={editMode}
+              className={`${TOUCH_TARGET} inline-flex items-center gap-1.5 rounded-full px-3 font-sans text-body-sm font-bold ring-1 transition-colors focus:outline-none focus-visible:ring-2`}
+              style={editMode
+                ? { backgroundColor: '#1A1A1A', color: '#FFFFFF', ['--tw-ring-color']: accentColor }
+                : { color: '#1A1A1A', ['--tw-ring-color']: 'rgba(26,26,26,0.15)' }}
+            >
+              {editMode ? <Check className="h-4 w-4" aria-hidden="true" /> : <Pencil className="h-4 w-4" aria-hidden="true" />}
+              {editMode ? 'Done' : 'Manage'}
+            </button>
+          )}
+        </div>
       </div>
 
       {editMode && (
-        <p className="mt-2 font-sans text-xs leading-relaxed text-ink/55">
-          Rename each habit below. These labels repeat with this weekly routine.
+        <p className="mt-2 font-sans text-body-sm leading-relaxed text-ink/55">
+          Rename or remove habits below. These labels repeat with this routine.
         </p>
       )}
 
@@ -144,7 +170,7 @@ export default function Checklist({
           <span className="font-sans text-sm text-ink/70">
             <span className="font-bold text-ink tabular-nums">{done}</span> of <span className="tabular-nums">{total}</span> completed
           </span>
-          <span className="font-sans text-xs font-semibold tabular-nums text-ink/50">{pct}%</span>
+          <span className="font-sans text-body-sm font-semibold tabular-nums text-ink/50">{pct}%</span>
         </div>
         <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-ink/10">
           <motion.div
@@ -257,13 +283,15 @@ export default function Checklist({
             icon={ListPlus}
             accent={accentColor}
             title="No habits here yet"
-            body={editMode
-              ? 'Add your first habit from the panel above — something small you can finish today.'
-              : 'Turn on edit mode to add a habit you can tick off each time this routine runs.'}
+            body={canManage
+              ? 'Add something small you can finish today.'
+              : 'Verify your email to add habits you can tick off each time this routine runs.'}
             compact
           />
         </div>
       )}
+
+      {canManage && onAddItem && <AddHabitForm onAdd={onAddItem} accentColor={accentColor} />}
 
       {/*
         The day-completion message intentionally lives only in

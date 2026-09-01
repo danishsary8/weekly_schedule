@@ -141,6 +141,28 @@ for (const [width, height] of PHONES) {
         if (size < (upper ? 10.5 : 13.5)) smallText.push(text.slice(0, 28) + ' @' + size + 'px' + (upper ? ' (caps)' : ''))
       }
 
+      /*
+       * Elements pushing past the layout viewport. Decorative layers are
+       * intentionally oversized and are clipped by body{overflow-x:hidden}, so
+       * they cannot create a scrollbar and are excluded.
+       */
+      const wide = []
+      for (const el of document.querySelectorAll('body *')) {
+        const s = getComputedStyle(el)
+        if (s.display === 'none' || s.visibility === 'hidden' || s.pointerEvents === 'none') continue
+        if (el.closest('[aria-hidden="true"]')) continue
+        const r = el.getBoundingClientRect()
+        if (r.width === 0 && r.height === 0) continue
+        if (r.right > document.documentElement.clientWidth + 0.5 || r.left < -0.5) {
+          const named = el.getAttribute('aria-label') || el.closest('[aria-label]')?.getAttribute('aria-label') || ''
+          wide.push(
+            el.tagName.toLowerCase()
+            + (named ? '(' + named + ')' : '.' + (el.className || '').toString().split(/\\s+/).slice(0, 2).join('.'))
+            + ' [' + Math.round(r.left) + '→' + Math.round(r.right) + ' of ' + document.documentElement.clientWidth + ']',
+          )
+        }
+      }
+
       const smallTargets = []
       for (const el of document.querySelectorAll('main a, main button, main input, main select, main [role="switch"]')) {
         const r = el.getBoundingClientRect()
@@ -165,6 +187,7 @@ for (const [width, height] of PHONES) {
         horizontalOverflow: Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth),
         smallText,
         smallTargets,
+        wide: wide.slice(0, 6),
       }
     })()
   `)
@@ -179,6 +202,7 @@ for (const [width, height] of PHONES) {
   console.log(`      first content at ${report.firstContentTop}px (${report.chromeShareOfFold}% of the fold is chrome) · ${report.aboveFoldCards}/${report.cardCount} cards above fold`)
   console.log(`      timeline: card ${report.timelineCardWidth}px (${report.timelineWidthShare}% of width), rail inset ${report.timelineInset}px`)
   console.log(`      page height ${report.pageHeight}px · h-overflow ${report.horizontalOverflow}px`)
+  if (report.wide.length) console.log(`      past viewport: ${report.wide.join(' | ')}`)
   if (report.smallText.length) console.log(`      sub-floor text: ${report.smallText.join(' | ')}`)
   if (report.smallTargets.length) console.log(`      small targets: ${report.smallTargets.join(' | ')}`)
   if (problems.length) failures += 1

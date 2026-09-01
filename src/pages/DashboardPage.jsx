@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import toast from 'react-hot-toast'
-import { CalendarPlus, Check, ListChecks, Pencil, Plus, Sunrise } from 'lucide-react'
+import { CalendarPlus, Plus, Settings2, Sunrise } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore.js'
 import { useApiResource } from '../hooks/useScheduleData.js'
@@ -52,9 +52,13 @@ import {
 import DashboardHeader from '../components/DashboardHeader.jsx'
 import DaySwitcher from '../components/DaySwitcher.jsx'
 import DayGroupBuilder from '../components/DayGroupBuilder.jsx'
-import GroupManagePanel from '../components/GroupManagePanel.jsx'
 import Checklist from '../components/Checklist.jsx'
 import Timeline from '../components/Timeline.jsx'
+import CategoryFilter, { ALL_CATEGORIES } from '../components/schedule/CategoryFilter.jsx'
+import BlockDetailSheet from '../components/schedule/BlockDetailSheet.jsx'
+import BlockFormSheet from '../components/schedule/BlockFormSheet.jsx'
+import RoutineSettingsSheet from '../components/schedule/RoutineSettingsSheet.jsx'
+import ConfirmDialog from '../components/ui/ConfirmDialog.jsx'
 import NowCard from '../components/NowCard.jsx'
 import TodayProgressCard from '../components/TodayProgressCard.jsx'
 import NotificationControls from '../components/NotificationControls.jsx'
@@ -101,9 +105,16 @@ export default function DashboardPage() {
   const userId = user?.id
   const [now, setNow] = useState(() => new Date())
   const [selectedId, setSelectedId] = useState(null)
-  const [editMode, setEditMode] = useState(false)
   const [building, setBuilding] = useState(false)
   const [runTour, setRunTour] = useState(false)
+  // Sheet-driven editing. `activeEntry` is the block whose details are open;
+  // `blockForm` holds the create/edit target (null entry means "create").
+  const [activeEntry, setActiveEntry] = useState(null)
+  const [blockForm, setBlockForm] = useState(null)
+  const [routineSheetOpen, setRoutineSheetOpen] = useState(false)
+  const [confirmDeleteEntry, setConfirmDeleteEntry] = useState(null)
+  const [confirmDeleteRoutine, setConfirmDeleteRoutine] = useState(false)
+  const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES)
   const date = toDateString(now)
   const weekday = now.getDay()
   const groups = useApiResource(fetchDayGroups, { cacheKey: 'day-groups', userId })
@@ -121,6 +132,10 @@ export default function DashboardPage() {
   const timeline = group?.timeline ?? EMPTY
   const items = group?.checklist ?? EMPTY
   const viewingToday = todayIds.includes(selectedId)
+  const visibleTimeline = useMemo(
+    () => (categoryFilter === ALL_CATEGORIES ? timeline : timeline.filter((entry) => entry.category === categoryFilter)),
+    [timeline, categoryFilter],
+  )
   const checklist = useApiResource(() => fetchChecklist(date), { cacheKey: `checklist:${date}`, userId, deps: [date] })
   const { checkedIds: checked, toggle: toggleChecklist } = useChecklistState(checklist.data, date, saveChecklist)
 
@@ -156,6 +171,35 @@ export default function DashboardPage() {
   }
   const saveEntry = (id, patch) => act(() => updateTimelineEntry(id, patch), 'Block updated')
   const saveLabel = (id, label) => act(() => updateChecklistItem(id, label), 'Habit updated')
+
+  /** Open the block form. Passing null creates; passing an entry edits it. */
+  const openBlockForm = (entry) => {
+    setActiveEntry(null)
+    setBlockForm({ entry })
+  }
+
+  const submitBlockForm = async (draft) => {
+    if (!group) return false
+    return blockForm?.entry
+      ? saveEntry(blockForm.entry.id, draft)
+      : act(() => createTimelineEntry(group.id, draft), 'Block added')
+  }
+
+  const deleteEntry = async (entry) => {
+    const ok = await act(() => deleteTimelineEntry(entry.id), 'Block deleted')
+    setConfirmDeleteEntry(null)
+    setActiveEntry(null)
+    return ok
+  }
+
+  const deleteRoutine = async () => {
+    if (!group) return false
+    const ok = await act(() => deleteDayGroup(group.id), 'Routine deleted')
+    setConfirmDeleteRoutine(false)
+    setRoutineSheetOpen(false)
+    setSelectedId(null)
+    return ok
+  }
   const liveTimeline = today.data?.timeline ?? EMPTY
   const liveId = getLiveEntryId(liveTimeline, now)
 
@@ -251,25 +295,21 @@ export default function DashboardPage() {
         </div>
 
         {/*
-          Routine-management actions on their own always-visible row, directly
-          under the switcher and left-aligned so they read immediately. They are
-          deliberately NOT inside the switcher's horizontal scroll: a long
-          routine name filled the strip and pushed these off-screen. Both edit
-          the routine context, so they sit together rather than in the account
-          corner (where a lone pencil read as an account action).
+          Routine-management actions on their own always-visible row. Both open a
+          sheet rather than toggling a page-wide mode: the previous "edit mode"
+          hid every action behind a toggle users had to find first.
         */}
         {verified && (
           <div className={`${TIGHT_GAP} flex flex-wrap items-center gap-2`}>
             <button
               type="button"
-              onClick={() => setEditMode((value) => !value)}
-              aria-pressed={editMode}
+              onClick={() => setRoutineSheetOpen(true)}
               data-tour="edit-toggle"
-              className={`${TOUCH_TARGET} inline-flex items-center gap-2 rounded-full border-2 px-4 font-sans text-sm font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream`}
-              style={{ borderColor: '#1A1A1A', backgroundColor: editMode ? '#1A1A1A' : 'transparent', color: editMode ? '#FFFFFF' : '#1A1A1A', ['--tw-ring-color']: color }}
+              className={`${TOUCH_TARGET} inline-flex items-center gap-2 rounded-full border-2 border-ink px-4 font-sans text-sm font-bold text-ink transition-colors hover:bg-ink hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream`}
+              style={{ ['--tw-ring-color']: color }}
             >
-              {editMode ? <Check className="h-4 w-4" aria-hidden="true" /> : <Pencil className="h-4 w-4" aria-hidden="true" />}
-              {editMode ? 'Done editing' : 'Edit routine'}
+              <Settings2 className="h-4 w-4" aria-hidden="true" />
+              Edit routine
             </button>
             <button
               type="button"
@@ -289,22 +329,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {editMode && group && (
-          <div className={BLOCK_GAP}>
-            <GroupManagePanel
-              group={group}
-              onUpdate={(patch) => act(() => updateDayGroup(group.id, patch), 'Group updated')}
-              onAddEntry={(entry) => act(() => createTimelineEntry(group.id, entry), 'Block added')}
-              onAddItem={(label) => act(() => createChecklistItem(group.id, label), 'Habit added')}
-              onDelete={async () => {
-                if (!window.confirm(`Delete “${group.name}” and all its blocks and habits? This cannot be undone.`)) return
-                await act(() => deleteDayGroup(group.id), 'Group deleted')
-                setSelectedId(null)
-                setEditMode(false)
-              }}
-            />
-          </div>
-        )}
+
 
         {/* Nothing scheduled for today — an invitation, not a warning. */}
         {!today.data?.assigned && (
@@ -358,9 +383,10 @@ export default function DashboardPage() {
                       onToggle={toggle}
                       editable={viewingToday}
                       accentColor={color}
-                      editMode={editMode}
+                      canManage={verified}
                       onSaveLabel={saveLabel}
                       onDeleteItem={(id) => act(() => deleteChecklistItem(id), 'Habit deleted')}
+                      onAddItem={(label) => group && act(() => createChecklistItem(group.id, label), 'Habit added')}
                     />
                   )}
                 </div>
@@ -382,17 +408,43 @@ export default function DashboardPage() {
                   <TimelineSkeleton rows={5} />
                 ) : timeline.length === 0 ? (
                   <EmptyState
-                    icon={editMode ? ListChecks : CalendarPlus}
+                    icon={CalendarPlus}
                     accent={color}
                     title="No blocks in this routine yet"
-                    body={editMode
-                      ? 'Use the panel above to add your first schedule block — a start time, an end time, and what you’ll be doing.'
-                      : 'Turn on edit mode to add your first schedule block and shape how this day runs.'}
-                    actionLabel={!editMode && verified ? 'Turn on edit mode' : undefined}
-                    onAction={!editMode && verified ? () => setEditMode(true) : undefined}
+                    body="Add your first schedule block — a start time, an end time, and what you’ll be doing."
+                    actionLabel={verified ? 'Add a block' : undefined}
+                    onAction={verified ? () => openBlockForm(null) : undefined}
                   />
                 ) : (
-                  <Timeline schedule={timeline} liveId={viewingToday ? liveId : null} editMode={editMode} onSaveEntry={saveEntry} onDeleteEntry={(id) => act(() => deleteTimelineEntry(id), 'Block deleted')} prayerTimings={prayer.data?.timings} prayerSource={prayer.data?.source} />
+                  <>
+                    <CategoryFilter
+                      schedule={timeline}
+                      value={categoryFilter}
+                      onChange={setCategoryFilter}
+                      className={BLOCK_GAP}
+                    />
+                    <div className={BLOCK_GAP}>
+                      <Timeline
+                        schedule={visibleTimeline}
+                        liveId={viewingToday ? liveId : null}
+                        onSelectEntry={setActiveEntry}
+                        emptyMessage={`No ${categoryFilter} blocks in this routine.`}
+                        prayerTimings={prayer.data?.timings}
+                        prayerSource={prayer.data?.source}
+                      />
+                    </div>
+                    {verified && (
+                      <button
+                        type="button"
+                        onClick={() => openBlockForm(null)}
+                        className={`${TOUCH_TARGET} ${BLOCK_GAP} ml-10 inline-flex items-center gap-2 rounded-xl px-4 font-sans text-sm font-bold text-ink/70 ring-1 ring-black/15 transition-colors hover:bg-white focus:outline-none focus-visible:ring-2 sm:ml-16`}
+                        style={{ ['--tw-ring-color']: color }}
+                      >
+                        <Plus className="h-4 w-4" aria-hidden="true" />
+                        Add a block
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -403,6 +455,53 @@ export default function DashboardPage() {
           {list.length} routine group{list.length === 1 ? '' : 's'} · synced to your account
         </footer>
       </main>
+
+      {/* --- Sheets and confirmations, rendered once outside the scroll flow --- */}
+      <BlockDetailSheet
+        entry={activeEntry}
+        onClose={() => setActiveEntry(null)}
+        onEdit={() => openBlockForm(activeEntry)}
+        onDelete={() => { setConfirmDeleteEntry(activeEntry); setActiveEntry(null) }}
+        canModify={verified}
+        prayerTimings={prayer.data?.timings}
+      />
+
+      <BlockFormSheet
+        open={Boolean(blockForm)}
+        entry={blockForm?.entry ?? null}
+        onClose={() => setBlockForm(null)}
+        onSubmit={submitBlockForm}
+      />
+
+      {group && (
+        <RoutineSettingsSheet
+          open={routineSheetOpen}
+          group={group}
+          onClose={() => setRoutineSheetOpen(false)}
+          onSave={(patch) => act(() => updateDayGroup(group.id, patch), 'Routine updated')}
+          onRequestDelete={() => setConfirmDeleteRoutine(true)}
+        />
+      )}
+
+      <ConfirmDialog
+        open={Boolean(confirmDeleteEntry)}
+        onClose={() => setConfirmDeleteEntry(null)}
+        onConfirm={() => confirmDeleteEntry && deleteEntry(confirmDeleteEntry)}
+        title="Delete this block?"
+        description={confirmDeleteEntry ? `“${confirmDeleteEntry.description}” will be removed from this routine.` : undefined}
+        confirmLabel="Delete block"
+        cancelLabel="Keep it"
+      />
+
+      <ConfirmDialog
+        open={confirmDeleteRoutine}
+        onClose={() => setConfirmDeleteRoutine(false)}
+        onConfirm={deleteRoutine}
+        title="Delete this routine?"
+        description={group ? `“${group.name}”, its ${timeline.length} block${timeline.length === 1 ? '' : 's'} and ${items.length} habit${items.length === 1 ? '' : 's'} will be permanently removed.` : undefined}
+        confirmLabel="Delete routine"
+        cancelLabel="Keep it"
+      />
 
       <Assistant accent={color} timeline={liveTimeline} liveId={liveId} prayerTimings={prayer.data?.timings} completed={checked.size} total={items.length} isViewingToday={viewingToday} onReplayTour={() => setRunTour(true)} />
       {runTour && <Suspense fallback={null}><OnboardingTour run accent={color} onFinish={() => { setRunTour(false); markTourComplete(userId) }} /></Suspense>}

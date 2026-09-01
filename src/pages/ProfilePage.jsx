@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowLeft, KeyRound, LogOut, MailCheck, ScrollText, ShieldCheck, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import AccountDeletionPanel from '../components/AccountDeletionPanel.jsx'
+import AccountDeletionDialog from '../components/AccountDeletionDialog.jsx'
 import ProfileIdentityCard from '../components/settings/ProfileIdentityCard.jsx'
 import SettingsGroup from '../components/settings/SettingsGroup.jsx'
 import SettingsRow from '../components/settings/SettingsRow.jsx'
@@ -39,8 +39,15 @@ export default function ProfilePage() {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
   const [resending, setResending] = useState(false)
+  const deleteTriggerRef = useRef(null)
 
   const isVerified = Boolean(user?.is_email_verified)
+  /*
+   * Google-created accounts store a null password, so they confirm deletion by
+   * typing DELETE instead. Defaults to requiring a password when the flag is
+   * absent — the safer assumption, since a wrong guess only shows an error.
+   */
+  const hasPassword = user?.has_password !== false
 
   const signOut = async () => {
     setSigningOut(true)
@@ -168,6 +175,12 @@ export default function ProfilePage() {
             </div>
           )}
 
+          {/*
+            Danger zone stays last and visually separated, and its confirmation
+            opens in a focused dialog rather than expanding inline — an
+            irreversible action should not be reachable by a stray tap while
+            scrolling past it.
+          */}
           <SettingsGroup
             label="Danger zone"
             tone="danger"
@@ -175,19 +188,22 @@ export default function ProfilePage() {
             description="Permanent and cannot be undone."
           >
             <SettingsRow
+              ref={deleteTriggerRef}
               icon={Trash2}
               label="Delete account"
               description="Removes your routines, history and settings"
               tone="danger"
-              onClick={() => setConfirmDelete((value) => !value)}
-              trailing={confirmDelete ? 'Cancel' : undefined}
-            />
-            <AccountDeletionPanel
-              open={confirmDelete}
-              onCancel={() => setConfirmDelete(false)}
-              onDeleted={accountDeleted}
+              onClick={() => setConfirmDelete(true)}
             />
           </SettingsGroup>
+
+          <AccountDeletionDialog
+            open={confirmDelete}
+            onClose={() => setConfirmDelete(false)}
+            onDeleted={accountDeleted}
+            hasPassword={hasPassword}
+            returnFocusRef={deleteTriggerRef}
+          />
         </motion.div>
       </main>
     </div>

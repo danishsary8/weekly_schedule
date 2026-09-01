@@ -4,6 +4,9 @@ const concurrency = Number(process.env.DAYCRAFT_LOAD_CONCURRENCY || 10)
 let token = process.env.DAYCRAFT_LOAD_TOKEN
 let temporaryAccount = false
 
+/** Held in one place because cleanup must re-authenticate with it (see API.md). */
+const DISPOSABLE_PASSWORD = 'DaycraftLoad123'
+
 if (!token) {
   const stamp = `${Date.now()}-${Math.random().toString(16).slice(2)}`
   const response = await fetch(`${baseUrl}/auth/register`, {
@@ -12,8 +15,8 @@ if (!token) {
     body: JSON.stringify({
       name: 'Load Test',
       email: `load-${stamp}@example.test`,
-      password: 'DaycraftLoad123',
-      password_confirmation: 'DaycraftLoad123',
+      password: DISPOSABLE_PASSWORD,
+      password_confirmation: DISPOSABLE_PASSWORD,
       terms_accepted: true,
       device_name: 'load-test',
     }),
@@ -55,9 +58,14 @@ console.log(JSON.stringify({
 }, null, 2))
 
 if (temporaryAccount) {
-  await fetch(`${baseUrl}/account`, {
+  // Deletion re-authenticates, so the disposable account sends its password.
+  // A silent failure here would leave orphaned load-test accounts behind.
+  const cleanup = await fetch(`${baseUrl}/account`, {
     method: 'DELETE',
     headers: { ...headers, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ confirmation: 'DELETE' }),
+    body: JSON.stringify({ password: DISPOSABLE_PASSWORD }),
   })
+  if (!cleanup.ok) {
+    console.error(`Warning: could not delete the disposable load account (${cleanup.status}).`)
+  }
 }

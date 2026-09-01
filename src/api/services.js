@@ -9,7 +9,16 @@ export function toDateString(date = new Date()) {
 
 export async function fetchDayGroups() { return unwrap(await api.get('/day-groups')) }
 export async function fetchAnalyticsSummary() { return unwrap(await api.get('/internal/analytics')) }
-export async function permanentlyDeleteAccount() { return unwrap(await api.delete('/account', { data: { confirmation: 'DELETE' } })) }
+/**
+ * Permanently delete the signed-in account.
+ *
+ * Password-backed accounts re-authenticate with their current password; accounts
+ * created through Google have no password stored, so they confirm by typing the
+ * word DELETE. See backend/API.md.
+ *
+ * @param {{password?: string, confirmation?: string}} credentials
+ */
+export async function permanentlyDeleteAccount(credentials = {}) { return unwrap(await api.delete('/account', { data: credentials })) }
 export async function resendVerificationEmail() { return unwrap(await api.post('/email/verification-notification')) }
 export async function requestPasswordReset(email) { return unwrap(await api.post('/password/forgot', { email })) }
 export async function resetPassword(payload) { return unwrap(await api.post('/password/reset', payload)) }

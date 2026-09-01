@@ -1,3 +1,4 @@
+import { forwardRef } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -32,7 +33,7 @@ const TONES = {
   danger: { label: 'text-language', icon: 'text-language', iconBg: 'bg-language/10' },
 }
 
-export default function SettingsRow({
+const SettingsRow = forwardRef(function SettingsRow({
   icon: Icon,
   label,
   description,
@@ -43,7 +44,7 @@ export default function SettingsRow({
   tone = 'default',
   disabled = false,
   loading = false,
-}) {
+}, ref) {
   const palette = TONES[tone] ?? TONES.default
   const isNavigation = Boolean(to || href)
   const isInteractive = Boolean(to || href || onClick)
@@ -78,12 +79,12 @@ export default function SettingsRow({
   )
 
   if (to && !disabled) {
-    return <Link to={to} className={base}>{content}</Link>
+    return <Link ref={ref} to={to} className={base}>{content}</Link>
   }
 
   if (href && !disabled) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className={base}>
+      <a ref={ref} href={href} target="_blank" rel="noopener noreferrer" className={base}>
         {content}
       </a>
     )
@@ -91,11 +92,13 @@ export default function SettingsRow({
 
   if (onClick) {
     return (
-      <button type="button" onClick={onClick} disabled={disabled || loading} className={base}>
+      <button ref={ref} type="button" onClick={onClick} disabled={disabled || loading} className={base}>
         {content}
       </button>
     )
   }
 
-  return <div className={base}>{content}</div>
-}
+  return <div ref={ref} className={base}>{content}</div>
+})
+
+export default SettingsRow
