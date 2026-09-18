@@ -1,22 +1,33 @@
-import { CATEGORIES, getCategory } from '../../config/categories.js'
+import { CATEGORIES, CATEGORY_KEYS, getCategory } from '../../config/categories.js'
 import CategoryIcon from '../CategoryIcon.jsx'
 import { TOUCH_TARGET } from '../../config/layout.js'
 
 export const ALL_CATEGORIES = 'All'
 
 /**
- * Horizontally scrollable category filter for the timeline.
+ * Primary category nav for the day's plan.
  *
- * Only categories actually present in the current schedule are offered, each
- * with its count — a filter that yields an empty list is a dead end, and the
- * counts tell the user what filtering will do before they tap.
+ * This row is deliberately *stable*: it always offers "All" plus every
+ * selectable category, in config order, whether or not the current routine
+ * happens to use them. An earlier version listed only the categories present in
+ * the schedule and hid itself below two options, which meant the row changed
+ * shape — or vanished — as the user switched routines. A navigation control that
+ * moves is a navigation control users stop trusting.
+ *
+ * Categories with nothing in them are dimmed and show a `0`, so the row is
+ * honest about what a tap will do without ever becoming a dead end: selecting
+ * one lands on the caller's empty message rather than a blank screen.
+ *
+ * Retired or hand-edited keys still present on historical entries are appended
+ * after the five, so those blocks remain reachable even though the category can
+ * no longer be chosen for new ones.
  *
  * The row scrolls sideways within the page's content box. It deliberately does
- * NOT use the `-mx-4 px-4` bleed the day switcher uses: that makes the scroll
- * container 32px wider than its parent, and with two such rows on the page the
- * rounding pushed the document 1–2px past the viewport.
+ * NOT use the `-mx-4 px-4` bleed the old day switcher used: that makes the
+ * scroll container 32px wider than its parent, and the rounding pushed the
+ * document 1–2px past the viewport.
  *
- * @param {Array}    schedule  Entries used to derive the available categories.
+ * @param {Array}    schedule  Entries of the current routine, used for counts.
  * @param {string}   value     Selected category key, or ALL_CATEGORIES.
  * @param {Function} onChange
  * @param {string}   [className]
@@ -28,38 +39,38 @@ export default function CategoryFilter({ schedule = [], value = ALL_CATEGORIES, 
     return totals
   }, new Map())
 
-  // Preserve the config's display order, then append any retired/unknown keys
-  // still present on historical entries so their blocks stay filterable.
-  const present = [
-    ...Object.keys(CATEGORIES).filter((key) => counts.has(key)),
-    ...[...counts.keys()].filter((key) => !(key in CATEGORIES)),
+  // Every selectable category, always, then any legacy/unknown key the data
+  // still carries so its blocks stay filterable.
+  const keys = [...CATEGORY_KEYS, ...[...counts.keys()].filter((key) => !(key in CATEGORIES))]
+
+  const options = [
+    { key: ALL_CATEGORIES, label: 'All', count: schedule.length, category: null },
+    ...keys.map((key) => ({ key, label: getCategory(key).label, count: counts.get(key) ?? 0, category: getCategory(key) })),
   ]
 
-  // One category is no choice at all.
-  if (present.length < 2) return null
-
-  const options = [{ key: ALL_CATEGORIES, label: 'All', count: schedule.length, category: null }].concat(
-    present.map((key) => ({ key, label: getCategory(key).label, count: counts.get(key), category: getCategory(key) })),
-  )
-
   return (
-    <div className={className}>
-      <ul
-        className="flex snap-x items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:flex-wrap"
-        aria-label="Filter blocks by category"
-      >
+    <nav className={className} aria-label="Filter the plan by category">
+      <ul className="flex snap-x items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap">
         {options.map((option) => {
           const selected = value === option.key
+          const empty = option.count === 0 && !selected
           const accent = option.category?.color ?? '#1A1A1A'
           const text = option.category?.textColor ?? '#1A1A1A'
 
           return (
-            <li key={option.key} className="flex-shrink-0">
+            <li key={option.key} className="flex-shrink-0 snap-start">
               <button
                 type="button"
                 onClick={() => onChange?.(option.key)}
                 aria-pressed={selected}
-                className={`${TOUCH_TARGET} inline-flex items-center gap-2 rounded-full px-3.5 font-sans text-sm font-bold ring-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream`}
+                /*
+                 * Explicit label: the visible count sits in its own element with
+                 * no separating whitespace, so the derived name would be read as
+                 * "Career2". Spelling it out also lets the empty state say what
+                 * it means instead of relying on a dimmed appearance.
+                 */
+                aria-label={`${option.label}, ${option.count} ${option.count === 1 ? 'block' : 'blocks'}`}
+                className={`${TOUCH_TARGET} inline-flex items-center gap-2 rounded-full px-3.5 font-sans text-sm font-bold ring-1 transition-[background-color,color,opacity] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${empty ? 'opacity-45' : ''}`}
                 style={selected
                   ? { backgroundColor: accent, color: option.category?.onColor ?? '#FFFFFF', ['--tw-ring-color']: accent }
                   : { backgroundColor: 'transparent', color: text, ['--tw-ring-color']: 'rgba(26,26,26,0.15)' }}
@@ -72,7 +83,10 @@ export default function CategoryFilter({ schedule = [], value = ALL_CATEGORIES, 
                   />
                 )}
                 {option.label}
-                <span className={`font-sans text-body-sm tabular-nums ${selected ? 'opacity-80' : 'opacity-55'}`}>
+                <span
+                  className={`font-sans text-body-sm tabular-nums ${selected ? 'opacity-80' : 'opacity-55'}`}
+                  aria-hidden="true"
+                >
                   {option.count}
                 </span>
               </button>
@@ -80,6 +94,6 @@ export default function CategoryFilter({ schedule = [], value = ALL_CATEGORIES, 
           )
         })}
       </ul>
-    </div>
+    </nav>
   )
 }
