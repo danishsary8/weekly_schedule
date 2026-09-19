@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 final class HealthController extends Controller
@@ -31,25 +32,42 @@ final class HealthController extends Controller
      * otherwise healthy out of service — losing the very endpoint that explains
      * what is wrong. It reports; it does not judge.
      *
-     * Only the word "unavailable" is exposed. Driver messages can carry hostnames
-     * and credentials, so they stay in the log.
+     * Only coarse words are exposed — "unavailable", "missing". Driver messages
+     * can carry hostnames and credentials, so they stay in the log.
+     *
+     * `schema` is reported separately from `database` because the two fail
+     * independently and the difference decides what to do next. A connected
+     * database with no tables answers `select 1` perfectly while every data
+     * endpoint returns 500, which reads exactly like a broken API. That is the
+     * state a deploy lands in whenever the migration step is skipped, and without
+     * this field the only way to tell was reading container logs.
      */
     public function __invoke(): JsonResponse
     {
         return ApiResponse::success([
             'status' => 'ok',
-            'database' => $this->databaseStatus(),
+            ...$this->databaseState(),
         ]);
     }
 
-    private function databaseStatus(): string
+    /**
+     * @return array{database: string, schema: string}
+     */
+    private function databaseState(): array
     {
         try {
             DB::connection()->select('select 1');
-
-            return 'ok';
         } catch (Throwable) {
-            return 'unavailable';
+            // No connection, so the schema is unknowable rather than missing.
+            return ['database' => 'unavailable', 'schema' => 'unknown'];
+        }
+
+        try {
+            $migrated = Schema::hasTable('migrations') && Schema::hasTable('users');
+
+            return ['database' => 'ok', 'schema' => $migrated ? 'ok' : 'missing'];
+        } catch (Throwable) {
+            return ['database' => 'ok', 'schema' => 'unknown'];
         }
     }
 }

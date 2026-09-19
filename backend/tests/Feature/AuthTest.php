@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Laravel\Sanctum\Sanctum;
 use RuntimeException;
 use Tests\TestCase;
@@ -151,7 +152,7 @@ final class AuthTest extends TestCase
     {
         $this->getJson('/api/v1/health')
             ->assertOk()
-            ->assertExactJson(['data' => ['status' => 'ok', 'database' => 'ok']]);
+            ->assertExactJson(['data' => ['status' => 'ok', 'database' => 'ok', 'schema' => 'ok']]);
     }
 
     public function test_health_reports_an_unreachable_database_without_failing_the_probe(): void
@@ -162,7 +163,21 @@ final class AuthTest extends TestCase
 
         $this->getJson('/api/v1/health')
             ->assertOk()
-            ->assertExactJson(['data' => ['status' => 'ok', 'database' => 'unavailable']]);
+            ->assertExactJson(['data' => ['status' => 'ok', 'database' => 'unavailable', 'schema' => 'unknown']]);
+    }
+
+    public function test_health_separates_a_connected_database_from_a_migrated_one(): void
+    {
+        /*
+         * The state a deploy lands in when migrations are skipped: the connection
+         * works, so `select 1` passes, but no tables exist and every data endpoint
+         * returns 500. Indistinguishable from a broken API without this field.
+         */
+        Schema::shouldReceive('hasTable')->with('migrations')->andReturn(false);
+
+        $this->getJson('/api/v1/health')
+            ->assertOk()
+            ->assertExactJson(['data' => ['status' => 'ok', 'database' => 'ok', 'schema' => 'missing']]);
     }
 
     public function test_error_responses_carry_cors_headers_for_the_browser_to_read(): void
