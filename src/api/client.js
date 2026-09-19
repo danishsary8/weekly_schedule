@@ -37,7 +37,22 @@ export function clearToken() {
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api/v1',
   headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-  timeout: 15000,
+  /*
+   * 45s, not 15s.
+   *
+   * The API runs on a free Render instance, which spins down after a period of
+   * inactivity and takes roughly 50 seconds to answer the request that wakes it.
+   * At the old 15s ceiling that first request was guaranteed to abort, so the
+   * very first thing a returning user saw — on the login screen, before they had
+   * done anything — was "Can't reach the server right now." The server was fine;
+   * the client gave up on it.
+   *
+   * 45s is a compromise: long enough to survive most cold starts, short enough
+   * that a genuinely dead server does not hang the UI indefinitely. Paired with
+   * the distinct timeout copy in the response interceptor, so a slow wake-up and
+   * a dead server no longer read as the same failure.
+   */
+  timeout: 45000,
 })
 
 // Attach the bearer token to every outgoing request.
@@ -80,10 +95,17 @@ api.interceptors.response.use(
   (error) => {
     // No response at all → backend unreachable / timeout / CORS.
     if (!error.response) {
+      // A timeout is worth separating from a refused connection: it usually
+      // means the free instance is cold rather than down, and the useful advice
+      // is "wait a moment", not "check your connection".
+      const timedOut = error.code === 'ECONNABORTED' || /timeout/i.test(error.message ?? '')
+
       return Promise.reject(
         new ApiError({
-          code: 'network_error',
-          message: "Can't reach the server right now.",
+          code: timedOut ? 'timeout' : 'network_error',
+          message: timedOut
+            ? 'The server is taking longer than usual — it may be waking up. Try again in a moment.'
+            : "Can't reach the server right now.",
           isNetworkError: true,
         }),
       )

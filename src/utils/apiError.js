@@ -14,6 +14,29 @@
 const NETWORK = 'Cannot reach Daycraft. Check your internet connection, then try again.'
 const TIMEOUT = 'The server took too long to answer. Please try again.'
 
+/**
+ * The error envelope, from either shape this app produces.
+ *
+ * Two shapes exist and both reach this function. `api/client.js` has a response
+ * interceptor that unwraps `{ error: { code, message, details } }` into an
+ * `ApiError` instance — so by the time a page catches it there is no `response`
+ * property left to read. Anything bypassing that client still has the raw axios
+ * error. Reading only the axios shape (as this file first did) meant every
+ * normalised validation failure fell through to the network message, telling the
+ * user their connection was broken when the server had in fact answered.
+ */
+function envelopeOf(error) {
+  if (error?.response?.data?.error) return error.response.data.error
+  if (error?.name === 'ApiError') return { code: error.code, message: error.message, details: error.details }
+
+  return null
+}
+
+/** HTTP status from either shape, or null when the request never got a reply. */
+function statusOf(error) {
+  return error?.response?.status ?? error?.status ?? null
+}
+
 /** First validation message, e.g. "The name field is required." */
 function firstFieldMessage(details) {
   if (!details || typeof details !== 'object') return null
@@ -36,15 +59,19 @@ function firstFieldMessage(details) {
  * @returns {string}
  */
 export function describeApiError(error, fallback = 'Something went wrong. Please try again.') {
-  const envelope = error?.response?.data?.error
+  // The client already writes a specific, user-facing line for an unreachable
+  // server (including "it may be waking up"); don't overwrite it with a generic.
+  if (error?.isNetworkError) return error.message || NETWORK
+
+  const envelope = envelopeOf(error)
 
   const fieldMessage = firstFieldMessage(envelope?.details)
   if (fieldMessage) return fieldMessage
 
   if (typeof envelope?.message === 'string' && envelope.message) return envelope.message
 
-  if (error?.response) {
-    const { status } = error.response
+  const status = statusOf(error)
+  if (status !== null) {
     if (status === 401) return 'Your session has expired. Sign in again to continue.'
     if (status === 403) return 'You do not have permission to do that.'
     if (status === 404) return 'That item no longer exists. Refresh the page and try again.'

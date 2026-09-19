@@ -28,6 +28,51 @@ describe('describeApiError', () => {
       .toBe('Cannot reach Daycraft. Check your internet connection, then try again.')
   })
 
+  describe('errors already normalised by api/client.js', () => {
+    // The response interceptor converts the envelope into an ApiError, so pages
+    // never see `error.response`. Reading only the axios shape made every one of
+    // these report a connection problem for a request the server had answered.
+    const apiError = ({ code, message, details, status, isNetworkError = false }) => {
+      const error = new Error(message)
+      error.name = 'ApiError'
+      Object.assign(error, { code, details, status, isNetworkError })
+      return error
+    }
+
+    it('still names the offending field', () => {
+      const error = apiError({
+        code: 'validation_failed',
+        message: 'The given data was invalid.',
+        details: { name: ['The name field is required.'] },
+        status: 422,
+      })
+
+      expect(describeApiError(error)).toBe('The name field is required.')
+    })
+
+    it('keeps the server message instead of claiming the network failed', () => {
+      const error = apiError({ code: 'oauth_code_invalid', message: 'This Google sign-in code is invalid or expired.', status: 422 })
+
+      expect(describeApiError(error)).toBe('This Google sign-in code is invalid or expired.')
+    })
+
+    it('maps a status even when the envelope carried no message', () => {
+      const error = apiError({ code: 'server_error', message: '', status: 503 })
+
+      expect(describeApiError(error)).toBe('The server could not finish that. Please try again in a moment.')
+    })
+
+    it('passes through the client’s own wording for an unreachable server', () => {
+      const error = apiError({
+        code: 'timeout',
+        message: 'The server is taking longer than usual — it may be waking up. Try again in a moment.',
+        isNetworkError: true,
+      })
+
+      expect(describeApiError(error)).toBe('The server is taking longer than usual — it may be waking up. Try again in a moment.')
+    })
+  })
+
   it('recognises a timeout', () => {
     expect(describeApiError({ code: 'ECONNABORTED', message: 'timeout of 15000ms exceeded' }))
       .toBe('The server took too long to answer. Please try again.')
