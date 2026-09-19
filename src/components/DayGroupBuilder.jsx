@@ -2,10 +2,13 @@ import { useMemo, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Check, CheckCircle2, ChevronDown, Loader2, Sparkles } from 'lucide-react'
 import { CATEGORY_COLORS, CATEGORY_KEYS } from '../config/categories.js'
+import { contrastTextOn } from '../utils/color.js'
 import { createChecklistItem, createDayGroup, createTimelineEntry } from '../api/services.js'
 import Card from './Card.jsx'
+import ColorPicker from './ui/ColorPicker.jsx'
+import { WEEKDAY_SHORTS } from '../config/weekdays.js'
 
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const DAYS = WEEKDAY_SHORTS
 
 /*
  * Group accent swatches reuse the live category palette instead of repeating
@@ -91,7 +94,7 @@ export default function DayGroupBuilder({ onComplete, onCancel, compact = false 
         <form onSubmit={submit} className="mt-6 space-y-5">
           <div><label htmlFor="group-name" className="font-sans text-xs font-bold uppercase tracking-wide text-ink/60">Routine name</label><input id="group-name" autoFocus value={name} onChange={(event) => setName(event.target.value)} placeholder="e.g. Weekdays or Study days" className={`${field} mt-2`} /></div>
 
-          <fieldset><legend className="font-sans text-xs font-bold uppercase tracking-wide text-ink/60">Repeats on</legend><p className="mt-1 font-sans text-xs text-ink/50">Today is selected to get you started.</p><div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-7">{DAYS.map((day, index) => <button key={day} type="button" aria-pressed={weekdays.includes(index)} onClick={() => toggleDay(index)} className="min-h-touch rounded-xl font-sans text-xs font-bold ring-1 ring-black/15" style={weekdays.includes(index) ? { backgroundColor: color, color: '#fff' } : {}}>{day}</button>)}</div></fieldset>
+          <fieldset><legend className="font-sans text-xs font-bold uppercase tracking-wide text-ink/60">Repeats on</legend><p className="mt-1 font-sans text-xs text-ink/50">Today is selected to get you started.</p><div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-7">{DAYS.map((day, index) => <button key={day} type="button" aria-pressed={weekdays.includes(index)} onClick={() => toggleDay(index)} className="min-h-touch rounded-xl font-sans text-xs font-bold ring-1 ring-black/15" style={weekdays.includes(index) ? { backgroundColor: color, color: contrastTextOn(color) } : {}}>{day}</button>)}</div></fieldset>
 
           <fieldset className="rounded-2xl bg-cream/55 p-4 ring-1 ring-black/[0.07]">
             <legend className="px-2 font-sans text-xs font-bold uppercase tracking-wide text-ink/60">Your first schedule block</legend>
@@ -107,7 +110,15 @@ export default function DayGroupBuilder({ onComplete, onCancel, compact = false 
 
           <details className="group rounded-2xl bg-cream/35 p-4 ring-1 ring-black/[0.07]">
             <summary className="flex min-h-touch cursor-pointer list-none items-center justify-between gap-3 font-sans text-sm font-bold text-ink">Choose another accent color <span className="flex items-center gap-2 font-sans text-xs font-medium text-ink/45">Optional<ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" aria-hidden="true" /></span></summary>
-            <fieldset className="mt-4 border-t border-black/10 pt-4"><legend className="sr-only">Accent color</legend><div className="flex flex-wrap gap-2">{COLORS.map((value) => <label key={value} className="cursor-pointer"><input className="peer sr-only" type="radio" name="color" checked={color === value} onChange={() => setColor(value)} /><span className="block h-11 w-11 rounded-xl ring-2 ring-transparent ring-offset-2 ring-offset-paper peer-checked:ring-ink" style={{ backgroundColor: value }}><span className="sr-only">Choose {value}</span></span></label>)}</div></fieldset>
+            <ColorPicker
+              value={color}
+              onChange={setColor}
+              presets={COLORS}
+              name="color"
+              legend="Accent color"
+              hideLegend
+              className="mt-4 border-t border-black/10 pt-4"
+            />
           </details>
 
           {error && <p role="alert" className="rounded-xl bg-language/10 p-3 font-sans text-sm font-semibold text-language">{error}</p>}

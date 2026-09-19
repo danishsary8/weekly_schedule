@@ -26,8 +26,11 @@ const CUSTOM = 'custom'
  * @param {string}   value       Current colour, any hex shape.
  * @param {Function} onChange    Called with a normalised `#RRGGBB`, never partial input.
  * @param {string[]} [presets]   Swatches to offer. Defaults to the category palette.
- * @param {string}   [name]      Radio group name; needed when two pickers share a page.
+ * @param {string}   [name]       Radio group name; needed when two pickers share a page.
  * @param {string}   [legend]
+ * @param {boolean}  [hideLegend] Keep the legend for assistive tech only, for
+ *                                callers whose surrounding disclosure already
+ *                                names the control.
  * @param {string}   [className]
  */
 export default function ColorPicker({
@@ -36,6 +39,7 @@ export default function ColorPicker({
   presets = CATEGORY_COLORS,
   name = 'accent-color',
   legend = 'Accent colour',
+  hideLegend = false,
   className = '',
 }) {
   const uid = useId()
@@ -94,9 +98,11 @@ export default function ColorPicker({
 
   return (
     <fieldset className={className}>
-      <legend className="block font-sans text-xs font-bold uppercase tracking-wide text-ink/60">{legend}</legend>
+      <legend className={hideLegend ? 'sr-only' : 'block font-sans text-xs font-bold uppercase tracking-wide text-ink/60'}>
+        {legend}
+      </legend>
 
-      <div className="mt-2 flex flex-wrap gap-2" role="none">
+      <div className={`${hideLegend ? '' : 'mt-2'} flex flex-wrap gap-2`} role="none">
         {swatches.map((preset) => (
           <label key={preset} className="cursor-pointer">
             <input

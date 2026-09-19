@@ -23,6 +23,19 @@ describe('day-group creation', () => {
     expect(createTimelineEntry).toHaveBeenCalledWith(21, expect.objectContaining({ description: 'Deep work' }))
     expect(createChecklistItem).toHaveBeenCalledTimes(2)
   })
+  it('sends a hand-picked accent colour as the six digits the API accepts', async () => {
+    render(<DayGroupBuilder onComplete={vi.fn()} />)
+    fireEvent.change(screen.getByLabelText(/routine name/i), { target: { value: 'Work days' } })
+    fireEvent.change(screen.getByLabelText(/block description/i), { target: { value: 'Deep work' } })
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Choose a custom colour' }))
+    fireEvent.change(screen.getByLabelText('Hex code'), { target: { value: '#abc' } })
+    fireEvent.click(screen.getByRole('button', { name: /create my routine/i }))
+
+    // Shorthand must arrive expanded: the API validates ^#[0-9A-Fa-f]{6}$.
+    await waitFor(() => expect(createDayGroup).toHaveBeenCalledWith(expect.objectContaining({ color: '#AABBCC' })))
+  })
+
   it('keeps submission disabled while required input is missing', () => {
     render(<DayGroupBuilder />)
     expect(screen.getByRole('button', { name: /create my routine/i })).toBeDisabled()

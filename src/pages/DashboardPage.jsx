@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import toast from 'react-hot-toast'
-import { CalendarPlus, Plus, Settings2, Sunrise } from 'lucide-react'
+import { CalendarPlus, Plus, Sunrise } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore.js'
 import { useApiResource } from '../hooks/useScheduleData.js'
@@ -50,7 +50,6 @@ import {
   TOUCH_TARGET_LG,
 } from '../config/layout.js'
 import DashboardHeader from '../components/DashboardHeader.jsx'
-import DaySwitcher from '../components/DaySwitcher.jsx'
 import DayGroupBuilder from '../components/DayGroupBuilder.jsx'
 import Checklist from '../components/Checklist.jsx'
 import Timeline from '../components/Timeline.jsx'
@@ -58,6 +57,7 @@ import CategoryFilter, { ALL_CATEGORIES } from '../components/schedule/CategoryF
 import BlockDetailSheet from '../components/schedule/BlockDetailSheet.jsx'
 import BlockFormSheet from '../components/schedule/BlockFormSheet.jsx'
 import RoutineSettingsSheet from '../components/schedule/RoutineSettingsSheet.jsx'
+import RoutineManagerSheet from '../components/schedule/RoutineManagerSheet.jsx'
 import ConfirmDialog from '../components/ui/ConfirmDialog.jsx'
 import NowCard from '../components/NowCard.jsx'
 import TodayProgressCard from '../components/TodayProgressCard.jsx'
@@ -111,9 +111,15 @@ export default function DashboardPage() {
   // `blockForm` holds the create/edit target (null entry means "create").
   const [activeEntry, setActiveEntry] = useState(null)
   const [blockForm, setBlockForm] = useState(null)
-  const [routineSheetOpen, setRoutineSheetOpen] = useState(false)
+  // Routine chrome: a list sheet for switching, and a settings sheet targeting
+  // one routine. Both hold a routine *summary* from the groups list rather than
+  // the fully-loaded routine, so a routine the user has not switched to is still
+  // editable. Only one is ever open — see RoutineManagerSheet for why.
+  const [routinesOpen, setRoutinesOpen] = useState(false)
+  const [editingRoutine, setEditingRoutine] = useState(null)
   const [confirmDeleteEntry, setConfirmDeleteEntry] = useState(null)
-  const [confirmDeleteRoutine, setConfirmDeleteRoutine] = useState(false)
+  const [confirmDeleteRoutine, setConfirmDeleteRoutine] = useState(null)
+  const routinesButtonRef = useRef(null)
   const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES)
   const date = toDateString(now)
   const weekday = now.getDay()
@@ -192,12 +198,23 @@ export default function DashboardPage() {
     return ok
   }
 
-  const deleteRoutine = async () => {
-    if (!group) return false
-    const ok = await act(() => deleteDayGroup(group.id), 'Routine deleted')
-    setConfirmDeleteRoutine(false)
-    setRoutineSheetOpen(false)
-    setSelectedId(null)
+  const saveRoutine = (patch) => {
+    const id = editingRoutine?.id
+    return id ? act(() => updateDayGroup(id, patch), 'Routine updated') : false
+  }
+
+  /**
+   * Delete any routine, not only the one on screen.
+   *
+   * `selectedId` is deliberately left alone: the effect above already re-points
+   * it when the selected routine disappears from the refreshed list, so clearing
+   * it here would just cause a second render with nothing selected.
+   */
+  const deleteRoutine = async (routine) => {
+    if (!routine) return false
+    const ok = await act(() => deleteDayGroup(routine.id), 'Routine deleted')
+    setConfirmDeleteRoutine(null)
+    setEditingRoutine(null)
     return ok
   }
   const liveTimeline = today.data?.timeline ?? EMPTY
@@ -280,46 +297,53 @@ export default function DashboardPage() {
 
   const color = group?.color ?? '#0F766E'
   const dayName = group?.weekdays?.includes(weekday) ? 'Today’s routine' : 'Routine preview'
+
+  /*
+   * Exact counts are only known for the routine that is actually loaded. Any
+   * other routine is being deleted from the list, where its contents were never
+   * fetched — so the warning stays truthful instead of quoting the wrong totals.
+   */
+  const deleteRoutineWarning = !confirmDeleteRoutine
+    ? undefined
+    : confirmDeleteRoutine.id === group?.id
+      ? `“${confirmDeleteRoutine.name}”, its ${timeline.length} block${timeline.length === 1 ? '' : 's'} and ${items.length} habit${items.length === 1 ? '' : 's'} will be permanently removed.`
+      : `“${confirmDeleteRoutine.name}” and everything in it will be permanently removed.`
   const transition = reduceMotion ? { duration: 0 } : { duration: DURATION.page, ease: EASE }
   const loadingGroup = selected.loading && selected.data === null
 
   return (
     <div className="min-h-viewport bg-cream text-ink">
       <main className={`mx-auto w-full max-w-5xl ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
-        <DashboardHeader dayName={dayName} dayType={group?.name ?? 'Routine'} dateLabel={dateLabel} isViewingToday={viewingToday} accentColor={color} userName={user?.name} onOpenProfile={() => navigate('/profile')} />
+        <DashboardHeader
+          dayName={dayName}
+          dayType={group?.name ?? 'Routine'}
+          dateLabel={dateLabel}
+          isViewingToday={viewingToday}
+          accentColor={color}
+          userName={user?.name}
+          onOpenProfile={() => navigate('/profile')}
+          onOpenRoutines={() => setRoutinesOpen(true)}
+          routinesButtonRef={routinesButtonRef}
+        />
 
         {!verified && <div className={BLOCK_GAP}><EmailVerificationBanner /></div>}
 
-        <div className={BLOCK_GAP} data-tour="day-switcher">
-          <DaySwitcher groups={list} selectedId={selectedId} onSelect={setSelectedId} todayGroupIds={todayIds} />
-        </div>
-
         {/*
-          Routine-management actions on their own always-visible row. Both open a
-          sheet rather than toggling a page-wide mode: the previous "edit mode"
-          hid every action behind a toggle users had to find first.
+          The category nav owns the row directly under the header — the most
+          valuable strip on a phone — because filtering the day's plan is a daily
+          act, while switching or editing routines is not. Those moved into the
+          header's routine sheet.
+
+          A skeleton stands in while a routine loads so the page below does not
+          jump by 44px on every switch.
         */}
-        {verified && (
-          <div className={`${TIGHT_GAP} flex flex-wrap items-center gap-2`}>
-            <button
-              type="button"
-              onClick={() => setRoutineSheetOpen(true)}
-              data-tour="edit-toggle"
-              className={`${TOUCH_TARGET} inline-flex items-center gap-2 rounded-full border-2 border-ink px-4 font-sans text-sm font-bold text-ink transition-colors hover:bg-ink hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream`}
-              style={{ ['--tw-ring-color']: color }}
-            >
-              <Settings2 className="h-4 w-4" aria-hidden="true" />
-              Edit routine
-            </button>
-            <button
-              type="button"
-              onClick={() => setBuilding((value) => !value)}
-              className={`${TOUCH_TARGET} inline-flex items-center gap-2 rounded-full px-4 font-sans text-sm font-bold text-ink/65 ring-1 ring-black/15 transition-colors hover:bg-white focus:outline-none focus-visible:ring-2`}
-              style={{ ['--tw-ring-color']: color }}
-            >
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              {building ? 'Close' : 'New routine'}
-            </button>
+        {loadingGroup ? (
+          <div className={`${BLOCK_GAP} flex gap-2`} aria-hidden="true">
+            {Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-11 w-24 rounded-full" />)}
+          </div>
+        ) : timeline.length > 0 && (
+          <div className={BLOCK_GAP} data-tour="category-filter">
+            <CategoryFilter schedule={timeline} value={categoryFilter} onChange={setCategoryFilter} />
           </div>
         )}
 
@@ -338,7 +362,7 @@ export default function DashboardPage() {
               icon={Sunrise}
               accent={color}
               title="Nothing scheduled for today"
-              body="Today isn’t part of any routine yet. Preview one below, or add this weekday to a routine in edit mode."
+              body="Today isn’t part of any routine yet. Open your routines from the top of the screen to add this weekday to one, or start a new routine."
               actionLabel={verified ? 'Create a routine for today' : undefined}
               onAction={verified ? () => setBuilding(true) : undefined}
               compact
@@ -417,13 +441,7 @@ export default function DashboardPage() {
                   />
                 ) : (
                   <>
-                    <CategoryFilter
-                      schedule={timeline}
-                      value={categoryFilter}
-                      onChange={setCategoryFilter}
-                      className={BLOCK_GAP}
-                    />
-                    <div className={BLOCK_GAP}>
+                    <div>
                       <Timeline
                         schedule={visibleTimeline}
                         liveId={viewingToday ? liveId : null}
@@ -473,15 +491,31 @@ export default function DashboardPage() {
         onSubmit={submitBlockForm}
       />
 
-      {group && (
-        <RoutineSettingsSheet
-          open={routineSheetOpen}
-          group={group}
-          onClose={() => setRoutineSheetOpen(false)}
-          onSave={(patch) => act(() => updateDayGroup(group.id, patch), 'Routine updated')}
-          onRequestDelete={() => setConfirmDeleteRoutine(true)}
-        />
-      )}
+      <RoutineManagerSheet
+        open={routinesOpen}
+        groups={list}
+        selectedId={selectedId}
+        todayGroupIds={todayIds}
+        canManage={verified}
+        onClose={() => setRoutinesOpen(false)}
+        onSelect={(id) => { setSelectedId(id); setRoutinesOpen(false) }}
+        /* Close before opening: two Modals at once would both lock scroll and
+           both trap focus. */
+        onEditRoutine={(routine) => { setRoutinesOpen(false); setEditingRoutine(routine) }}
+        onCreateRoutine={() => { setRoutinesOpen(false); setBuilding(true) }}
+        returnFocusRef={routinesButtonRef}
+      />
+
+      <RoutineSettingsSheet
+        open={Boolean(editingRoutine)}
+        group={editingRoutine}
+        onClose={() => setEditingRoutine(null)}
+        onSave={saveRoutine}
+        /* Hand off rather than stack: the confirm dialog is itself a Modal, and
+           two would each lock body scroll and trap focus. "Keep it" hands back. */
+        onRequestDelete={() => { setConfirmDeleteRoutine(editingRoutine); setEditingRoutine(null) }}
+        returnFocusRef={routinesButtonRef}
+      />
 
       <ConfirmDialog
         open={Boolean(confirmDeleteEntry)}
@@ -494,11 +528,11 @@ export default function DashboardPage() {
       />
 
       <ConfirmDialog
-        open={confirmDeleteRoutine}
-        onClose={() => setConfirmDeleteRoutine(false)}
-        onConfirm={deleteRoutine}
+        open={Boolean(confirmDeleteRoutine)}
+        onClose={() => { setEditingRoutine(confirmDeleteRoutine); setConfirmDeleteRoutine(null) }}
+        onConfirm={() => deleteRoutine(confirmDeleteRoutine)}
         title="Delete this routine?"
-        description={group ? `“${group.name}”, its ${timeline.length} block${timeline.length === 1 ? '' : 's'} and ${items.length} habit${items.length === 1 ? '' : 's'} will be permanently removed.` : undefined}
+        description={deleteRoutineWarning}
         confirmLabel="Delete routine"
         cancelLabel="Keep it"
       />

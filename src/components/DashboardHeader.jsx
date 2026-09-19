@@ -1,16 +1,33 @@
 import { motion, useReducedMotion } from 'framer-motion'
-import { Sparkles, UserRound } from 'lucide-react'
+import { ChevronDown, Sparkles, UserRound } from 'lucide-react'
 import Avatar from './ui/Avatar.jsx'
+import { TOUCH_TARGET } from '../config/layout.js'
 
 /**
  * Dashboard title bar.
  *
- * Routine-management controls (Edit, New routine) deliberately do NOT live here.
- * A lone pencil in the account corner reads as "edit my account", not "edit this
- * routine", so those actions sit next to the routine context in the day
- * switcher row instead. This corner is reserved for the profile entry point.
+ * The routine control here is a *switcher*, not an editor. An earlier note in
+ * this file argued routine actions must stay out of the header because a lone
+ * pencil next to the avatar reads as "edit my account" — still true, which is
+ * why this button is labelled with the routine's own name and opens a sheet
+ * that lists routines. Naming the current context is what a header is for; the
+ * editing lives one level in, inside that sheet.
+ *
+ * It replaces a full-width row of routine pills plus an Edit/New pair, which
+ * cost roughly two above-the-fold rows on a phone for something used a few times
+ * a week.
  */
-export default function DashboardHeader({ dayName, dayType, dateLabel, isViewingToday, accentColor, userName, onOpenProfile }) {
+export default function DashboardHeader({
+  dayName,
+  dayType,
+  dateLabel,
+  isViewingToday,
+  accentColor,
+  userName,
+  onOpenProfile,
+  onOpenRoutines,
+  routinesButtonRef,
+}) {
   const reduceMotion = useReducedMotion()
 
   return (
@@ -29,6 +46,24 @@ export default function DashboardHeader({ dayName, dayType, dateLabel, isViewing
         </div>
 
         <div className="flex flex-shrink-0 items-center gap-2">
+          {onOpenRoutines && (
+            <button
+              type="button"
+              ref={routinesButtonRef}
+              onClick={onOpenRoutines}
+              data-tour="routines"
+              aria-label={`Switch or manage routines. Showing ${dayType}`}
+              title="Switch or manage routines"
+              className={`${TOUCH_TARGET} flex max-w-[42vw] items-center gap-2 rounded-full bg-paper px-3 shadow-card ring-1 ring-black/[0.06] transition-colors hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream sm:max-w-[16rem]`}
+              style={{ ['--tw-ring-color']: accentColor }}
+            >
+              <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ backgroundColor: accentColor }} aria-hidden="true" />
+              {/* The name is the label, so it must not be read twice; the button
+                  carries the full sentence in aria-label. */}
+              <span className="truncate font-sans text-sm font-bold text-ink" aria-hidden="true">{dayType}</span>
+              <ChevronDown className="h-4 w-4 flex-shrink-0 text-ink/45" aria-hidden="true" />
+            </button>
+          )}
           <button type="button" onClick={onOpenProfile} aria-label="Open profile and settings" title="Profile and settings" className="flex flex-shrink-0 rounded-full shadow-card focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream" style={{ ['--tw-ring-color']: accentColor }}>
             {userName
               ? <Avatar name={userName} color={accentColor} size="sm" ring />
@@ -42,14 +77,25 @@ export default function DashboardHeader({ dayName, dayType, dateLabel, isViewing
       </div>
 
       {/*
-        Hidden on phones: the routine name is already the selected pill in
-        DaySwitcher directly below, and Today/Viewing is already in the meta line
-        above, so this row repeated both and cost ~46px above the fold. It earns
-        its place from sm upward, where the space is free.
+        Hidden on phones, where Today/Viewing already appears in the meta line
+        above and this row cost ~46px above the fold. It earns its place from sm
+        upward, where the space is free.
+
+        The routine name used to be stamped here as well; it now sits in the
+        switcher button, so repeating it would state the same fact twice in one
+        header. What is left is the only thing the button does not say: whether
+        you are looking at today or previewing another day.
       */}
       <div className="mt-4 hidden flex-wrap items-center gap-x-3 gap-y-2 sm:flex">
-        <motion.span key={dayType} initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, rotate: -2 }} animate={{ opacity: 1, scale: 1, rotate: -1.5 }} transition={{ type: 'spring', stiffness: 260, damping: 18 }} className="inline-block rounded-xl bg-ink eyebrow-stamp px-3 py-1.5 text-white shadow-card sm:px-4">{dayType}</motion.span>
-        <span className="font-display text-xl text-ink/70 sm:text-2xl">{dayName}</span>
+        <motion.span
+          key={dayName}
+          initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+          className="font-display text-xl text-ink/70 sm:text-2xl"
+        >
+          {dayName}
+        </motion.span>
       </div>
     </header>
   )

@@ -1,29 +1,20 @@
 import { useEffect, useState } from 'react'
 import { Loader2, Trash2 } from 'lucide-react'
 import Modal from '../ui/Modal.jsx'
+import ColorPicker from '../ui/ColorPicker.jsx'
 import { CATEGORY_COLORS } from '../../config/categories.js'
+import { contrastTextOn } from '../../utils/color.js'
+import { WEEKDAYS } from '../../config/weekdays.js'
 import { TOUCH_TARGET, TOUCH_TARGET_LG } from '../../config/layout.js'
-
-/** Sunday-first, matching the API's `Date.getDay()` convention (0 = Sunday). */
-const WEEKDAYS = [
-  { index: 0, short: 'Sun', long: 'Sunday' },
-  { index: 1, short: 'Mon', long: 'Monday' },
-  { index: 2, short: 'Tue', long: 'Tuesday' },
-  { index: 3, short: 'Wed', long: 'Wednesday' },
-  { index: 4, short: 'Thu', long: 'Thursday' },
-  { index: 5, short: 'Fri', long: 'Friday' },
-  { index: 6, short: 'Sat', long: 'Saturday' },
-]
 
 const labelClasses = 'block font-sans text-xs font-bold uppercase tracking-wide text-ink/60'
 
 /**
  * Rename a routine, recolour it, choose its weekdays, or delete it.
  *
- * Colour is a swatch group drawn from the category palette rather than a raw
- * `<input type="color">`: on mobile that control rendered as an unlabelled
- * filled bar which read as a broken progress element, and it offered millions of
- * colours where six on-brand ones are wanted.
+ * Colour is delegated to ColorPicker: the five on-brand presets stay the default
+ * path, and anything else is a hex away. See that component for why the native
+ * colour input is present but never the visible surface.
  *
  * @param {boolean}  open
  * @param {Function} onClose
@@ -108,29 +99,7 @@ export default function RoutineSettingsSheet({ open, onClose, group, onSave, onR
           {!trimmedName && <p className="mt-1 font-sans text-body-sm font-semibold text-language">Give the routine a name.</p>}
         </div>
 
-        <fieldset>
-          <legend className={labelClasses}>Accent colour</legend>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {CATEGORY_COLORS.map((value) => (
-              <label key={value} className="cursor-pointer">
-                <input
-                  type="radio"
-                  name="routine-color"
-                  value={value}
-                  checked={color === value}
-                  onChange={() => setColor(value)}
-                  className="peer sr-only"
-                />
-                <span
-                  className="block h-11 w-11 rounded-xl ring-2 ring-transparent ring-offset-2 ring-offset-paper transition-shadow peer-checked:ring-ink peer-focus-visible:ring-ink"
-                  style={{ backgroundColor: value }}
-                >
-                  <span className="sr-only">Use colour {value}</span>
-                </span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <ColorPicker value={color} onChange={setColor} name="routine-color" legend="Accent colour" />
 
         <fieldset>
           <legend className={labelClasses}>Repeats on</legend>
@@ -145,8 +114,10 @@ export default function RoutineSettingsSheet({ open, onClose, group, onSave, onR
                   aria-pressed={active}
                   aria-label={day.long}
                   className={`${TOUCH_TARGET} rounded-xl font-sans text-xs font-bold ring-1 transition-colors focus:outline-none focus-visible:ring-2`}
+                  /* Text on the accent is computed, not assumed: a custom colour
+                     can be pale enough that white would be unreadable. */
                   style={active
-                    ? { backgroundColor: color, color: '#FFFFFF', ['--tw-ring-color']: color }
+                    ? { backgroundColor: color, color: contrastTextOn(color), ['--tw-ring-color']: color }
                     : { backgroundColor: 'transparent', color: '#1A1A1A', ['--tw-ring-color']: color }}
                 >
                   {day.short}

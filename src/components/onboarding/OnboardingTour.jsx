@@ -23,10 +23,10 @@ export { hasCompletedTour, markTourComplete, tourFlagKey } from './tourState.js'
 
 const STEPS = [
   {
-    target: '[data-tour="day-switcher"]',
-    title: 'Your week at a glance',
+    target: '[data-tour="category-filter"]',
+    title: 'Focus on one part of the day',
     content:
-      'Each pill is one of your day groups. Create as many as you need, assign weekdays, and switch between them here.',
+      'Every block belongs to a category. Tap one to narrow the plan to just those blocks, and "All" to bring the whole day back.',
     disableBeacon: true,
     placement: 'bottom',
   },
@@ -45,10 +45,10 @@ const STEPS = [
     placement: 'bottom',
   },
   {
-    target: '[data-tour="edit-toggle"]',
-    title: 'Edit mode',
+    target: '[data-tour="routines"]',
+    title: 'Your routines live here',
     content:
-      'Tap the pencil to manage this group, add or edit blocks and habits, change its color, or remove items you no longer need.',
+      'This button names the routine you are looking at. Open it to switch routines, rename or recolour one, change the days it runs on, or start a new one.',
     placement: 'auto',
   },
   {
