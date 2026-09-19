@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { Check, CheckCircle2, ChevronDown, Loader2, Sparkles } from 'lucide-react'
 import { CATEGORY_COLORS, CATEGORY_KEYS } from '../config/categories.js'
 import { contrastTextOn } from '../utils/color.js'
+import { describeApiError } from '../utils/apiError.js'
 import { createChecklistItem, createDayGroup, createTimelineEntry } from '../api/services.js'
 import Card from './Card.jsx'
 import ColorPicker from './ui/ColorPicker.jsx'
@@ -49,7 +50,9 @@ export default function DayGroupBuilder({ onComplete, onCancel, compact = false 
       setComplete(true)
       window.setTimeout(() => onComplete?.(group.id), reduceMotion ? 50 : 700)
     } catch (err) {
-      setError(err?.response?.data?.error?.message || 'Could not create this routine. Check your connection and try again.')
+      // Says which field, or that the API is unreachable — the old copy blamed
+      // the connection even when the server had answered with a validation error.
+      setError(describeApiError(err, 'Could not create this routine. Please try again.'))
       setSaving(false)
     }
   }

@@ -28,6 +28,7 @@ import {
   updateTimelineEntry,
 } from '../api/services.js'
 import { getLiveEntryId } from '../utils/time.js'
+import { describeApiError } from '../utils/apiError.js'
 import {
   fireNotification,
   getDueEntries,
@@ -54,6 +55,7 @@ import DayGroupBuilder from '../components/DayGroupBuilder.jsx'
 import Checklist from '../components/Checklist.jsx'
 import Timeline from '../components/Timeline.jsx'
 import CategoryFilter, { ALL_CATEGORIES } from '../components/schedule/CategoryFilter.jsx'
+import RoutineContextBar from '../components/schedule/RoutineContextBar.jsx'
 import BlockDetailSheet from '../components/schedule/BlockDetailSheet.jsx'
 import BlockFormSheet from '../components/schedule/BlockFormSheet.jsx'
 import RoutineSettingsSheet from '../components/schedule/RoutineSettingsSheet.jsx'
@@ -166,14 +168,14 @@ export default function DashboardPage() {
     try {
       const result = await toggleChecklist(id)
       if (!finishesDay) toast.success(result.checked ? 'Task completed' : 'Task marked incomplete')
-    } catch {
-      toast.error('Could not save. Reconnect and try again.')
+    } catch (error) {
+      toast.error(describeApiError(error, 'Could not save that tick. Please try again.'))
     }
   }
 
   const refresh = async () => { await groups.refetch(); await selected.refetch(); today.revalidate(); checklist.revalidate() }
   const act = async (fn, success) => {
-    try { await fn(); await refresh(); toast.success(success); return true } catch (error) { toast.error(error?.response?.data?.error?.message || 'Could not save. Please try again.'); return false }
+    try { await fn(); await refresh(); toast.success(success); return true } catch (error) { toast.error(describeApiError(error, 'Could not save. Please try again.')); return false }
   }
   const saveEntry = (id, patch) => act(() => updateTimelineEntry(id, patch), 'Block updated')
   const saveLabel = (id, label) => act(() => updateChecklistItem(id, label), 'Habit updated')
@@ -246,6 +248,8 @@ export default function DashboardPage() {
   const prayer = useApiResource(() => fetchPrayerTimes(date, coords), { cacheKey: `prayer:${date}`, userId, deps: [date, coords?.latitude, coords?.longitude] })
   useEffect(() => { if (list.length && !hasCompletedTour(userId)) { const timer = setTimeout(() => setRunTour(true), 800); return () => clearTimeout(timer) } }, [list.length, userId])
   const dateLabel = useMemo(() => now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }), [date])
+  /** Phone-width date. The long form wraps onto three lines at 390px. */
+  const dateShortLabel = useMemo(() => now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }), [date])
   const verified = Boolean(user?.is_email_verified)
 
   if (groups.loading && groups.data === null) return <DashboardSkeleton />
@@ -264,7 +268,7 @@ export default function DashboardPage() {
     return (
       <div className={`min-h-viewport bg-cream ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
         <div className="mx-auto w-full max-w-3xl">
-          <DashboardHeader dayName="Your first routine" dayType="Start here" dateLabel={dateLabel} isViewingToday accentColor="#0F766E" userName={user?.name} onOpenProfile={() => navigate('/profile')} />
+          <DashboardHeader statement="Let’s build your first routine." dateLabel={dateLabel} dateShortLabel={dateShortLabel} isViewingToday accentColor="#0F766E" userName={user?.name} onOpenProfile={() => navigate('/profile')} />
           {!verified && <div className={SECTION_GAP}><EmailVerificationBanner /></div>}
           <div className={`${SECTION_GAP} rounded-card bg-ink p-6 text-white sm:p-8`}>
             <p className="eyebrow-stamp text-white/55">A blank canvas</p>
@@ -315,15 +319,27 @@ export default function DashboardPage() {
     <div className="min-h-viewport bg-cream text-ink">
       <main className={`mx-auto w-full max-w-5xl ${PAGE_GUTTER} ${PAGE_VERTICAL}`}>
         <DashboardHeader
-          dayName={dayName}
-          dayType={group?.name ?? 'Routine'}
           dateLabel={dateLabel}
+          dateShortLabel={dateShortLabel}
           isViewingToday={viewingToday}
+          blockCount={loadingGroup ? null : timeline.length}
           accentColor={color}
           userName={user?.name}
           onOpenProfile={() => navigate('/profile')}
-          onOpenRoutines={() => setRoutinesOpen(true)}
-          routinesButtonRef={routinesButtonRef}
+        />
+
+        {/*
+          Reading order on a phone: what day is it → which routine am I looking
+          at → filter it → the plan. The routine row comes before the category
+          chips because it is context, and the chips only make sense once you know
+          what they are filtering.
+        */}
+        <RoutineContextBar
+          routine={group ?? list.find((item) => item.id === selectedId) ?? null}
+          blockCount={timeline.length}
+          onOpen={() => setRoutinesOpen(true)}
+          buttonRef={routinesButtonRef}
+          className={BLOCK_GAP}
         />
 
         {!verified && <div className={BLOCK_GAP}><EmailVerificationBanner /></div>}
@@ -396,7 +412,15 @@ export default function DashboardPage() {
             </div>
 
             <div className={`${SECTION_GAP} grid grid-cols-1 items-start ${COLUMN_GAP} lg:grid-cols-[380px_minmax(0,1fr)]`}>
-              <aside className={`space-y-6 lg:sticky lg:top-6`}>
+              {/*
+                Source order is desktop order (sidebar left, plan right). On a
+                phone the columns stack, and the plan has to come first: the day's
+                schedule is the reason the page exists, and burying it under the
+                checklist and the reminder settings meant scrolling past two cards
+                of secondary material to reach it. `order` flips the stack without
+                moving the sidebar on desktop.
+              */}
+              <aside className={`order-2 space-y-6 lg:order-1 lg:sticky lg:top-6`}>
                 <div data-tour="checklist">
                   {loadingGroup ? (
                     <ChecklistSkeleton />
@@ -427,7 +451,7 @@ export default function DashboardPage() {
                 </div>
               </aside>
 
-              <div>
+              <div className="order-1 lg:order-2">
                 {loadingGroup ? (
                   <TimelineSkeleton rows={5} />
                 ) : timeline.length === 0 ? (
@@ -449,19 +473,11 @@ export default function DashboardPage() {
                         emptyMessage={`No ${categoryFilter} blocks in this routine.`}
                         prayerTimings={prayer.data?.timings}
                         prayerSource={prayer.data?.source}
+                        /* Add lives in the section header now, so it is reachable
+                           without scrolling past a full day of blocks. */
+                        onAdd={verified ? () => openBlockForm(null) : undefined}
                       />
                     </div>
-                    {verified && (
-                      <button
-                        type="button"
-                        onClick={() => openBlockForm(null)}
-                        className={`${TOUCH_TARGET} ${BLOCK_GAP} ml-10 inline-flex items-center gap-2 rounded-xl px-4 font-sans text-sm font-bold text-ink/70 ring-1 ring-black/15 transition-colors hover:bg-white focus:outline-none focus-visible:ring-2 sm:ml-16`}
-                        style={{ ['--tw-ring-color']: color }}
-                      >
-                        <Plus className="h-4 w-4" aria-hidden="true" />
-                        Add a block
-                      </button>
-                    )}
                   </>
                 )}
               </div>

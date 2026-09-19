@@ -4,13 +4,22 @@ import { ChevronRight } from 'lucide-react'
 import { getCategory } from '../config/categories.js'
 import { formatRange, to12h, toMinutes } from '../utils/time.js'
 import { matchPrayerKey } from '../utils/prayerTimes.js'
-import { TONES } from './Card.jsx'
 import CategoryIcon from './CategoryIcon.jsx'
 
 const itemVariants = {
   hidden: { opacity: 0, y: 14 },
   show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] } },
 }
+
+/**
+ * Fill strength of the category tint. Live blocks read as "turned up".
+ *
+ * 0.18 is the floor at which the two low-saturation accents — Life (#8A8378) and
+ * Rest (#7C8B9C) — still read as a deliberate colour on cream rather than as a
+ * dirty white. The saturated three (teal, sage, rose) stay comfortably soft at
+ * the same value, so one number holds for all five.
+ */
+const FILL = { rest: 0.18, live: 0.32 }
 
 function withAlpha(hex, alpha) {
   const h = hex.replace('#', '')
@@ -23,17 +32,28 @@ function withAlpha(hex, alpha) {
 /**
  * One block on the daily timeline.
  *
+ * Colour now means something
+ * --------------------------
+ * These cards used to rotate through three fixed shells — black, white, taupe —
+ * by list position, with the category reduced to a 6px strip down the left edge.
+ * That made the same category look black in one row and white in the next, so the
+ * loudest visual signal on the card (its entire background) carried no
+ * information at all. The card is now filled with a soft tint of its own
+ * category, which is both calmer and honest: two Career blocks look alike, and
+ * Rest never shouts.
+ *
+ * Reading order is what-then-when: the description is the headline, the time
+ * range sits under it as support, and the duration is a pill in the top corner.
+ * Previously the clock came first, which is the one thing a user scanning their
+ * own day already knows.
+ *
  * The whole card is a single tap target that opens the block's detail sheet.
- * It previously carried inline pencil/trash buttons that only appeared after the
- * user found a global "edit mode", which hid both actions; a card that opens
- * details needs no mode and leaves one unambiguous target per row.
  */
 const TimelineItem = forwardRef(function TimelineItem(
   {
     entry,
     isLive = false,
     animateIn = false,
-    tone = 'white',
     onSelect,
     prayerTimings = null,
     prayerSource = null,
@@ -43,8 +63,6 @@ const TimelineItem = forwardRef(function TimelineItem(
 ) {
   const reduceMotion = useReducedMotion()
   const cat = getCategory(entry.category)
-  const t = TONES[tone] ?? TONES.white
-  const isDark = tone === 'black'
 
   /*
    * Optional prayer-time annotation. Matched on the block description alone, so
@@ -53,8 +71,6 @@ const TimelineItem = forwardRef(function TimelineItem(
    */
   const prayerKey = matchPrayerKey(entry.description)
   const prayerTime = prayerKey && prayerTimings ? prayerTimings[prayerKey] : null
-
-  const mutedText = isDark ? 'text-white/70' : 'text-ink/60'
 
   // Duration chip
   const durMin = (() => {
@@ -68,26 +84,17 @@ const TimelineItem = forwardRef(function TimelineItem(
   const interactive = typeof onSelect === 'function'
 
   const body = (
-    <div className="min-w-0 py-4 pl-5 pr-4 sm:py-5">
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-        <div className="flex min-w-0 items-center gap-2">
-          <span
-            className="flex h-7 w-7 items-center justify-center rounded-full"
-            style={{ backgroundColor: withAlpha(cat.color, isDark ? 0.28 : 0.16) }}
-          >
-            <CategoryIcon token={cat.token} color={isDark ? '#FFFFFF' : cat.color} className="h-4 w-4" />
-          </span>
-          <span className={`font-sans text-sm font-semibold tabular-nums ${isDark ? 'text-white/90' : 'text-ink/80'}`}>
-            {formatRange(entry.start, entry.end)}
-          </span>
-          {durLabel && (
-            <span className={`rounded-full px-2 py-0.5 font-sans text-body-sm font-bold tabular-nums ${isDark ? 'bg-white/15 text-white/80' : 'bg-black/[0.06] text-ink/60'}`}>
-              {durLabel}
-            </span>
-          )}
-        </div>
+    <div className="min-w-0 p-4 sm:p-5">
+      <div className="flex items-start justify-between gap-3">
+        <span
+          className="inline-flex min-w-0 items-center gap-1.5 rounded-full bg-white/60 px-2.5 py-1 font-sans text-label font-bold uppercase tracking-wide"
+          style={{ color: cat.textColor }}
+        >
+          <CategoryIcon token={cat.token} color={cat.color} className="h-3.5 w-3.5" />
+          <span className="truncate">{cat.label}</span>
+        </span>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-shrink-0 items-center gap-1.5">
           <AnimatePresence mode="wait">
             {isLive ? (
               <motion.span
@@ -96,7 +103,7 @@ const TimelineItem = forwardRef(function TimelineItem(
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.7 }}
                 transition={{ duration: 0.3 }}
-                className="flex items-center gap-1 rounded-full px-2.5 py-0.5 font-sans text-label font-bold uppercase tracking-wide"
+                className="flex items-center gap-1 rounded-full px-2.5 py-1 font-sans text-label font-bold uppercase tracking-wide"
                 style={{ backgroundColor: cat.color, color: cat.onColor }}
               >
                 <motion.span
@@ -107,27 +114,34 @@ const TimelineItem = forwardRef(function TimelineItem(
                 />
                 Now
               </motion.span>
-            ) : (
+            ) : durLabel ? (
               <span
-                className="rounded-full px-2.5 py-0.5 font-sans text-label font-semibold uppercase tracking-wide"
-                style={{ color: isDark ? '#FFFFFF' : cat.textColor, backgroundColor: withAlpha(cat.color, isDark ? 0.3 : 0.14) }}
+                key="duration"
+                /* text-body-sm, not text-label: 11px is reserved for uppercase
+                   micro-labels, and "1h 30m" is mixed case. */
+                className="rounded-full bg-white/60 px-2.5 py-0.5 font-sans text-body-sm font-bold tabular-nums"
+                style={{ color: cat.textColor }}
               >
-                {cat.label}
+                {durLabel}
               </span>
-            )}
+            ) : null}
           </AnimatePresence>
-          {interactive && (
-            <ChevronRight className={`h-4 w-4 flex-shrink-0 ${isDark ? 'text-white/45' : 'text-ink/30'}`} aria-hidden="true" />
-          )}
+          {interactive && <ChevronRight className="h-4 w-4 text-ink/30" aria-hidden="true" />}
         </div>
       </div>
 
-      <p className="mt-2 break-words font-sans text-body font-medium leading-snug">
+      {/* The headline: what you are doing, not when. */}
+      <p className="mt-2.5 break-words font-sans text-body font-bold leading-snug text-ink">
         {entry.description}
       </p>
 
+      <p className="mt-1 font-sans text-body-sm font-medium tabular-nums text-ink/60">
+        {formatRange(entry.start, entry.end)}
+        {isLive && durLabel && <span className="ml-1.5 font-bold not-italic">· {durLabel}</span>}
+      </p>
+
       {prayerTime && (
-        <p className={`mt-2 font-sans text-body-sm ${mutedText}`}>
+        <p className="mt-2 font-sans text-body-sm text-ink/60">
           {hasTimeOverride ? `Actual ${prayerKey} today: ${to12h(prayerTime)}` : `${prayerKey}: ${to12h(prayerTime)}`}
           {prayerSource === 'default' && <span className="opacity-70"> · using default times</span>}
         </p>
@@ -135,7 +149,8 @@ const TimelineItem = forwardRef(function TimelineItem(
     </div>
   )
 
-  const surfaceClasses = `relative block w-full overflow-hidden rounded-card text-left ring-1 ring-black/10 shadow-card ${t.text} focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream`
+  const surfaceClasses = 'relative block w-full overflow-hidden rounded-card text-left text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream'
+  const fill = withAlpha(cat.color, isLive ? FILL.live : FILL.rest)
 
   // Row inset is pl-10 on phones rather than pl-14: the rail sits at `left-rail`
   // (18px), so a 56px inset spent 30px of a 320px screen on empty space and
@@ -166,9 +181,9 @@ const TimelineItem = forwardRef(function TimelineItem(
       <motion.div
         initial={false}
         animate={{
-          boxShadow: isLive
-            ? `0 0 0 2px ${withAlpha(cat.color, 0.85)}, 0 12px 26px -8px ${withAlpha(cat.color, 0.5)}`
-            : '0 6px 18px -8px rgba(26,26,26,0.25)',
+          // A tinted card needs no drop shadow to separate from cream; the live
+          // block gets a ring in its own colour instead of a heavier shadow.
+          boxShadow: isLive ? `0 0 0 2px ${withAlpha(cat.color, 0.9)}` : `0 0 0 1px ${withAlpha(cat.color, 0.22)}`,
         }}
         transition={{ duration: 0.45, ease: 'easeOut' }}
         whileHover={reduceMotion || !interactive ? undefined : { y: -3 }}
@@ -181,14 +196,12 @@ const TimelineItem = forwardRef(function TimelineItem(
             onClick={() => onSelect(entry)}
             aria-label={`${entry.description}, ${formatRange(entry.start, entry.end)}. Open details.`}
             className={surfaceClasses}
-            style={{ backgroundColor: t.bg }}
+            style={{ backgroundColor: fill }}
           >
-            <span className="absolute inset-y-0 left-0 w-1.5" style={{ backgroundColor: cat.color }} aria-hidden="true" />
             {body}
           </button>
         ) : (
-          <div className={surfaceClasses} style={{ backgroundColor: t.bg }}>
-            <span className="absolute inset-y-0 left-0 w-1.5" style={{ backgroundColor: cat.color }} aria-hidden="true" />
+          <div className={surfaceClasses} style={{ backgroundColor: fill }}>
             {body}
           </div>
         )}

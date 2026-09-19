@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
+import { Plus } from 'lucide-react'
 import TimelineItem from './TimelineItem.jsx'
 
 const listVariants = {
@@ -7,14 +8,25 @@ const listVariants = {
   show: { opacity: 1, transition: { staggerChildren: 0.055, delayChildren: 0.06 } },
 }
 
-// Rotate the three tones for visual rhythm (not per-category).
-const TONE_ORDER = ['black', 'white', 'taupe']
-
+/**
+ * The day's blocks, as a vertical timeline.
+ *
+ * The section header carries the count and the add action. Both were elsewhere
+ * before: the count nowhere, and "Add a block" at the very bottom of the list,
+ * which on a full day meant scrolling the whole plan to reach it.
+ *
+ * @param {Array}    schedule
+ * @param {number}   [liveId]      Block happening now.
+ * @param {Function} [onSelectEntry]
+ * @param {Function} [onAdd]       Omit to hide the add action entirely.
+ * @param {string}   [emptyMessage]
+ */
 export default function Timeline({
   schedule = [],
   liveId = null,
   staggerOnMount = false,
   onSelectEntry,
+  onAdd,
   emptyMessage = 'No blocks scheduled for this day.',
   prayerTimings = null,
   prayerSource = null,
@@ -32,18 +44,36 @@ export default function Timeline({
 
   return (
     <section aria-label="Daily timeline" className="relative">
-      <h2 className="display-title mb-4 text-3xl text-ink">Schedule</h2>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="display-title text-3xl text-ink">Schedule</h2>
+          <p className="mt-0.5 font-sans text-body-sm text-ink/55">
+            {schedule.length === 0
+              ? 'Nothing here yet'
+              : `${schedule.length} block${schedule.length === 1 ? '' : 's'} today`}
+          </p>
+        </div>
+
+        {onAdd && (
+          <button
+            type="button"
+            onClick={onAdd}
+            className="flex min-h-touch flex-shrink-0 items-center gap-1.5 rounded-full bg-ink px-4 font-sans text-sm font-bold text-white transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Add
+          </button>
+        )}
+      </div>
 
       <div className="relative">
-        {/* Thin horizontal grid lines behind the timeline (time-ruler feel) */}
-        <div
-          className="pointer-events-none absolute inset-0 rounded-card"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(to bottom, transparent 0, transparent 63px, rgba(26,26,26,0.06) 63px, rgba(26,26,26,0.06) 64px)',
-          }}
-          aria-hidden="true"
-        />
+        {/*
+          The horizontal grid lines that used to sit here are gone. They were a
+          fixed 64px rhythm behind cards whose heights vary with their content, so
+          they never lined up with anything — against the old white/black cards
+          they read as a faint texture, but against filled cards they read as
+          stray marks. The vertical rail alone carries the timeline idea.
+        */}
         {/* Vertical ruler line */}
         <span
           className="pointer-events-none absolute bottom-3 left-rail top-3 w-0.5 -translate-x-1/2 rounded-full bg-ink/15 sm:left-rail-sm"
@@ -67,7 +97,6 @@ export default function Timeline({
                 entry={entry}
                 isLive={entry.id === liveId}
                 animateIn={staggerOnMount}
-                tone={TONE_ORDER[i % TONE_ORDER.length]}
                 onSelect={onSelectEntry}
                 prayerTimings={prayerTimings}
                 prayerSource={prayerSource}

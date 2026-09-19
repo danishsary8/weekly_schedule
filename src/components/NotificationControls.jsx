@@ -73,7 +73,10 @@ export default function NotificationControls({
         )}
       </AnimatePresence>
 
-      <div className="flex justify-end">
+      {/* Left-aligned with every other card and control on the page. Pinned to
+          the right it was a lone pill floating in empty space, which read as a
+          layout accident rather than a button. */}
+      <div className="flex justify-start">
         <button
           ref={triggerRef}
           type="button"
