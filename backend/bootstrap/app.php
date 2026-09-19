@@ -6,6 +6,7 @@ use App\Exceptions\ApiException;
 use App\Http\Middleware\EnsureAnalyticsAdmin;
 use App\Http\Middleware\RequireVerifiedEmail;
 use App\Support\ApiResponse;
+use Fruitcake\Cors\CorsService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -51,11 +52,46 @@ return Application::configure(basePath: dirname(__DIR__))
             TooManyRequestsHttpException::class,
         ]);
         /*
+         * CORS headers for error responses.
+         *
+         * HandleCors decorates a response on its way back *out* of the middleware
+         * pipeline. A failure rendered outside that pipeline therefore reaches the
+         * browser with no Access-Control-Allow-Origin at all — which is exactly
+         * what this deployment does when the database is unreachable. Chrome then
+         * discards the response before the SPA can read it, so a 500 carrying a
+         * perfectly good JSON body surfaces as "blocked by CORS policy" and the
+         * client reports the server as unreachable. The real status and message
+         * never arrive, and the visible error blames the user's connection.
+         *
+         * Decorating here — where every API failure is already funnelled — keeps
+         * the allow-list in config/cors.php and uses the same service the
+         * middleware uses, so there is no second copy of the origin rules.
+         * CorsService::addActualRequestHeaders() *sets* headers rather than
+         * appending, so a response that also passes through the middleware cannot
+         * end up with duplicates.
+         */
+        $withCorsHeaders = static function (HttpResponse $response, Request $request): HttpResponse {
+            if (! $request->headers->has('Origin')) {
+                return $response;
+            }
+
+            try {
+                $cors = app(CorsService::class);
+                $cors->setOptions((array) config('cors', []));
+
+                return $cors->addActualRequestHeaders($response, $request);
+            } catch (Throwable) {
+                // Never let header decoration hide the error it is decorating.
+                return $response;
+            }
+        };
+
+        /*
          * Central API error rendering. Every failure funnels through here so the
          * error envelope is guaranteed consistent instead of being rebuilt in
          * individual controllers.
          */
-        $exceptions->render(function (Throwable $e, Request $request) {
+        $renderApiError = static function (Throwable $e, Request $request) {
             if (! $request->is('api/*') && ! $request->expectsJson()) {
                 return null;
             }
@@ -130,5 +166,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 HttpResponse::HTTP_INTERNAL_SERVER_ERROR,
                 $debug ? ['exception' => $e::class] : [],
             );
+        };
+
+        $exceptions->render(function (Throwable $e, Request $request) use ($renderApiError, $withCorsHeaders) {
+            $response = $renderApiError($e, $request);
+
+            return $response === null ? null : $withCorsHeaders($response, $request);
         });
     })->create();

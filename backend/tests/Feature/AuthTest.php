@@ -6,8 +6,11 @@ namespace Tests\Feature;
 
 use App\Models\NotificationSetting;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
+use RuntimeException;
 use Tests\TestCase;
 
 final class AuthTest extends TestCase
@@ -148,7 +151,50 @@ final class AuthTest extends TestCase
     {
         $this->getJson('/api/v1/health')
             ->assertOk()
-            ->assertExactJson(['data' => ['status' => 'ok']]);
+            ->assertExactJson(['data' => ['status' => 'ok', 'database' => 'ok']]);
+    }
+
+    public function test_health_reports_an_unreachable_database_without_failing_the_probe(): void
+    {
+        // Render's health check points at this path. Returning a failure status
+        // would pull a container that can still explain itself out of service.
+        DB::shouldReceive('connection')->once()->andThrow(new QueryException('pgsql', 'select 1', [], new RuntimeException('could not translate host name')));
+
+        $this->getJson('/api/v1/health')
+            ->assertOk()
+            ->assertExactJson(['data' => ['status' => 'ok', 'database' => 'unavailable']]);
+    }
+
+    public function test_error_responses_carry_cors_headers_for_the_browser_to_read(): void
+    {
+        /*
+         * A rendered failure that reaches the browser without
+         * Access-Control-Allow-Origin is discarded before the SPA can read it, so
+         * the user is shown "cannot reach the server" for a server that answered.
+         */
+        config(['cors.allowed_origins' => ['https://daycraft.example']]);
+
+        $this->withHeader('Origin', 'https://daycraft.example')
+            ->getJson('/api/v1/auth/me')
+            ->assertStatus(401)
+            ->assertHeader('Access-Control-Allow-Origin', 'https://daycraft.example');
+    }
+
+    public function test_error_responses_never_echo_a_foreign_origin_back(): void
+    {
+        /*
+         * With a single allowed origin configured, CorsService advertises that
+         * origin rather than the caller's. The browser compares it against its own
+         * origin and blocks the response, which is the outcome we want — what must
+         * never happen is the foreign origin being reflected back as permitted.
+         */
+        config(['cors.allowed_origins' => ['https://daycraft.example']]);
+
+        $response = $this->withHeader('Origin', 'https://not-mine.example')
+            ->getJson('/api/v1/auth/me')
+            ->assertStatus(401);
+
+        $this->assertNotSame('https://not-mine.example', $response->headers->get('Access-Control-Allow-Origin'));
     }
 
     public function test_me_returns_authenticated_user(): void
