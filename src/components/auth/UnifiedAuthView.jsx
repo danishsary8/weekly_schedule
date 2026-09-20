@@ -437,17 +437,27 @@ export default function UnifiedAuthView({ initialMode = 'signin' }) {
                 required
               />
 
-              <p className="font-sans text-xs leading-relaxed text-ink/55">
-                By signing up, you agree to our{' '}
-                <Link to="/terms" className="inline-block py-1.5 -my-1.5 font-semibold text-career underline underline-offset-2">
-                  Terms of Service
-                </Link>{' '}
-                and acknowledge our{' '}
-                <Link to="/privacy" className="inline-block py-1.5 -my-1.5 font-semibold text-career underline underline-offset-2">
-                  Privacy Policy
-                </Link>
-                .
-              </p>
+              <div className="flex items-start gap-2.5 pt-1">
+                <input
+                  id="terms-agreement"
+                  type="checkbox"
+                  defaultChecked
+                  required
+                  aria-label="I agree to the Terms of Service and Privacy Policy"
+                  className="mt-0.5 h-4 w-4 rounded border-black/20 text-career focus:ring-career focus:ring-offset-paper accent-career"
+                />
+                <label htmlFor="terms-agreement" className="font-sans text-xs leading-relaxed text-ink/65">
+                  By signing up, you agree to our{' '}
+                  <Link to="/terms" className="inline-block py-1.5 -my-1.5 font-semibold text-career underline underline-offset-2">
+                    Terms of Service
+                  </Link>{' '}
+                  and acknowledge our{' '}
+                  <Link to="/privacy" className="inline-block py-1.5 -my-1.5 font-semibold text-career underline underline-offset-2">
+                    Privacy Policy
+                  </Link>
+                  .
+                </label>
+              </div>
 
               <div className="pt-1">
                 <SubmitButton loading={loading}>
