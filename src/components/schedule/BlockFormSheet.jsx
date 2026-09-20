@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Check, Loader2 } from 'lucide-react'
 import Modal from '../ui/Modal.jsx'
+import TimeRangePicker from '../ui/TimeRangePicker.jsx'
 import { CATEGORIES, CATEGORY_KEYS } from '../../config/categories.js'
 import { validateEntryDraft } from '../../utils/validateEntry.js'
 import { TOUCH_TARGET, TOUCH_TARGET_LG } from '../../config/layout.js'
@@ -41,10 +42,12 @@ export default function BlockFormSheet({ open, onClose, onSubmit, entry = null, 
     setSaving(false)
   }, [open, entry])
 
-  const update = (field) => (event) => {
-    setDraft((current) => ({ ...current, [field]: event.target.value }))
+  const updateValue = (field, value) => {
+    setDraft((current) => ({ ...current, [field]: value }))
     setErrors((current) => ({ ...current, [field]: undefined }))
   }
+
+  const update = (field) => (event) => updateValue(field, event.target.value)
 
   const submit = async (event) => {
     event.preventDefault()
@@ -88,32 +91,14 @@ export default function BlockFormSheet({ open, onClose, onSubmit, entry = null, 
       )}
     >
       <form id="block-form" onSubmit={submit} className="space-y-4" noValidate>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className={labelClasses} htmlFor="block-start">Starts</label>
-            <input
-              id="block-start"
-              type="time"
-              value={draft.start}
-              onChange={update('start')}
-              aria-invalid={Boolean(errors.start)}
-              className={`${fieldClasses} mt-1.5`}
-            />
-            {errors.start && <p role="alert" className={errorClasses}>{errors.start}</p>}
-          </div>
-          <div>
-            <label className={labelClasses} htmlFor="block-end">Ends</label>
-            <input
-              id="block-end"
-              type="time"
-              value={draft.end}
-              onChange={update('end')}
-              aria-invalid={Boolean(errors.end)}
-              className={`${fieldClasses} mt-1.5`}
-            />
-            {errors.end && <p role="alert" className={errorClasses}>{errors.end}</p>}
-          </div>
-        </div>
+        <TimeRangePicker
+          start={draft.start}
+          end={draft.end}
+          onStartChange={(value) => updateValue('start', value)}
+          onEndChange={(value) => updateValue('end', value)}
+          startError={errors.start}
+          endError={errors.end}
+        />
         <p className="font-sans text-body-sm text-ink/55">Overnight blocks are fine — end before start works.</p>
 
         <div>

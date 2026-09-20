@@ -32,3 +32,11 @@ export function markTourComplete(userId) {
     /* non-fatal */
   }
 }
+
+export function resetTour(userId) {
+  try {
+    localStorage.removeItem(tourFlagKey(userId))
+  } catch {
+    /* non-fatal */
+  }
+}

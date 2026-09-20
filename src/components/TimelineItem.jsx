@@ -58,6 +58,7 @@ const TimelineItem = forwardRef(function TimelineItem(
     prayerTimings = null,
     prayerSource = null,
     hasTimeOverride = false,
+    dataTour,
   },
   ref,
 ) {
@@ -158,7 +159,7 @@ const TimelineItem = forwardRef(function TimelineItem(
   // unchanged, so this stays aligned with Timeline's ruler and TimelineSkeleton
   // — those three MUST keep the same `left-rail` offset.
   return (
-    <motion.li ref={ref} variants={itemVariants} initial={animateIn ? undefined : false} className="relative pl-10 sm:pl-16">
+    <motion.li ref={ref} data-tour={dataTour} variants={itemVariants} initial={animateIn ? undefined : false} className="relative pl-10 sm:pl-16">
       {/* Node on the ruler line */}
       <span
         className="absolute left-rail sm:left-rail-sm top-6 flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full ring-4 ring-cream"

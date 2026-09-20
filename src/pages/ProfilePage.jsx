@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowLeft, KeyRound, LogOut, MailCheck, ScrollText, ShieldCheck, Trash2 } from 'lucide-react'
+import { ArrowLeft, KeyRound, LogOut, MailCheck, ScrollText, ShieldCheck, Sparkles, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import AccountDeletionDialog from '../components/AccountDeletionDialog.jsx'
@@ -9,6 +9,7 @@ import SettingsGroup from '../components/settings/SettingsGroup.jsx'
 import SettingsRow from '../components/settings/SettingsRow.jsx'
 import { clearUserCache } from '../api/offlineCache.js'
 import { resendVerificationEmail } from '../api/services.js'
+import { resetTour } from '../components/onboarding/tourState.js'
 import { useAuthStore } from '../store/authStore.js'
 import {
   BLOCK_GAP,
@@ -128,6 +129,18 @@ export default function ProfilePage() {
                 loading={resending}
               />
             )}
+          </SettingsGroup>
+
+          <SettingsGroup label="Guide" className={SECTION_GAP}>
+            <SettingsRow
+              icon={Sparkles}
+              label="Show tour again"
+              description="Take a guided walkthrough of Daycraft"
+              onClick={() => {
+                resetTour(user?.id)
+                navigate('/dashboard', { state: { runTour: true } })
+              }}
+            />
           </SettingsGroup>
 
           <SettingsGroup label="About" className={SECTION_GAP}>

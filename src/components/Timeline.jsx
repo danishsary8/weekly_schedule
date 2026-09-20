@@ -95,6 +95,7 @@ export default function Timeline({
               <TimelineItem
                 key={entry.id}
                 entry={entry}
+                dataTour={i === 0 ? 'routine-block' : undefined}
                 isLive={entry.id === liveId}
                 animateIn={staggerOnMount}
                 onSelect={onSelectEntry}

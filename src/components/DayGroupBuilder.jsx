@@ -7,6 +7,7 @@ import { describeApiError } from '../utils/apiError.js'
 import { createChecklistItem, createDayGroup, createTimelineEntry } from '../api/services.js'
 import Card from './Card.jsx'
 import ColorPicker from './ui/ColorPicker.jsx'
+import TimeRangePicker from './ui/TimeRangePicker.jsx'
 import { WEEKDAY_SHORTS } from '../config/weekdays.js'
 
 const DAYS = WEEKDAY_SHORTS
@@ -102,8 +103,14 @@ export default function DayGroupBuilder({ onComplete, onCancel, compact = false 
           <fieldset className="rounded-2xl bg-cream/55 p-4 ring-1 ring-black/[0.07]">
             <legend className="px-2 font-sans text-xs font-bold uppercase tracking-wide text-ink/60">Your first schedule block</legend>
             <div className="grid gap-3 sm:grid-cols-2">
-              <div><label htmlFor="first-start" className="mb-1.5 block font-sans text-xs font-semibold text-ink/55">Starts</label><input id="first-start" type="time" value={entry.start} onChange={(event) => setEntry({ ...entry, start: event.target.value })} className={field} /></div>
-              <div><label htmlFor="first-end" className="mb-1.5 block font-sans text-xs font-semibold text-ink/55">Ends</label><input id="first-end" type="time" value={entry.end} onChange={(event) => setEntry({ ...entry, end: event.target.value })} className={field} /></div>
+              <TimeRangePicker
+                start={entry.start}
+                end={entry.end}
+                onStartChange={(value) => setEntry((current) => ({ ...current, start: value }))}
+                onEndChange={(value) => setEntry((current) => ({ ...current, end: value }))}
+                idPrefix="first-block-time"
+                className="sm:col-span-2"
+              />
               <div className="sm:col-span-2"><label htmlFor="first-description" className="mb-1.5 block font-sans text-xs font-semibold text-ink/55">What will you do?</label><input id="first-description" aria-label="Block description" value={entry.description} onChange={(event) => setEntry({ ...entry, description: event.target.value })} placeholder="e.g. Plan the day" className={field} /></div>
               <div className="sm:col-span-2"><label htmlFor="first-category" className="mb-1.5 block font-sans text-xs font-semibold text-ink/55">Category</label><select id="first-category" aria-label="Block category" value={entry.category} onChange={(event) => setEntry({ ...entry, category: event.target.value })} className={field}>{CATEGORY_KEYS.map((key) => <option key={key}>{key}</option>)}</select></div>
             </div>

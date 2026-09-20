@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import toast from 'react-hot-toast'
 import { CalendarPlus, Plus, Sunrise } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore.js'
 import { useApiResource } from '../hooks/useScheduleData.js'
 import { useChecklistState } from '../hooks/useChecklistState.js'
@@ -104,6 +104,7 @@ export default function DashboardPage() {
   const reduceMotion = useReducedMotion()
   const user = useAuthStore((state) => state.user)
   const navigate = useNavigate()
+  const location = useLocation()
   const userId = user?.id
   const [now, setNow] = useState(() => new Date())
   const [selectedId, setSelectedId] = useState(null)
@@ -246,7 +247,18 @@ export default function DashboardPage() {
   const [coords, setCoords] = useState(null)
   useEffect(() => { getBrowserCoords().then(setCoords) }, [])
   const prayer = useApiResource(() => fetchPrayerTimes(date, coords), { cacheKey: `prayer:${date}`, userId, deps: [date, coords?.latitude, coords?.longitude] })
-  useEffect(() => { if (list.length && !hasCompletedTour(userId)) { const timer = setTimeout(() => setRunTour(true), 800); return () => clearTimeout(timer) } }, [list.length, userId])
+  useEffect(() => {
+    if (!list.length) return
+    if (location.state?.runTour) {
+      window.history.replaceState({}, document.title)
+      const timer = setTimeout(() => setRunTour(true), 400)
+      return () => clearTimeout(timer)
+    }
+    if (!hasCompletedTour(userId)) {
+      const timer = setTimeout(() => setRunTour(true), 800)
+      return () => clearTimeout(timer)
+    }
+  }, [list.length, userId, location.state?.runTour])
   const dateLabel = useMemo(() => now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }), [date])
   /** Phone-width date. The long form wraps onto three lines at 390px. */
   const dateShortLabel = useMemo(() => now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }), [date])

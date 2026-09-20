@@ -102,6 +102,7 @@ export default function DashboardHeader({
           <button
             type="button"
             onClick={onOpenProfile}
+            data-tour="profile"
             aria-label="Open profile and settings"
             title="Profile and settings"
             className="flex flex-shrink-0 rounded-full shadow-card focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
