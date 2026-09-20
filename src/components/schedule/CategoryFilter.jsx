@@ -5,22 +5,26 @@ import { TOUCH_TARGET } from '../../config/layout.js'
 export const ALL_CATEGORIES = 'All'
 
 /**
- * Primary category nav for the day's plan.
+ * Category filter for the day's plan.
  *
- * This row is deliberately *stable*: it always offers "All" plus every
- * selectable category, in config order, whether or not the current routine
- * happens to use them. An earlier version listed only the categories present in
- * the schedule and hid itself below two options, which meant the row changed
- * shape — or vanished — as the user switched routines. A navigation control that
- * moves is a navigation control users stop trusting.
+ * Only offers what can actually narrow the list
+ * ---------------------------------------------
+ * An earlier version always rendered "All" plus every selectable category, with
+ * the unused ones dimmed at a `0` count. On a phone that produced a row of five
+ * chips where four were dead ends, and the audit showed three of them scrolled
+ * off-screen — the nav cost horizontal space to advertise choices that lead to an
+ * empty list. It now offers "All" plus the categories present in this routine.
  *
- * Categories with nothing in them are dimmed and show a `0`, so the row is
- * honest about what a tap will do without ever becoming a dead end: selecting
- * one lands on the caller's empty message rather than a blank screen.
+ * The row hides itself entirely when the schedule holds fewer than two
+ * categories, because filtering one category by that same category is not a
+ * choice. The one exception is an active filter: if a selection is still applied
+ * (after switching routines, say) its chip stays rendered even at zero blocks, so
+ * the user always has a way back to "All" instead of facing an empty plan with no
+ * visible control.
  *
  * Retired or hand-edited keys still present on historical entries are appended
- * after the five, so those blocks remain reachable even though the category can
- * no longer be chosen for new ones.
+ * after the configured ones, so those blocks remain reachable even though the
+ * category can no longer be chosen for new ones.
  *
  * The row scrolls sideways within the page's content box. It deliberately does
  * NOT use the `-mx-4 px-4` bleed the old day switcher used: that makes the
@@ -39,9 +43,19 @@ export default function CategoryFilter({ schedule = [], value = ALL_CATEGORIES, 
     return totals
   }, new Map())
 
-  // Every selectable category, always, then any legacy/unknown key the data
-  // still carries so its blocks stay filterable.
-  const keys = [...CATEGORY_KEYS, ...[...counts.keys()].filter((key) => !(key in CATEGORIES))]
+  const filtering = value !== ALL_CATEGORIES
+
+  // Nothing to narrow: one category (or none) cannot be filtered into anything
+  // smaller. Kept visible while a filter is applied so it can be undone.
+  if (counts.size < 2 && !filtering) return null
+
+  const present = new Set(counts.keys())
+  if (filtering) present.add(value)
+
+  const keys = [
+    ...CATEGORY_KEYS.filter((key) => present.has(key)),
+    ...[...present].filter((key) => !(key in CATEGORIES)).sort(),
+  ]
 
   const options = [
     { key: ALL_CATEGORIES, label: 'All', count: schedule.length, category: null },
@@ -50,7 +64,15 @@ export default function CategoryFilter({ schedule = [], value = ALL_CATEGORIES, 
 
   return (
     <nav className={className} aria-label="Filter the plan by category">
-      <ul className="flex snap-x items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap">
+      {/* The tour anchor lives on the row itself, not on a wrapper in the page.
+          This component now returns null when it cannot narrow anything, and an
+          anchor left behind on an empty wrapper would give the onboarding tour a
+          zero-height target to point at. With the attribute here, the step's
+          target simply does not exist and Joyride moves on. */}
+      <ul
+        data-tour="category-filter"
+        className="flex snap-x items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap"
+      >
         {options.map((option) => {
           const selected = value === option.key
           const empty = option.count === 0 && !selected
@@ -66,8 +88,7 @@ export default function CategoryFilter({ schedule = [], value = ALL_CATEGORIES, 
                 /*
                  * Explicit label: the visible count sits in its own element with
                  * no separating whitespace, so the derived name would be read as
-                 * "Career2". Spelling it out also lets the empty state say what
-                 * it means instead of relying on a dimmed appearance.
+                 * "Career2".
                  */
                 aria-label={`${option.label}, ${option.count} ${option.count === 1 ? 'block' : 'blocks'}`}
                 className={`${TOUCH_TARGET} inline-flex items-center gap-2 rounded-full px-3.5 font-sans text-sm font-bold ring-1 transition-[background-color,color,opacity] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-cream ${empty ? 'opacity-45' : ''}`}

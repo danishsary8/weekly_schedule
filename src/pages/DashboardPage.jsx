@@ -358,9 +358,7 @@ export default function DashboardPage() {
             {Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-11 w-24 rounded-full" />)}
           </div>
         ) : timeline.length > 0 && (
-          <div className={BLOCK_GAP} data-tour="category-filter">
-            <CategoryFilter schedule={timeline} value={categoryFilter} onChange={setCategoryFilter} />
-          </div>
+          <CategoryFilter schedule={timeline} value={categoryFilter} onChange={setCategoryFilter} className={BLOCK_GAP} />
         )}
 
         {building && (

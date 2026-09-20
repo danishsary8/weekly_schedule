@@ -1,27 +1,51 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { setUnauthorizedHandler } from './api/client.js'
 import { useAuthStore } from './store/authStore.js'
 import ProtectedRoute from './components/auth/ProtectedRoute.jsx'
 import Toaster from './components/ui/Toaster.jsx'
-import LoginPage from './pages/LoginPage.jsx'
-import RegisterPage from './pages/RegisterPage.jsx'
-import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx'
-import ResetPasswordPage from './pages/ResetPasswordPage.jsx'
-import GoogleCallbackPage from './pages/GoogleCallbackPage.jsx'
-import EmailVerifiedPage from './pages/EmailVerifiedPage.jsx'
-import { PrivacyPage, TermsPage } from './pages/LegalPage.jsx'
-import DashboardPage from './pages/DashboardPage.jsx'
-import LandingPage from './pages/LandingPage.jsx'
-import InternalAnalyticsPage from './pages/InternalAnalyticsPage.jsx'
-import ProfilePage from './pages/ProfilePage.jsx'
 import FullScreenLoader from './components/ui/FullScreenLoader.jsx'
 import SplashScreen from './components/ui/SplashScreen.jsx'
 import { setMonitoringUser } from './monitoring.js'
 import { trackPageView } from './analytics.js'
 
-const SPLASH_DURATION_MS = 3000
+/*
+ * Pages are code-split per route.
+ *
+ * Every page used to be a static import, so a single chunk carried the landing
+ * page, both auth screens, the password flows, the legal text, the dashboard, the
+ * profile and the internal analytics report — 523 kB before gzip. A phone opening
+ * /login parsed the whole application, including screens that account reaches
+ * only after signing in. Splitting means a visit downloads the screen it asked
+ * for.
+ *
+ * LegalPage exports two pages from one module, so each wrapper selects its own
+ * named export.
+ */
+const LoginPage = lazy(() => import('./pages/LoginPage.jsx'))
+const RegisterPage = lazy(() => import('./pages/RegisterPage.jsx'))
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage.jsx'))
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage.jsx'))
+const GoogleCallbackPage = lazy(() => import('./pages/GoogleCallbackPage.jsx'))
+const EmailVerifiedPage = lazy(() => import('./pages/EmailVerifiedPage.jsx'))
+const PrivacyPage = lazy(() => import('./pages/LegalPage.jsx').then((module) => ({ default: module.PrivacyPage })))
+const TermsPage = lazy(() => import('./pages/LegalPage.jsx').then((module) => ({ default: module.TermsPage })))
+const DashboardPage = lazy(() => import('./pages/DashboardPage.jsx'))
+const LandingPage = lazy(() => import('./pages/LandingPage.jsx'))
+const InternalAnalyticsPage = lazy(() => import('./pages/InternalAnalyticsPage.jsx'))
+const ProfilePage = lazy(() => import('./pages/ProfilePage.jsx'))
+
+/**
+ * Shortest time the splash stays up.
+ *
+ * This was a fixed 3000ms timer, so every cold load — including a returning user
+ * tapping a bookmark — waited three seconds before the app rendered anything,
+ * whether or not it was ready sooner. The splash now covers real work (restoring
+ * the session, fetching the route's chunk) and this floor only prevents a
+ * single-frame flash on a fast connection.
+ */
+const MIN_SPLASH_MS = 600
 
 /** Fade + slight scale between auth screens and the dashboard. */
 function PageTransition({ children }) {
@@ -63,7 +87,7 @@ export default function AppRoutes() {
   const forceLogout = useAuthStore((s) => s.forceLogout)
   const status = useAuthStore((s) => s.status)
   const user = useAuthStore((s) => s.user)
-  const [showSplash, setShowSplash] = useState(true)
+  const [splashFloorPassed, setSplashFloorPassed] = useState(false)
 
   useEffect(() => {
     trackPageView(location.key, location.pathname)
@@ -79,7 +103,7 @@ export default function AppRoutes() {
   }, [user?.id])
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setShowSplash(false), SPLASH_DURATION_MS)
+    const timer = window.setTimeout(() => setSplashFloorPassed(true), MIN_SPLASH_MS)
     return () => window.clearTimeout(timer)
   }, [])
 
@@ -95,6 +119,12 @@ export default function AppRoutes() {
 
   const isAuthed = status === 'authenticated'
   const authPending = status === 'idle' || status === 'loading'
+  /*
+   * One waiting surface instead of two. The splash previously ran on a timer and
+   * was followed by a separate "Preparing Daycraft…" loader, so a slow session
+   * restore showed two different waiting screens in a row.
+   */
+  const showSplash = !splashFloorPassed || authPending
 
   return (
     <>
@@ -103,12 +133,9 @@ export default function AppRoutes() {
       <AnimatePresence mode="wait">
         {showSplash ? (
           <SplashScreen key="cold-load-splash" />
-        ) : authPending ? (
-          <motion.div key="auth-loading" exit={{ opacity: 0 }}>
-            <FullScreenLoader label="Preparing Daycraft…" />
-          </motion.div>
         ) : (
-          <Routes location={location} key={location.pathname}>
+          <Suspense key="routes" fallback={<FullScreenLoader label="Opening Daycraft…" />}>
+            <Routes location={location} key={location.pathname}>
           <Route
             path="/login"
             element={
@@ -153,7 +180,8 @@ export default function AppRoutes() {
           <Route path="/profile" element={<ProtectedRoute><PageTransition><ProfilePage /></PageTransition></ProtectedRoute>} />
           <Route path="/internal/analytics" element={<ProtectedRoute><PageTransition><InternalAnalyticsPage /></PageTransition></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+            </Routes>
+          </Suspense>
         )}
       </AnimatePresence>
     </>
