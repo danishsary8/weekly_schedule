@@ -21,7 +21,7 @@ vi.mock('react-hot-toast', () => ({
   }),
 }))
 
-describe('LoginPage and Progressive Two-Panel Auth Flow', () => {
+describe('LoginPage and Progressive Two-Panel Auth Flow with Panel Swap', () => {
   const mockLogin = vi.fn()
   const mockRegister = vi.fn()
 
@@ -36,25 +36,26 @@ describe('LoginPage and Progressive Two-Panel Auth Flow', () => {
     )
   })
 
-  it('renders all required two-panel layout elements and copy verbatim on Sign In', () => {
+  it('renders all required two-panel layout elements, script tagline, and copy verbatim on Sign In', () => {
     render(
       <MemoryRouter>
         <LoginPage />
       </MemoryRouter>,
     )
 
-    // Left Panel: Logo, Placeholder, Brand Statement, 3 Benefit Bullets
+    // Left Panel: Logo, Placeholder without broken alt, Script Tagline, Brand Statement, 3 Benefit Bullets
     expect(screen.getByText('Daycraft')).toBeInTheDocument()
     expect(screen.getByTestId('brand-visual-placeholder')).toBeInTheDocument()
+    expect(screen.getByText('Made for days that matter.')).toBeInTheDocument()
     expect(screen.getByText('Routines crafted for intentional, calmer days.')).toBeInTheDocument()
     expect(screen.getByText('Build routines that actually stick')).toBeInTheDocument()
     expect(screen.getByText('See your whole day, at a glance')).toBeInTheDocument()
     expect(screen.getByText('Free to start, no clutter')).toBeInTheDocument()
 
-    // Right Panel: Heading, Subtext, Step Indicator
+    // Right Panel: Heading (single-line style), Subtext, Progress Bar
     expect(screen.getByRole('heading', { level: 1, name: 'Plan your day, beautifully.' })).toBeInTheDocument()
     expect(screen.getByText('Sign in to pick up right where you left off.')).toBeInTheDocument()
-    expect(screen.getByText('Step 1 of 2')).toBeInTheDocument()
+    expect(screen.getByLabelText('Step 1 of 2')).toBeInTheDocument()
 
     // Step 1: Email input, Toggle, Continue button
     expect(screen.getByLabelText(/^email$/i)).toBeInTheDocument()
@@ -119,7 +120,7 @@ describe('LoginPage and Progressive Two-Panel Auth Flow', () => {
     // Await step 2 controls
     const passwordInput = await screen.findByLabelText(/^password$/i)
     expect(passwordInput).toBeInTheDocument()
-    expect(screen.getByText('Step 2 of 2')).toBeInTheDocument()
+    expect(screen.getByLabelText('Step 2 of 2')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Forgot password?' })).toBeInTheDocument()
   })
@@ -143,7 +144,7 @@ describe('LoginPage and Progressive Two-Panel Auth Flow', () => {
 
     // Await step 1 email input to reappear
     const emailInput = await screen.findByLabelText(/^email$/i)
-    expect(screen.getByText('Step 1 of 2')).toBeInTheDocument()
+    expect(screen.getByLabelText('Step 1 of 2')).toBeInTheDocument()
     expect(emailInput).toHaveValue('remember@example.com')
   })
 
@@ -185,7 +186,7 @@ describe('LoginPage and Progressive Two-Panel Auth Flow', () => {
     // Header & Step 1
     expect(screen.getByRole('heading', { level: 1, name: 'Start building your perfect day.' })).toBeInTheDocument()
     expect(screen.getByText('Create your account and make routines that stick.')).toBeInTheDocument()
-    expect(screen.getByText('Step 1 of 3')).toBeInTheDocument()
+    expect(screen.getByLabelText('Step 1 of 3')).toBeInTheDocument()
 
     // Step 1: Name validation
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
@@ -196,14 +197,14 @@ describe('LoginPage and Progressive Two-Panel Auth Flow', () => {
 
     // Step 2: Email validation
     const emailInput = await screen.findByLabelText(/^email$/i)
-    expect(screen.getByText('Step 2 of 3')).toBeInTheDocument()
+    expect(screen.getByLabelText('Step 2 of 3')).toBeInTheDocument()
 
     fireEvent.change(emailInput, { target: { value: 'sarah@example.com' } })
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
 
     // Step 3: Password & Confirm password & Checkbox
     const passwordInput = await screen.findByLabelText(/^password$/i)
-    expect(screen.getByText('Step 3 of 3')).toBeInTheDocument()
+    expect(screen.getByLabelText('Step 3 of 3')).toBeInTheDocument()
     expect(screen.getByLabelText(/^confirm password$/i)).toBeInTheDocument()
     expect(screen.getByRole('checkbox', { name: /agree to the terms/i })).toBeInTheDocument()
 
@@ -278,7 +279,7 @@ describe('LoginPage and Progressive Two-Panel Auth Flow', () => {
     )
   })
 
-  it('switches between Sign In and Sign Up modes via bottom link', async () => {
+  it('swaps panels between Sign In and Sign Up modes via bottom link', async () => {
     render(
       <MemoryRouter>
         <LoginPage />
@@ -292,7 +293,7 @@ describe('LoginPage and Progressive Two-Panel Auth Flow', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 1, name: 'Start building your perfect day.' })).toBeInTheDocument()
-      expect(screen.getByText('Step 1 of 3')).toBeInTheDocument()
+      expect(screen.getByLabelText('Step 1 of 3')).toBeInTheDocument()
     })
 
     // Click "Sign in"
@@ -300,7 +301,7 @@ describe('LoginPage and Progressive Two-Panel Auth Flow', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 1, name: 'Plan your day, beautifully.' })).toBeInTheDocument()
-      expect(screen.getByText('Step 1 of 2')).toBeInTheDocument()
+      expect(screen.getByLabelText('Step 1 of 2')).toBeInTheDocument()
     })
   })
 })

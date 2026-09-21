@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ArrowLeft, Calendar, CalendarCheck, CheckCircle2, Sparkles } from 'lucide-react'
@@ -13,25 +13,23 @@ import PublicFooter from '../PublicFooter.jsx'
 /**
  * UnifiedAuthView
  *
- * Professional two-panel authentication experience for Daycraft.
+ * Professional two-panel authentication experience for Daycraft with reversible sliding panel-swap.
  *
- * Left Panel:
- * - Daycraft logo + wordmark
- * - Fixed 4:3 aspect ratio designated empty brand visual placeholder
- * - Warm brand statement + 3 category-colored benefit bullets
- * - Anchored footer
- *
- * Right Panel:
- * - Script font heading + muted subtext
- * - Step progress indicator
- * - Progressive single-field step-by-step form flow with forward/backward animated transitions
- * - Email / Phone number toggle on the identifier step
- * - Social login buttons (Continue with Google + Continue with Facebook)
- * - Mode switch link (Sign In <-> Sign Up)
+ * Left/Right Panels:
+ * - Sign In: Brand Panel is on LEFT (cream), Form is on RIGHT (paper/white).
+ * - Sign Up: Form is on LEFT (paper/white), Brand Panel is on RIGHT (cream).
+ * - Toggling modes animates a coordinated horizontal slide-swap (desktop) or vertical slide (mobile).
+ * - Fixed empty image placeholder with graceful fallback (no broken alt-text).
+ * - Script font tagline ("Made for days that matter.") between placeholder and benefit bullets.
+ * - Single-line script headings.
+ * - Progress bar without "STEP X OF Y" text label.
+ * - Progressive single-field step flow with email/phone toggle.
+ * - Google & Facebook social buttons.
+ * - Card sized to fit standard screens without vertical overflow.
  */
 export default function UnifiedAuthView({
   initialMode = 'signin',
-  imageSrc = 'public/Gemini_Generated_Image_yvzsxyvzsxyvzsxy.jpg',
+  imageSrc = null,
   imageAlt = 'Daycraft daily routine planner',
 }) {
   const navigate = useNavigate()
@@ -43,12 +41,15 @@ export default function UnifiedAuthView({
   const [mode, setMode] = useState(initialMode)
   const isSignIn = mode === 'signin'
 
-  // Step state: Sign In has 2 steps, Sign Up has 3 steps
+  // Image load error fallback state (prevents broken alt-text)
+  const [imgFailed, setImgFailed] = useState(false)
+
+  // Progressive Step state: Sign In has 2 steps, Sign Up has 3 steps
   const [step, setStep] = useState(1)
-  const [direction, setDirection] = useState(1) // 1 = forward, -1 = backward
+  const [stepDirection, setStepDirection] = useState(1) // 1 = forward, -1 = backward
   const totalSteps = isSignIn ? 2 : 3
 
-  // Form field state (persists across step navigation)
+  // Form field state (retained across step navigation and panel swaps)
   const [contactMethod, setContactMethod] = useState('email') // 'email' | 'phone'
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -66,7 +67,7 @@ export default function UnifiedAuthView({
     if (initialMode) {
       setMode(initialMode)
       setStep(1)
-      setDirection(1)
+      setStepDirection(1)
       setErrors({})
       setFormError('')
     }
@@ -76,27 +77,26 @@ export default function UnifiedAuthView({
     if (newMode === mode) return
     setMode(newMode)
     setStep(1)
-    setDirection(1)
+    setStepDirection(1)
     setErrors({})
     setFormError('')
+
     if (typeof window !== 'undefined' && window.history?.pushState) {
       window.history.pushState(null, '', newMode === 'signin' ? '/login' : '/register')
     }
   }
 
-  // Email format validation helper
+  // Validation helpers
   const isValidEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim())
-  // Phone format validation helper (international or local format with at least 7 digits)
   const isValidPhone = (val) => /^[+]?[\d\s().-]{7,20}$/.test(val.trim())
 
-  // Go to next step in flow after local client-side validation
+  // Step navigation: forward
   const handleNextStep = (e) => {
     e?.preventDefault()
     setErrors({})
     setFormError('')
 
     if (isSignIn) {
-      // Step 1: Identifier (Email or Phone)
       if (step === 1) {
         if (contactMethod === 'email') {
           if (!email.trim()) {
@@ -117,13 +117,11 @@ export default function UnifiedAuthView({
             return
           }
         }
-        setDirection(1)
+        setStepDirection(1)
         setStep(2)
       }
     } else {
-      // Sign Up Flow
       if (step === 1) {
-        // Name validation
         if (!name.trim()) {
           setErrors({ name: 'Please enter your name.' })
           return
@@ -132,10 +130,9 @@ export default function UnifiedAuthView({
           setErrors({ name: 'Name must be at least 2 characters.' })
           return
         }
-        setDirection(1)
+        setStepDirection(1)
         setStep(2)
       } else if (step === 2) {
-        // Email / Phone validation
         if (contactMethod === 'email') {
           if (!email.trim()) {
             setErrors({ email: 'Please enter your email.' })
@@ -155,21 +152,21 @@ export default function UnifiedAuthView({
             return
           }
         }
-        setDirection(1)
+        setStepDirection(1)
         setStep(3)
       }
     }
   }
 
-  // Go to previous step
+  // Step navigation: backward
   const handlePrevStep = () => {
     setErrors({})
     setFormError('')
-    setDirection(-1)
+    setStepDirection(-1)
     setStep((prev) => Math.max(1, prev - 1))
   }
 
-  // Final submit for Sign In (Step 2)
+  // Submit Sign In (Step 2)
   const handleSignInSubmit = async (e) => {
     e.preventDefault()
     setErrors({})
@@ -203,7 +200,7 @@ export default function UnifiedAuthView({
     }
   }
 
-  // Final submit for Sign Up (Step 3)
+  // Submit Sign Up (Step 3)
   const handleSignUpSubmit = async (e) => {
     e.preventDefault()
     setErrors({})
@@ -255,10 +252,10 @@ export default function UnifiedAuthView({
     }
   }
 
-  // Animation variants for progressive step slide + fade
+  // Step transition animation specs
   const stepVariants = {
     enter: (dir) => ({
-      x: reduceMotion ? 0 : dir > 0 ? 24 : -24,
+      x: reduceMotion ? 0 : dir > 0 ? 20 : -20,
       opacity: 0,
     }),
     center: {
@@ -266,26 +263,32 @@ export default function UnifiedAuthView({
       opacity: 1,
     },
     exit: (dir) => ({
-      x: reduceMotion ? 0 : dir > 0 ? -24 : 24,
+      x: reduceMotion ? 0 : dir > 0 ? -20 : 20,
       opacity: 0,
     }),
   }
 
   const stepTransition = {
-    duration: reduceMotion ? 0.05 : 0.28,
+    duration: reduceMotion ? 0.05 : 0.26,
+    ease: [0.32, 0.72, 0, 1],
+  }
+
+  // Panel-swap transition spec
+  const panelSwapTransition = {
+    duration: reduceMotion ? 0.05 : 0.4,
     ease: [0.32, 0.72, 0, 1],
   }
 
   return (
-    <div className="min-h-viewport flex flex-col justify-between bg-cream px-4 py-6 sm:px-6 md:px-8 lg:px-12 md:py-10 selection:bg-career/20 selection:text-ink">
-      {/* Screen reader announcement of step and mode */}
+    <div className="min-h-viewport flex flex-col justify-center bg-cream px-3 py-4 sm:px-6 md:px-8 lg:px-12 md:py-6 selection:bg-career/20 selection:text-ink">
+      {/* Screen reader announcement */}
       <div className="sr-only" role="status" aria-live="polite">
         {isSignIn
           ? `Sign in step ${step} of ${totalSteps}`
           : `Create account step ${step} of ${totalSteps}`}
       </div>
 
-      {/* Ambient decorative backdrop */}
+      {/* Ambient background decoration */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
         <div className="absolute -left-32 -top-40 h-96 w-96 rounded-full bg-career opacity-10 blur-3xl" />
         <div className="absolute -bottom-40 -right-24 h-80 w-80 rounded-full bg-ink opacity-5 blur-3xl" />
@@ -293,19 +296,26 @@ export default function UnifiedAuthView({
 
       {/* Main Two-Panel Card Container */}
       <motion.div
-        initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.96 }}
+        initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 14, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: reduceMotion ? 0.1 : 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="relative mx-auto my-auto flex w-full max-w-5xl flex-col overflow-hidden rounded-[32px] bg-paper shadow-card ring-1 ring-black/10 md:min-h-[660px] md:flex-row"
+        transition={{ duration: reduceMotion ? 0.1 : 0.32, ease: [0.22, 1, 0.36, 1] }}
+        className="relative mx-auto my-auto flex w-full max-w-5xl flex-col overflow-hidden rounded-[28px] bg-paper shadow-card ring-1 ring-black/10 md:min-h-[580px] md:flex-row md:rounded-[32px]"
       >
-        
+
         {/* ================================================================= */}
-        {/* LEFT PANEL: Branding, Placeholder Asset, Brand Statement, Footer  */}
+        {/* BRAND / ILLUSTRATION PANEL                                       */}
+        {/* Sign In: Left (md:order-1) | Sign Up: Right (md:order-2)          */}
         {/* ================================================================= */}
-        <div className="flex w-full flex-col justify-between border-b border-black/5 bg-[#F5EDE6] p-6 sm:p-8 md:w-1/2 md:border-b-0 md:border-r md:p-10 lg:p-12">
-          {/* Brand Logo & Wordmark */}
+        <motion.div
+          layout={reduceMotion ? undefined : 'position'}
+          transition={panelSwapTransition}
+          className={`flex w-full flex-col justify-between border-b border-black/5 bg-[#F5EDE6] p-5 sm:p-6 md:w-1/2 md:border-b-0 md:p-8 lg:p-9 ${
+            isSignIn ? 'md:order-1 md:border-r' : 'md:order-2 md:border-l'
+          }`}
+        >
+          {/* Top: Brand Logo & Wordmark */}
           <div className="inline-flex items-center gap-2.5">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-ink text-white shadow-sm">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-ink text-white shadow-sm sm:h-11 sm:w-11">
               <CalendarCheck className="h-5 w-5" aria-hidden="true" />
             </span>
             <span className="font-display text-2xl font-bold tracking-tight text-ink/80">
@@ -313,65 +323,65 @@ export default function UnifiedAuthView({
             </span>
           </div>
 
-          {/* Middle: Image Placeholder & Value Statement */}
-          <div className="my-auto py-6">
-            {/* -------------------------------------------------------------
-                IMAGE ASSET SLOT:
-                To place your own image here:
-                Option 1: Put your image in the `public/` directory (e.g. `public/auth-hero.png`)
-                          and set `imageSrc="/auth-hero.png"`.
-                Option 2: Import an image file and pass it to `imageSrc`.
-               ------------------------------------------------------------- */}
-            {imageSrc ? (
+          {/* Middle: Image Placeholder, Script Tagline & Benefits */}
+          <div className="my-auto py-4">
+            {/* Designated Empty Image Placeholder (4:3 aspect ratio, dashed border in dev) */}
+            {imageSrc && !imgFailed ? (
               <div
                 data-testid="brand-visual-placeholder"
-                className="relative mx-auto mb-6 hidden w-full max-w-[340px] aspect-[4/3] overflow-hidden rounded-2xl shadow-card ring-1 ring-black/10 sm:flex items-center justify-center bg-white"
+                className="relative mx-auto mb-4 hidden w-full max-w-[280px] aspect-[4/3] overflow-hidden rounded-2xl shadow-card ring-1 ring-black/10 sm:flex items-center justify-center bg-white"
               >
                 <img
                   src={imageSrc}
-                  alt={imageAlt}
+                  alt=""
+                  onError={() => setImgFailed(true)}
                   className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
                 />
               </div>
             ) : (
               <div
                 data-testid="brand-visual-placeholder"
-                className="relative mx-auto mb-6 hidden w-full max-w-[340px] aspect-[4/3] rounded-2xl border-2 border-dashed border-ink/20 bg-ink/[0.03] p-5 sm:flex flex-col items-center justify-center text-center transition-colors hover:border-career/40"
+                className="relative mx-auto mb-4 hidden w-full max-w-[280px] aspect-[4/3] rounded-2xl border-2 border-dashed border-ink/20 bg-ink/[0.02] p-4 sm:flex flex-col items-center justify-center text-center transition-colors hover:border-career/30"
               >
-                <div className="mb-2.5 flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-xs ring-1 ring-black/10 text-ink/40">
-                  <Sparkles className="h-6 w-6 text-career" aria-hidden="true" />
+                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-xs ring-1 ring-black/10 text-ink/40">
+                  <Sparkles className="h-5 w-5 text-career" aria-hidden="true" />
                 </div>
-                <p className="font-sans text-xs font-bold uppercase tracking-wider text-ink/70">
+                <p className="font-sans text-xs font-bold uppercase tracking-wider text-ink/65">
                   Brand Visual Placeholder
                 </p>
-                <p className="mt-0.5 font-sans text-[11px] text-ink/45">
-                  Fixed 4:3 container • Ready for asset
+                <p className="mt-0.5 font-sans text-[11px] text-ink/40">
+                  Fixed 4:3 container
                 </p>
               </div>
             )}
 
+            {/* Script Font Tagline: Handwritten family, dark charcoal, under 6 words */}
+            <p className="text-center font-display text-2xl sm:text-[26px] font-bold leading-snug text-ink md:text-left">
+              Made for days that matter.
+            </p>
+
             {/* Warm Brand Statement */}
-            <p className="text-center font-sans text-body font-medium leading-relaxed text-ink/80 sm:text-base md:text-left">
+            <p className="mt-0.5 text-center font-sans text-xs font-medium leading-relaxed text-ink/70 sm:text-body-sm md:text-left">
               Routines crafted for intentional, calmer days.
             </p>
 
             {/* 3 Benefit Bullets with Lucide Icons in Category Accent Colors */}
-            <div className="mt-4 space-y-2.5 text-left">
-              <div className="flex items-center gap-2.5 font-sans text-xs sm:text-body-sm text-ink/75">
+            <div className="mt-3.5 space-y-2 text-left">
+              <div className="flex items-center gap-2.5 font-sans text-xs text-ink/75 sm:text-body-sm">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0F766E]/15 text-[#0F766E]">
                   <CheckCircle2 className="h-3.5 w-3.5 stroke-[2.5]" aria-hidden="true" />
                 </span>
                 <span>Build routines that actually stick</span>
               </div>
 
-              <div className="flex items-center gap-2.5 font-sans text-xs sm:text-body-sm text-ink/75">
+              <div className="flex items-center gap-2.5 font-sans text-xs text-ink/75 sm:text-body-sm">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#5E7964]/15 text-[#5E7964]">
                   <Calendar className="h-3.5 w-3.5 stroke-[2.5]" aria-hidden="true" />
                 </span>
                 <span>See your whole day, at a glance</span>
               </div>
 
-              <div className="flex items-center gap-2.5 font-sans text-xs sm:text-body-sm text-ink/75">
+              <div className="flex items-center gap-2.5 font-sans text-xs text-ink/75 sm:text-body-sm">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#7C8B9C]/15 text-[#7C8B9C]">
                   <Sparkles className="h-3.5 w-3.5 stroke-[2.5]" aria-hidden="true" />
                 </span>
@@ -381,17 +391,24 @@ export default function UnifiedAuthView({
           </div>
 
           {/* Anchored Footer on Desktop */}
-          <PublicFooter className="hidden md:flex justify-start pt-2" />
-        </div>
+          <PublicFooter className="hidden md:flex justify-start pt-1" />
+        </motion.div>
 
         {/* ================================================================= */}
-        {/* RIGHT PANEL: Form Side (Headings, Steps, Social Logins, Toggles)  */}
+        {/* FORM PANEL (RIGHT ON SIGN IN, LEFT ON SIGN UP)                    */}
+        {/* Sign In: Right (md:order-2) | Sign Up: Left (md:order-1)          */}
         {/* ================================================================= */}
-        <div className="flex w-full flex-col justify-between bg-paper p-6 sm:p-8 md:w-1/2 md:p-10 lg:p-12">
+        <motion.div
+          layout={reduceMotion ? undefined : 'position'}
+          transition={panelSwapTransition}
+          className={`flex w-full flex-col justify-between bg-paper p-5 sm:p-6 md:w-1/2 md:p-8 lg:p-9 ${
+            isSignIn ? 'md:order-2' : 'md:order-1'
+          }`}
+        >
           <div className="mx-auto w-full max-w-sm">
-            {/* Script Font Heading & Muted Subtext */}
-            <div className="mb-5">
-              <h1 className="display-title text-3xl sm:text-4xl font-bold leading-tight text-ink">
+            {/* Script Font Heading (one line style) & Muted Subtext */}
+            <div className="mb-4">
+              <h1 className="display-title text-2xl sm:text-3xl lg:text-[32px] font-bold leading-tight text-ink whitespace-normal sm:whitespace-nowrap">
                 {isSignIn ? 'Plan your day, beautifully.' : 'Start building your perfect day.'}
               </h1>
               <p className="mt-1 font-sans text-body-sm text-ink/65 leading-relaxed">
@@ -401,35 +418,30 @@ export default function UnifiedAuthView({
               </p>
             </div>
 
-            {/* Step-Progress Indicator */}
-            <div className="mb-5 flex items-center justify-between gap-3">
-              <span className="font-sans text-[11px] font-bold uppercase tracking-wider text-ink/50">
-                Step {step} of {totalSteps}
-              </span>
-              <div className="flex flex-1 items-center gap-1.5" aria-hidden="true">
-                {Array.from({ length: totalSteps }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                      i + 1 <= step ? 'bg-career' : 'bg-black/10'
-                    }`}
-                  />
-                ))}
-              </div>
+            {/* Step Progress Bar (without "STEP X OF Y" text label) */}
+            <div className="mb-4 flex items-center gap-1.5" aria-label={`Step ${step} of ${totalSteps}`}>
+              {Array.from({ length: totalSteps }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+                    i + 1 <= step ? 'bg-career' : 'bg-black/10'
+                  }`}
+                />
+              ))}
             </div>
 
             {/* Error Alert Box */}
             {formError && (
               <div
                 role="alert"
-                className="mb-4 rounded-xl bg-language/10 px-3.5 py-2.5 font-sans text-sm font-medium text-language ring-1 ring-language/20"
+                className="mb-3 rounded-xl bg-language/10 px-3.5 py-2 font-sans text-sm font-medium text-language ring-1 ring-language/20"
               >
                 {formError}
               </div>
             )}
 
-            {/* Progressive Single-Field Flow with Slide + Fade Transitions */}
-            <AnimatePresence mode="wait" custom={direction}>
+            {/* Progressive Single-Field Flow */}
+            <AnimatePresence mode="wait" custom={stepDirection}>
               {isSignIn ? (
                 /* ------------------------------------------------------------- */
                 /* SIGN IN STEPS                                                 */
@@ -437,14 +449,14 @@ export default function UnifiedAuthView({
                 step === 1 ? (
                   <motion.form
                     key="signin-step-1"
-                    custom={direction}
+                    custom={stepDirection}
                     variants={stepVariants}
                     initial="enter"
                     animate="center"
                     exit="exit"
                     transition={stepTransition}
                     onSubmit={handleNextStep}
-                    className="space-y-3.5"
+                    className="space-y-3"
                     noValidate
                   >
                     {contactMethod === 'email' ? (
@@ -494,24 +506,23 @@ export default function UnifiedAuthView({
                       </div>
                     )}
 
-                    <div className="pt-2">
+                    <div className="pt-1.5">
                       <SubmitButton>Continue</SubmitButton>
                     </div>
                   </motion.form>
                 ) : (
                   <motion.form
                     key="signin-step-2"
-                    custom={direction}
+                    custom={stepDirection}
                     variants={stepVariants}
                     initial="enter"
                     animate="center"
                     exit="exit"
                     transition={stepTransition}
                     onSubmit={handleSignInSubmit}
-                    className="space-y-3.5"
+                    className="space-y-3"
                     noValidate
                   >
-                    {/* Return to Step 1 without losing entered data */}
                     <button
                       type="button"
                       onClick={handlePrevStep}
@@ -542,7 +553,7 @@ export default function UnifiedAuthView({
                       }
                     />
 
-                    <div className="pt-2">
+                    <div className="pt-1.5">
                       <SubmitButton loading={loading}>
                         {loading ? 'Signing in…' : 'Sign in'}
                       </SubmitButton>
@@ -556,14 +567,14 @@ export default function UnifiedAuthView({
                 step === 1 ? (
                   <motion.form
                     key="signup-step-1"
-                    custom={direction}
+                    custom={stepDirection}
                     variants={stepVariants}
                     initial="enter"
                     animate="center"
                     exit="exit"
                     transition={stepTransition}
                     onSubmit={handleNextStep}
-                    className="space-y-3.5"
+                    className="space-y-3"
                     noValidate
                   >
                     <FormField
@@ -575,21 +586,21 @@ export default function UnifiedAuthView({
                       required
                     />
 
-                    <div className="pt-2">
+                    <div className="pt-1.5">
                       <SubmitButton>Continue</SubmitButton>
                     </div>
                   </motion.form>
                 ) : step === 2 ? (
                   <motion.form
                     key="signup-step-2"
-                    custom={direction}
+                    custom={stepDirection}
                     variants={stepVariants}
                     initial="enter"
                     animate="center"
                     exit="exit"
                     transition={stepTransition}
                     onSubmit={handleNextStep}
-                    className="space-y-3.5"
+                    className="space-y-3"
                     noValidate
                   >
                     <button
@@ -648,21 +659,21 @@ export default function UnifiedAuthView({
                       </div>
                     )}
 
-                    <div className="pt-2">
+                    <div className="pt-1.5">
                       <SubmitButton>Continue</SubmitButton>
                     </div>
                   </motion.form>
                 ) : (
                   <motion.form
                     key="signup-step-3"
-                    custom={direction}
+                    custom={stepDirection}
                     variants={stepVariants}
                     initial="enter"
                     animate="center"
                     exit="exit"
                     transition={stepTransition}
                     onSubmit={handleSignUpSubmit}
-                    className="space-y-3.5"
+                    className="space-y-3"
                     noValidate
                   >
                     <button
@@ -696,7 +707,7 @@ export default function UnifiedAuthView({
                     />
 
                     {/* Terms agreement checkbox */}
-                    <div className="flex items-start gap-2.5 pt-1">
+                    <div className="flex items-start gap-2 pt-0.5">
                       <input
                         id="terms-agreement"
                         type="checkbox"
@@ -719,7 +730,7 @@ export default function UnifiedAuthView({
                       </label>
                     </div>
 
-                    <div className="pt-2">
+                    <div className="pt-1.5">
                       <SubmitButton loading={loading}>
                         {loading ? 'Creating account…' : 'Create account'}
                       </SubmitButton>
@@ -730,13 +741,13 @@ export default function UnifiedAuthView({
             </AnimatePresence>
 
             {/* Social Logins: Google & Facebook */}
-            <div className="mt-4">
+            <div className="mt-3.5">
               <GoogleButton onError={setFormError} />
               <FacebookButton />
             </div>
 
             {/* Disclaimer text */}
-            <p className="mt-3 text-center font-sans text-xs leading-relaxed text-ink/50">
+            <p className="mt-2.5 text-center font-sans text-xs leading-relaxed text-ink/50">
               If Google creates a new account for you, continuing means you agree to the{' '}
               <Link to="/terms" className="inline-block py-1.5 -my-1.5 font-semibold text-career underline">
                 Terms
@@ -749,7 +760,7 @@ export default function UnifiedAuthView({
             </p>
 
             {/* Mode-switch link */}
-            <div className="mt-5 text-center font-sans text-body-sm text-ink/70">
+            <div className="mt-4 text-center font-sans text-body-sm text-ink/70">
               {isSignIn ? (
                 <>
                   New here?{' '}
@@ -787,10 +798,10 @@ export default function UnifiedAuthView({
           </div>
 
           {/* Mobile Footer */}
-          <div className="mt-6 flex justify-center md:hidden">
+          <div className="mt-5 flex justify-center md:hidden">
             <PublicFooter className="justify-center pt-1" />
           </div>
-        </div>
+        </motion.div>
 
       </motion.div>
     </div>
