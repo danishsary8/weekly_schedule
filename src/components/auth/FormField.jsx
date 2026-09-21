@@ -49,7 +49,7 @@ export default function FormField({
           required={required}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
-          className={`min-h-touch w-full rounded-xl bg-cream/70 px-3.5 font-sans text-body font-medium text-ink ring-1 transition-shadow placeholder:text-ink/30 focus:outline-none focus-visible:ring-2 ${
+          className={`min-h-touch w-full rounded-xl bg-cream/70 px-3.5 font-sans text-body font-medium text-ink ring-1 transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-ink/30 focus:outline-none focus-visible:ring-2 ${
             error ? 'ring-language' : 'ring-black/15'
           } ${isPassword ? 'pr-12' : ''}`}
           style={{ ['--tw-ring-color']: error ? '#E11D48' : '#0F766E' }}
@@ -60,7 +60,7 @@ export default function FormField({
             type="button"
             onClick={() => setRevealed((v) => !v)}
             aria-label={revealed ? 'Hide password' : 'Show password'}
-            className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg text-ink/50 transition-colors hover:bg-black/5 hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-career"
+            className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg text-ink/50 transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-black/5 hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-career"
           >
             {revealed ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>

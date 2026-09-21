@@ -31,7 +31,8 @@ export default function GoogleButton({ onError }) {
         disabled={loading}
         whileHover={reduceMotion || loading ? undefined : { scale: 1.01 }}
         whileTap={reduceMotion || loading ? undefined : { scale: 0.98 }}
-        className="flex min-h-touch-lg w-full items-center justify-center gap-3 rounded-xl bg-white px-4 font-sans text-sm font-bold text-ink ring-1 ring-black/15 transition-colors hover:bg-cream/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-career disabled:cursor-wait disabled:opacity-60"
+        transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
+        className="flex min-h-touch-lg w-full items-center justify-center gap-3 rounded-xl bg-white px-4 font-sans text-sm font-bold text-ink ring-1 ring-black/15 transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-cream/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-career disabled:cursor-wait disabled:opacity-60"
       >
         {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <img src="/google-g.svg" alt="" className="h-5 w-5" />}
         {loading ? 'Connecting to Google…' : 'Continue with Google'}

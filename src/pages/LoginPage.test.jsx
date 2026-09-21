@@ -43,23 +43,22 @@ describe('LoginPage and Progressive Two-Panel Auth Flow with Panel Swap', () => 
       </MemoryRouter>,
     )
 
-    // Left Panel: Logo, Placeholder without broken alt, Script Tagline, Brand Statement, 3 Benefit Bullets
+    // Left Panel: Logo, Headline, Subtext, Real Visual Container, Tagline, 3 Benefit Bullets, Footer
     expect(screen.getByText('Daycraft')).toBeInTheDocument()
-    expect(screen.getByTestId('brand-visual-placeholder')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Plan your day, beautifully.' })).toBeInTheDocument()
+    expect(screen.getByText('Sign in to pick up right where you left off.')).toBeInTheDocument()
+    expect(screen.getByTestId('brand-visual-container')).toBeInTheDocument()
     expect(screen.getByText('Made for days that matter.')).toBeInTheDocument()
-    expect(screen.getByText('Routines crafted for intentional, calmer days.')).toBeInTheDocument()
     expect(screen.getByText('Build routines that actually stick')).toBeInTheDocument()
     expect(screen.getByText('See your whole day, at a glance')).toBeInTheDocument()
     expect(screen.getByText('Free to start, no clutter')).toBeInTheDocument()
 
-    // Right Panel: Heading (single-line style), Subtext, Progress Bar
-    expect(screen.getByRole('heading', { level: 1, name: 'Plan your day, beautifully.' })).toBeInTheDocument()
-    expect(screen.getByText('Sign in to pick up right where you left off.')).toBeInTheDocument()
+    // Right Panel: Form starts directly with Step Progress Bar
     expect(screen.getByLabelText('Step 1 of 2')).toBeInTheDocument()
 
-    // Step 1: Email input, Toggle, Continue button
+    // Step 1: Email input, Toggle without 'instead', Continue button
     expect(screen.getByLabelText(/^email$/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Use phone number instead' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Use phone number' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument()
 
     // Social logins & Divider
@@ -88,12 +87,12 @@ describe('LoginPage and Progressive Two-Panel Auth Flow with Panel Swap', () => 
     expect(screen.getByLabelText(/^email$/i)).toBeInTheDocument()
 
     // Toggle to Phone number
-    fireEvent.click(screen.getByRole('button', { name: 'Use phone number instead' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Use phone number' }))
     expect(screen.getByLabelText(/phone number/i)).toBeInTheDocument()
     expect(screen.queryByLabelText(/^email$/i)).not.toBeInTheDocument()
 
     // Toggle back to Email
-    fireEvent.click(screen.getByRole('button', { name: 'Use email instead' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Use email' }))
     expect(screen.getByLabelText(/^email$/i)).toBeInTheDocument()
   })
 

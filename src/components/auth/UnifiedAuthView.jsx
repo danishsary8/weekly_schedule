@@ -29,8 +29,8 @@ import PublicFooter from '../PublicFooter.jsx'
  */
 export default function UnifiedAuthView({
   initialMode = 'signin',
-  imageSrc = null,
-  imageAlt = 'Daycraft daily routine planner',
+  imageSrc = '/Gemini_Generated_Image_yvzsxyvzsxyvzsxy.jpg',
+  imageAlt = '',
 }) {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -40,6 +40,12 @@ export default function UnifiedAuthView({
 
   const [mode, setMode] = useState(initialMode)
   const isSignIn = mode === 'signin'
+
+  const resolvedImageSrc = imageSrc
+    ? imageSrc.startsWith('public/')
+      ? '/' + imageSrc.slice('public/'.length)
+      : imageSrc
+    : '/Gemini_Generated_Image_yvzsxyvzsxyvzsxy.jpg'
 
   // Image load error fallback state (prevents broken alt-text)
   const [imgFailed, setImgFailed] = useState(false)
@@ -252,30 +258,33 @@ export default function UnifiedAuthView({
     }
   }
 
-  // Step transition animation specs
+  // Step transition animation specs (silky slide show feel)
   const stepVariants = {
     enter: (dir) => ({
-      x: reduceMotion ? 0 : dir > 0 ? 20 : -20,
+      x: reduceMotion ? 0 : dir > 0 ? 28 : -28,
       opacity: 0,
+      scale: reduceMotion ? 1 : 0.985,
     }),
     center: {
       x: 0,
       opacity: 1,
+      scale: 1,
     },
     exit: (dir) => ({
-      x: reduceMotion ? 0 : dir > 0 ? -20 : 20,
+      x: reduceMotion ? 0 : dir > 0 ? -28 : 28,
       opacity: 0,
+      scale: reduceMotion ? 1 : 0.985,
     }),
   }
 
   const stepTransition = {
-    duration: reduceMotion ? 0.05 : 0.26,
+    duration: reduceMotion ? 0.05 : 0.32,
     ease: [0.32, 0.72, 0, 1],
   }
 
   // Panel-swap transition spec
   const panelSwapTransition = {
-    duration: reduceMotion ? 0.05 : 0.4,
+    duration: reduceMotion ? 0.05 : 0.45,
     ease: [0.32, 0.72, 0, 1],
   }
 
@@ -296,9 +305,9 @@ export default function UnifiedAuthView({
 
       {/* Main Two-Panel Card Container */}
       <motion.div
-        initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 14, scale: 0.97 }}
+        initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: reduceMotion ? 0.1 : 0.32, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: reduceMotion ? 0.1 : 0.4, ease: [0.32, 0.72, 0, 1] }}
         className="relative mx-auto my-auto flex w-full max-w-5xl flex-col overflow-hidden rounded-[28px] bg-paper shadow-card ring-1 ring-black/10 md:min-h-[580px] md:flex-row md:rounded-[32px]"
       >
 
@@ -323,50 +332,53 @@ export default function UnifiedAuthView({
             </span>
           </div>
 
-          {/* Middle: Image Placeholder, Script Tagline & Benefits */}
-          <div className="my-auto py-4">
-            {/* Designated Empty Image Placeholder (4:3 aspect ratio, dashed border in dev) */}
-            {imageSrc && !imgFailed ? (
-              <div
-                data-testid="brand-visual-placeholder"
-                className="relative mx-auto mb-4 hidden w-full max-w-[280px] aspect-[4/3] overflow-hidden rounded-2xl shadow-card ring-1 ring-black/10 sm:flex items-center justify-center bg-white"
-              >
+          {/* Middle: Headline, Subtext, Brand Image, Tagline & Benefits */}
+          <div className="my-auto py-3">
+            {/* Page Headline & Subtext with smooth motion glide on mode switch */}
+            <motion.div
+              key={isSignIn ? 'signin-header' : 'signup-header'}
+              initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: reduceMotion ? 0.05 : 0.32, ease: [0.32, 0.72, 0, 1] }}
+            >
+              <h1 className="mt-2.5 sm:mt-3 display-title text-2xl sm:text-3xl lg:text-[32px] font-bold leading-tight text-ink text-left">
+                {isSignIn ? 'Plan your day, beautifully.' : 'Start building your perfect day.'}
+              </h1>
+
+              <p className="mt-1 font-sans text-xs sm:text-body-sm font-light text-ink/60 leading-relaxed text-left">
+                {isSignIn
+                  ? 'Sign in to pick up right where you left off.'
+                  : 'Create your account and make routines that stick.'}
+              </p>
+            </motion.div>
+
+            {/* Brand Illustration Image (wired to real asset, rounded 4:3 container, object-cover) */}
+            <div
+              data-testid="brand-visual-container"
+              className="relative mx-auto my-3 w-full max-w-[240px] aspect-[4/3] overflow-hidden rounded-2xl shadow-card ring-1 ring-black/10 bg-white"
+            >
+              {!imgFailed ? (
                 <img
-                  src={imageSrc}
+                  src={resolvedImageSrc}
                   alt=""
                   onError={() => setImgFailed(true)}
-                  className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-105"
                 />
-              </div>
-            ) : (
-              <div
-                data-testid="brand-visual-placeholder"
-                className="relative mx-auto mb-4 hidden w-full max-w-[280px] aspect-[4/3] rounded-2xl border-2 border-dashed border-ink/20 bg-ink/[0.02] p-4 sm:flex flex-col items-center justify-center text-center transition-colors hover:border-career/30"
-              >
-                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-xs ring-1 ring-black/10 text-ink/40">
-                  <Sparkles className="h-5 w-5 text-career" aria-hidden="true" />
+              ) : (
+                <div className="flex h-full w-full flex-col items-center justify-center bg-[#F5EDE6]/60 p-4 text-center">
+                  <Sparkles className="h-6 w-6 text-career" aria-hidden="true" />
+                  <span className="mt-1 font-display text-base font-bold text-ink/70">Daycraft</span>
                 </div>
-                <p className="font-sans text-xs font-bold uppercase tracking-wider text-ink/65">
-                  Brand Visual Placeholder
-                </p>
-                <p className="mt-0.5 font-sans text-[11px] text-ink/40">
-                  Fixed 4:3 container
-                </p>
-              </div>
-            )}
+              )}
+            </div>
 
-            {/* Script Font Tagline: Handwritten family, dark charcoal, under 6 words */}
-            <p className="text-center font-display text-2xl sm:text-[26px] font-bold leading-snug text-ink md:text-left">
+            {/* Script Font Tagline below image */}
+            <p className="text-left font-display text-xl sm:text-2xl font-bold leading-snug text-ink">
               Made for days that matter.
             </p>
 
-            {/* Warm Brand Statement */}
-            <p className="mt-0.5 text-center font-sans text-xs font-medium leading-relaxed text-ink/70 sm:text-body-sm md:text-left">
-              Routines crafted for intentional, calmer days.
-            </p>
-
             {/* 3 Benefit Bullets with Lucide Icons in Category Accent Colors */}
-            <div className="mt-3.5 space-y-2 text-left">
+            <div className="mt-2.5 space-y-1.5 text-left">
               <div className="flex items-center gap-2.5 font-sans text-xs text-ink/75 sm:text-body-sm">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0F766E]/15 text-[#0F766E]">
                   <CheckCircle2 className="h-3.5 w-3.5 stroke-[2.5]" aria-hidden="true" />
@@ -390,8 +402,8 @@ export default function UnifiedAuthView({
             </div>
           </div>
 
-          {/* Anchored Footer on Desktop */}
-          <PublicFooter className="hidden md:flex justify-start pt-1" />
+          {/* Anchored Footer */}
+          <PublicFooter className="flex justify-start pt-2" />
         </motion.div>
 
         {/* ================================================================= */}
@@ -401,44 +413,38 @@ export default function UnifiedAuthView({
         <motion.div
           layout={reduceMotion ? undefined : 'position'}
           transition={panelSwapTransition}
-          className={`flex w-full flex-col justify-between bg-paper p-5 sm:p-6 md:w-1/2 md:p-8 lg:p-9 ${
+          className={`flex w-full flex-col justify-center bg-paper p-5 sm:p-6 md:w-1/2 md:p-8 lg:p-9 ${
             isSignIn ? 'md:order-2' : 'md:order-1'
           }`}
         >
-          <div className="mx-auto w-full max-w-sm">
-            {/* Script Font Heading (one line style) & Muted Subtext */}
-            <div className="mb-4">
-              <h1 className="display-title text-2xl sm:text-3xl lg:text-[32px] font-bold leading-tight text-ink whitespace-normal sm:whitespace-nowrap">
-                {isSignIn ? 'Plan your day, beautifully.' : 'Start building your perfect day.'}
-              </h1>
-              <p className="mt-1 font-sans text-body-sm text-ink/65 leading-relaxed">
-                {isSignIn
-                  ? 'Sign in to pick up right where you left off.'
-                  : 'Create your account and make routines that stick.'}
-              </p>
-            </div>
-
+          <div className="mx-auto my-auto w-full max-w-sm py-3 sm:py-6">
             {/* Step Progress Bar (without "STEP X OF Y" text label) */}
             <div className="mb-4 flex items-center gap-1.5" aria-label={`Step ${step} of ${totalSteps}`}>
               {Array.from({ length: totalSteps }).map((_, i) => (
                 <div
                   key={i}
-                  className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+                  className={`h-1.5 flex-1 rounded-full transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)] ${
                     i + 1 <= step ? 'bg-career' : 'bg-black/10'
                   }`}
                 />
               ))}
             </div>
 
-            {/* Error Alert Box */}
-            {formError && (
-              <div
-                role="alert"
-                className="mb-3 rounded-xl bg-language/10 px-3.5 py-2 font-sans text-sm font-medium text-language ring-1 ring-language/20"
-              >
-                {formError}
-              </div>
-            )}
+            {/* Error Alert Box with smooth glide */}
+            <AnimatePresence>
+              {formError && (
+                <motion.div
+                  role="alert"
+                  initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                  transition={{ duration: reduceMotion ? 0.05 : 0.25, ease: [0.32, 0.72, 0, 1] }}
+                  className="mb-3 rounded-xl bg-language/10 px-3.5 py-2 font-sans text-sm font-medium text-language ring-1 ring-language/20"
+                >
+                  {formError}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Progressive Single-Field Flow */}
             <AnimatePresence mode="wait" custom={stepDirection}>
@@ -476,9 +482,9 @@ export default function UnifiedAuthView({
                             setContactMethod('phone')
                             setErrors({})
                           }}
-                          className="mt-1.5 inline-block font-sans text-xs font-semibold text-career hover:underline focus:outline-none"
+                          className="mt-1.5 inline-block font-sans text-xs font-semibold text-career transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:underline focus:outline-none"
                         >
-                          Use phone number instead
+                          Use phone number
                         </button>
                       </div>
                     ) : (
@@ -499,9 +505,9 @@ export default function UnifiedAuthView({
                             setContactMethod('email')
                             setErrors({})
                           }}
-                          className="mt-1.5 inline-block font-sans text-xs font-semibold text-career hover:underline focus:outline-none"
+                          className="mt-1.5 inline-block font-sans text-xs font-semibold text-career transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:underline focus:outline-none"
                         >
-                          Use email instead
+                          Use email
                         </button>
                       </div>
                     )}
@@ -629,9 +635,9 @@ export default function UnifiedAuthView({
                             setContactMethod('phone')
                             setErrors({})
                           }}
-                          className="mt-1.5 inline-block font-sans text-xs font-semibold text-career hover:underline focus:outline-none"
+                          className="mt-1.5 inline-block font-sans text-xs font-semibold text-career transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:underline focus:outline-none"
                         >
-                          Use phone number instead
+                          Use phone number
                         </button>
                       </div>
                     ) : (
@@ -652,9 +658,9 @@ export default function UnifiedAuthView({
                             setContactMethod('email')
                             setErrors({})
                           }}
-                          className="mt-1.5 inline-block font-sans text-xs font-semibold text-career hover:underline focus:outline-none"
+                          className="mt-1.5 inline-block font-sans text-xs font-semibold text-career transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:underline focus:outline-none"
                         >
-                          Use email instead
+                          Use email
                         </button>
                       </div>
                     )}
@@ -764,7 +770,11 @@ export default function UnifiedAuthView({
               {isSignIn ? (
                 <>
                   New here?{' '}
-                  <motion.span whileTap={reduceMotion ? undefined : { scale: 0.98 }} className="inline-block">
+                  <motion.span
+                    whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                    transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
+                    className="inline-block"
+                  >
                     <Link
                       to="/register"
                       onClick={(e) => {
@@ -780,7 +790,11 @@ export default function UnifiedAuthView({
               ) : (
                 <>
                   Already have an account?{' '}
-                  <motion.span whileTap={reduceMotion ? undefined : { scale: 0.98 }} className="inline-block">
+                  <motion.span
+                    whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                    transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
+                    className="inline-block"
+                  >
                     <Link
                       to="/login"
                       onClick={(e) => {
@@ -795,11 +809,6 @@ export default function UnifiedAuthView({
                 </>
               )}
             </div>
-          </div>
-
-          {/* Mobile Footer */}
-          <div className="mt-5 flex justify-center md:hidden">
-            <PublicFooter className="justify-center pt-1" />
           </div>
         </motion.div>
 
