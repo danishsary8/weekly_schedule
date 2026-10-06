@@ -19,7 +19,7 @@ describe('DashboardHeader', () => {
 
     expect(heading()).toHaveTextContent('You have 6 blocks today.')
     // The wordmark stays, but as a quiet line rather than the h1.
-    expect(screen.getByText('Daycraft').tagName).toBe('P')
+    expect(screen.getByText('Loomora').tagName).toBe('P')
   })
 
   it('pluralises a single block', () => {

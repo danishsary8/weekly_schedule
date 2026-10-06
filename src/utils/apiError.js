@@ -11,7 +11,7 @@
 // The API's error envelope is `{ error: { code, message, details } }`.
 // ---------------------------------------------------------------------------
 
-const NETWORK = 'Cannot reach Daycraft. Check your internet connection, then try again.'
+const NETWORK = 'Cannot reach Loomora. Check your internet connection, then try again.'
 const TIMEOUT = 'The server took too long to answer. Please try again.'
 
 /**

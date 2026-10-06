@@ -26,7 +26,7 @@ export default function ProfileIdentityCard({
   accentColor = '#0F766E',
   className = '',
 }) {
-  const displayName = name?.trim() || 'Daycraft member'
+  const displayName = name?.trim() || 'Loomora member'
 
   return (
     <section

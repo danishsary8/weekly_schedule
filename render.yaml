@@ -1,12 +1,12 @@
 databases:
-  - name: daycraft-postgres
+  - name: loomora-postgres
     plan: free
-    databaseName: daycraft
-    user: daycraft
+    databaseName: loomora
+    user: loomora
 
 services:
   - type: web
-    name: daycraft-api
+    name: loomora-api
     runtime: docker
     plan: free
     rootDir: backend
@@ -16,7 +16,7 @@ services:
     autoDeployTrigger: commit
     envVars:
       - key: APP_NAME
-        value: Daycraft
+        value: Loomora
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
@@ -35,7 +35,7 @@ services:
         value: pgsql
       - key: DB_URL
         fromDatabase:
-          name: daycraft-postgres
+          name: loomora-postgres
           property: connectionString
       - key: SESSION_DRIVER
         value: database
@@ -56,7 +56,7 @@ services:
       - key: MAIL_FROM_ADDRESS
         sync: false
       - key: MAIL_FROM_NAME
-        value: Daycraft
+        value: Loomora
       - key: RESEND_API_KEY
         sync: false
       - key: GOOGLE_CLIENT_ID

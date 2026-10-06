@@ -27,9 +27,9 @@ import { join } from 'node:path'
 const seed = JSON.parse(await readFile('.audit-seed.json', 'utf8').then((t) => t.replace(/^\uFEFF/, '')))
 if (!seed.token) throw new Error('No token in .audit-seed.json. Run scripts/seed-audit-user.mjs first.')
 
-const origin = process.env.DAYCRAFT_WEB || 'http://127.0.0.1:4173'
+const origin = process.env.LOOMORA_WEB || 'http://127.0.0.1:4173'
 const edge = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
-const profile = await mkdtemp(join(tmpdir(), 'daycraft-mobile-'))
+const profile = await mkdtemp(join(tmpdir(), 'loomora-mobile-'))
 const port = 9499
 
 const child = spawn(edge, [
@@ -82,7 +82,7 @@ async function waitFor(predicate) {
 async function visit(path, width, height) {
   await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 2, mobile: true })
   await send('Page.navigate', { url: `${origin}${path}` })
-  await waitFor("!document.querySelector('[aria-label=\"Loading Daycraft\"]')")
+  await waitFor("!document.querySelector('[aria-label=\"Loading Loomora\"]')")
   return waitFor("document.querySelector('main')")
 }
 

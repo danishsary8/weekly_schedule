@@ -5,7 +5,7 @@ import { join } from 'node:path'
 
 const seed = JSON.parse(await readFile('.audit-seed.json', 'utf8'))
 const edge = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
-const profile = await mkdtemp(join(tmpdir(), 'daycraft-time-wheel-'))
+const profile = await mkdtemp(join(tmpdir(), 'loomora-time-wheel-'))
 const output = join(process.cwd(), '.tmp-time-wheel')
 const port = 9510
 await mkdir(output, { recursive: true })

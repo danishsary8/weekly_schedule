@@ -5,14 +5,14 @@ import { Check, Sparkles } from 'lucide-react'
 /**
  * AuthDynamicVisual
  *
- * A luxury-feeling, dynamic layered visual representing Daycraft's core concept:
+ * A luxury-feeling, dynamic layered visual representing Loomora's core concept:
  * routine blocks in category colors (Career teal, Health sage, Language rose, Life warm gray, Rest dusty blue),
  * time markers, and progress ticks.
  *
  * Features:
  * - Desktop mouse parallax using spring-smoothed motion values (disabled when prefers-reduced-motion is on).
  * - Drifting routine chip and pulsing teal checkmark badge.
- * - Perfectly crisp SVG and CSS vectors matching Daycraft's warm cream/taupe palette.
+ * - Perfectly crisp SVG and CSS vectors matching Loomora's warm cream/taupe palette.
  */
 export default function AuthDynamicVisual({ className = '' }) {
   const reduceMotion = useReducedMotion()

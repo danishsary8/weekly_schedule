@@ -22,7 +22,7 @@ export async function permanentlyDeleteAccount(credentials = {}) { return unwrap
 export async function resendVerificationEmail() { return unwrap(await api.post('/email/verification-notification')) }
 export async function requestPasswordReset(email) { return unwrap(await api.post('/password/forgot', { email })) }
 export async function resetPassword(payload) { return unwrap(await api.post('/password/reset', payload)) }
-export async function fetchGoogleRedirectUrl() { return unwrap(await api.get('/auth/google/redirect')) }
+export async function fetchGoogleRedirectUrl(intent = 'sign_in') { return unwrap(await api.get('/auth/google/redirect', { params: { intent } })) }
 export async function createDayGroup(payload) { return unwrap(await api.post('/day-groups', payload)) }
 export async function updateDayGroup(id, payload) { return unwrap(await api.patch(`/day-groups/${id}`, payload)) }
 export async function deleteDayGroup(id) { return unwrap(await api.delete(`/day-groups/${id}`, { params: { confirm: true } })) }

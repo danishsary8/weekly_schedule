@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Daycraft layout rhythm — the single spacing/radius/motion scale.
+// Loomora layout rhythm — the single spacing/radius/motion scale.
 //
 // Step 1 of the UI overhaul established one scale so screens stop drifting into
 // ad-hoc values (mt-3 / mt-5 / mt-7 / mt-10 / p-7 were all in use). Everything

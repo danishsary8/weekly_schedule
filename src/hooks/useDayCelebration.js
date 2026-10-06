@@ -16,7 +16,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 // ---------------------------------------------------------------------------
 
 function markerKey(userId, date) {
-  return `daycraft:day-complete:${userId ?? 'anon'}:${date}`
+  return `loomora:day-complete:${userId ?? 'anon'}:${date}`
 }
 
 function alreadyCelebrated(userId, date) {

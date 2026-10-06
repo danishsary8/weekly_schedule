@@ -1,6 +1,6 @@
-# Daycraft free-tier preview deployment
+# Loomora free-tier preview deployment
 
-Daycraft is configured for a Vercel Hobby frontend and a Docker-based Render
+Loomora is configured for a Vercel Hobby frontend and a Docker-based Render
 backend with Render PostgreSQL. This is a **preview/hobby deployment**, not a
 durable production platform: Render's free PostgreSQL database expires 30 days
 after creation, has no backups, and is deleted after its upgrade grace period.
@@ -27,10 +27,10 @@ commit. The tracked templates contain placeholders only.
 
 1. Create a Render account and connect the GitHub repository.
 2. Choose **New > Blueprint** and select the repository. Render reads the root
-   `render.yaml`, creates `daycraft-api`, and provisions `daycraft-postgres`.
+   `render.yaml`, creates `loomora-api`, and provisions `loomora-postgres`.
 3. Supply every environment variable marked `sync: false`:
    - `APP_KEY`: generate with `php backend/artisan key:generate --show`.
-   - `APP_URL`: the assigned URL, such as `https://daycraft-api.onrender.com`.
+   - `APP_URL`: the assigned URL, such as `https://loomora-api.onrender.com`.
    - `FRONTEND_URL`: the final Vercel origin.
    - `CORS_ALLOWED_ORIGINS`: the same exact Vercel origin; never use `*`.
    - `SANCTUM_STATEFUL_DOMAINS`: Vercel hostname only, without `https://`.
@@ -96,7 +96,7 @@ handoff code to the frontend.
 
 ## 5. Deliverable production email with Resend
 
-Render free services block SMTP, so Daycraft uses the installed
+Render free services block SMTP, so Loomora uses the installed
 `resend/resend-laravel` HTTPS transport.
 
 1. Create a Resend account.
@@ -110,7 +110,7 @@ Render free services block SMTP, so Daycraft uses the installed
    MAIL_MAILER=resend
    RESEND_API_KEY=re_...
    MAIL_FROM_ADDRESS=hello@your-verified-domain.example
-   MAIL_FROM_NAME=Daycraft
+   MAIL_FROM_NAME=Loomora
    ```
 
 5. Redeploy and register a fresh account. Verification links are signed using

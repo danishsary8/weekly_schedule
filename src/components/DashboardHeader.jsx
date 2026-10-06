@@ -67,7 +67,7 @@ export default function DashboardHeader({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             >
-              Daycraft
+              Loomora
             </motion.p>
             <motion.span
               initial={reduceMotion ? { opacity: 0 } : { opacity: 0, rotate: -30, scale: 0.6 }}

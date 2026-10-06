@@ -11,9 +11,9 @@ use Throwable;
 
 final class SendTestEmail extends Command
 {
-    protected $signature = 'daycraft:mail-test {email : Recipient address} {--force : Allow sending in production}';
+    protected $signature = 'loomora:mail-test {email : Recipient address} {--force : Allow sending in production}';
 
-    protected $description = 'Send one Daycraft delivery test through the configured mail provider';
+    protected $description = 'Send one Loomora delivery test through the configured mail provider';
 
     public function handle(): int
     {
@@ -50,8 +50,8 @@ final class SendTestEmail extends Command
         }
 
         try {
-            Mail::raw('Daycraft email delivery is configured correctly.', function ($message) use ($email): void {
-                $message->to($email)->subject('Daycraft email delivery test');
+            Mail::raw('Loomora email delivery is configured correctly.', function ($message) use ($email): void {
+                $message->to($email)->subject('Loomora email delivery test');
             });
         } catch (Throwable $exception) {
             report($exception);

@@ -9,7 +9,7 @@ import { DURATION, EASE } from '../../config/layout.js'
 // pre-computed vector, which keeps this to one render and no canvas/RAF loop.
 //
 // Colours come from the live category accent palette so the celebration reads
-// as Daycraft rather than generic party colours, and stays correct whenever the
+// as Loomora rather than generic party colours, and stays correct whenever the
 // category set changes.
 // ---------------------------------------------------------------------------
 

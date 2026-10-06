@@ -27,9 +27,9 @@ const text = raw[0] === 0xff && raw[1] === 0xfe
 const seed = JSON.parse(text.trim())
 if (!seed.token) throw new Error(`No token in ${seedPath}. Run scripts/seed-audit-user.mjs first.`)
 
-const origin = process.env.DAYCRAFT_WEB || 'http://127.0.0.1:4173'
+const origin = process.env.LOOMORA_WEB || 'http://127.0.0.1:4173'
 const edge = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
-const profile = await mkdtemp(join(tmpdir(), 'daycraft-resp-'))
+const profile = await mkdtemp(join(tmpdir(), 'loomora-resp-'))
 const port = 9444
 // --disable-web-security is AUDIT-ONLY. The local backend/.env currently scopes
 // CORS_ALLOWED_ORIGINS to the deployed origin, so a localhost preview would be

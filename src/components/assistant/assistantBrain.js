@@ -110,7 +110,7 @@ const HELP_RULES = [
   {
     keywords: ['delete', 'remove', 'undo'],
     answer:
-      'Open edit mode, then use the delete control at the bottom of the routine settings. Daycraft asks for confirmation before removing the group and its contents.',
+      'Open edit mode, then use the delete control at the bottom of the routine settings. Loomora asks for confirmation before removing the group and its contents.',
   },
   {
     keywords: ['notification', 'notifications', 'reminder', 'reminders', 'alert', 'bell'],

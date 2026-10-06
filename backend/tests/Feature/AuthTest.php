@@ -187,12 +187,12 @@ final class AuthTest extends TestCase
          * Access-Control-Allow-Origin is discarded before the SPA can read it, so
          * the user is shown "cannot reach the server" for a server that answered.
          */
-        config(['cors.allowed_origins' => ['https://daycraft.example']]);
+        config(['cors.allowed_origins' => ['https://loomora.example']]);
 
-        $this->withHeader('Origin', 'https://daycraft.example')
+        $this->withHeader('Origin', 'https://loomora.example')
             ->getJson('/api/v1/auth/me')
             ->assertStatus(401)
-            ->assertHeader('Access-Control-Allow-Origin', 'https://daycraft.example');
+            ->assertHeader('Access-Control-Allow-Origin', 'https://loomora.example');
     }
 
     public function test_error_responses_never_echo_a_foreign_origin_back(): void
@@ -203,7 +203,7 @@ final class AuthTest extends TestCase
          * origin and blocks the response, which is the outcome we want — what must
          * never happen is the foreign origin being reflected back as permitted.
          */
-        config(['cors.allowed_origins' => ['https://daycraft.example']]);
+        config(['cors.allowed_origins' => ['https://loomora.example']]);
 
         $response = $this->withHeader('Origin', 'https://not-mine.example')
             ->getJson('/api/v1/auth/me')

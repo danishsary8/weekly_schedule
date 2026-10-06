@@ -54,8 +54,8 @@ final class MailDiagnosticController extends Controller
         }
 
         try {
-            Mail::raw('Daycraft email delivery is configured correctly.', function ($message) use ($email): void {
-                $message->to($email)->subject('Daycraft email delivery test');
+            Mail::raw('Loomora email delivery is configured correctly.', function ($message) use ($email): void {
+                $message->to($email)->subject('Loomora email delivery test');
             });
         } catch (Throwable $exception) {
             report($exception);

@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 const edge = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
-const profile = await mkdtemp(join(tmpdir(), 'daycraft-edge-'))
+const profile = await mkdtemp(join(tmpdir(), 'loomora-edge-'))
 const port = 9333
 const browser = spawn(edge, [`--headless`, `--disable-gpu`, `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore' })
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms))

@@ -367,7 +367,7 @@ The HTTP 429 recorded during Phase 0 was **a test artifact, not a user-facing bu
 
 **1. Boot no longer waits on a fixed timer — `src/AppRoutes.jsx`**
 
-`SPLASH_DURATION_MS = 3000` blocked first render for three seconds on *every* cold load, ready or not, and a slow session restore then showed a second waiting screen ("Preparing Daycraft…") immediately after. The splash is now driven by real readiness — session restore plus the route chunk — with a 600ms floor that only prevents a one-frame flash. One waiting surface instead of two.
+`SPLASH_DURATION_MS = 3000` blocked first render for three seconds on *every* cold load, ready or not, and a slow session restore then showed a second waiting screen ("Preparing Loomora…") immediately after. The splash is now driven by real readiness — session restore plus the route chunk — with a 600ms floor that only prevents a one-frame flash. One waiting surface instead of two.
 
 **2. Pages are code-split per route — `src/AppRoutes.jsx`**
 

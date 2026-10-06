@@ -44,14 +44,14 @@ describe('LoginPage and Progressive Two-Panel Auth Flow with Panel Swap', () => 
     )
 
     // Left Panel: Logo, Headline, Subtext, Real Visual Container, Tagline, 3 Benefit Bullets, Footer
-    expect(screen.getByText('Daycraft')).toBeInTheDocument()
+    expect(screen.getAllByText('Loomora').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByRole('heading', { level: 1, name: 'Plan your day, beautifully.' })).toBeInTheDocument()
     expect(screen.getByText('Sign in to pick up right where you left off.')).toBeInTheDocument()
     expect(screen.getByTestId('brand-visual-container')).toBeInTheDocument()
-    expect(screen.getByText('Made for days that matter.')).toBeInTheDocument()
-    expect(screen.getByText('Build routines that actually stick')).toBeInTheDocument()
-    expect(screen.getByText('See your whole day, at a glance')).toBeInTheDocument()
-    expect(screen.getByText('Free to start, no clutter')).toBeInTheDocument()
+    expect(screen.getAllByText('Made for days that matter.').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Build routines that actually stick').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('See your whole day, at a glance').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Free to start, no clutter').length).toBeGreaterThanOrEqual(1)
 
     // Right Panel: Form starts directly with Step Progress Bar
     expect(screen.getByLabelText('Step 1 of 2')).toBeInTheDocument()
@@ -64,14 +64,15 @@ describe('LoginPage and Progressive Two-Panel Auth Flow with Panel Swap', () => 
     // Social logins & Divider
     expect(screen.getByText(/^or$/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Continue with Google' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /continue with facebook/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /sign in with facebook/i })).toBeInTheDocument()
 
     // Mode switch link & Disclaimer
     expect(screen.getByRole('link', { name: 'Create an account' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /back to home/i })).toHaveAttribute('href', '/')
     expect(screen.getByText(/If Google creates a new account for you/i)).toBeInTheDocument()
 
     // Footer links
-    expect(screen.getAllByText(new RegExp(`© ${new Date().getFullYear()} Daycraft`)).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText(new RegExp(`© ${new Date().getFullYear()} Loomora`)).length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByRole('link', { name: 'Privacy Policy' }).length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByRole('link', { name: 'Terms of Service' }).length).toBeGreaterThanOrEqual(1)
   })
@@ -202,9 +203,10 @@ describe('LoginPage and Progressive Two-Panel Auth Flow with Panel Swap', () => 
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
 
     // Step 3: Password & Confirm password & Checkbox
-    const passwordInput = await screen.findByLabelText(/^password$/i)
-    expect(screen.getByLabelText('Step 3 of 3')).toBeInTheDocument()
-    expect(screen.getByLabelText(/^confirm password$/i)).toBeInTheDocument()
+    expect(await screen.findByLabelText('Step 3 of 3')).toBeInTheDocument()
+    const passwordInputs = await screen.findAllByLabelText(/^password$/i)
+    const passwordInput = passwordInputs[passwordInputs.length - 1]
+    expect(await screen.findByLabelText(/^confirm password$/i)).toBeInTheDocument()
     expect(screen.getByRole('checkbox', { name: /agree to the terms/i })).toBeInTheDocument()
 
     // Navigate BACK to Step 2 -> verify email preserved
@@ -253,9 +255,11 @@ describe('LoginPage and Progressive Two-Panel Auth Flow with Panel Swap', () => 
     fireEvent.change(emailInput, { target: { value: 'kyle@example.com' } })
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
 
-    const passwordInput = await screen.findByLabelText(/^password$/i)
+    expect(await screen.findByLabelText('Step 3 of 3')).toBeInTheDocument()
+    const passwordInputs = await screen.findAllByLabelText(/^password$/i)
+    const passwordInput = passwordInputs[passwordInputs.length - 1]
     fireEvent.change(passwordInput, { target: { value: 'password123' } })
-    fireEvent.change(screen.getByLabelText(/^confirm password$/i), { target: { value: 'different123' } })
+    fireEvent.change(await screen.findByLabelText(/^confirm password$/i), { target: { value: 'different123' } })
     fireEvent.click(screen.getByRole('button', { name: 'Create account' }))
 
     expect(await screen.findByText('Passwords do not match.')).toBeInTheDocument()
@@ -269,13 +273,69 @@ describe('LoginPage and Progressive Two-Panel Auth Flow with Panel Swap', () => 
       </MemoryRouter>,
     )
 
-    const facebookButton = screen.getByRole('button', { name: /continue with facebook/i })
+    const facebookButton = screen.getByRole('button', { name: /sign in with facebook/i })
     fireEvent.click(facebookButton)
 
     expect(toast).toHaveBeenCalledWith(
       expect.stringMatching(/facebook sign-in is coming soon/i),
       expect.any(Object),
     )
+  })
+
+  it('renders Sign Up face social login button copy correctly', () => {
+    render(
+      <MemoryRouter>
+        <RegisterPage />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('button', { name: 'Continue with Google' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /sign in with facebook/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /back to home/i })).toHaveAttribute('href', '/')
+  })
+
+  it('displays contextual alert and flips card when oauth_code is account_not_found', async () => {
+    render(
+      <MemoryRouter initialEntries={['/login?oauth_code=account_not_found&oauth_provider=Google']}>
+        <LoginPage />
+      </MemoryRouter>,
+    )
+
+    expect(
+      screen.getByText(/we couldn't find a loomora account for that google account/i),
+    ).toBeInTheDocument()
+
+    const flipBtn = screen.getByRole('button', { name: /sign up instead/i })
+    expect(flipBtn).toBeInTheDocument()
+
+    fireEvent.click(flipBtn)
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 1, name: 'Start building your perfect day.' })).toBeInTheDocument()
+      expect(screen.getByLabelText('Step 1 of 3')).toBeInTheDocument()
+    })
+  })
+
+  it('displays contextual alert and flips card when oauth_code is account_already_exists', async () => {
+    render(
+      <MemoryRouter initialEntries={['/register?oauth_code=account_already_exists&oauth_provider=Google']}>
+        <RegisterPage />
+      </MemoryRouter>,
+    )
+
+    expect(
+      screen.getByText(/an account with that email already exists/i),
+    ).toBeInTheDocument()
+
+    const flipBtn = screen.getByRole('button', { name: /sign in instead/i })
+    expect(flipBtn).toBeInTheDocument()
+
+    fireEvent.click(flipBtn)
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 1, name: 'Plan your day, beautifully.' })).toBeInTheDocument()
+      expect(screen.getByLabelText('Step 1 of 2')).toBeInTheDocument()
+    })
   })
 
   it('swaps panels between Sign In and Sign Up modes via bottom link', async () => {

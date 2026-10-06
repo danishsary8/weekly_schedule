@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-labelledby="title">
-  <title id="title">Daycraft mark</title>
+  <title id="title">Loomora mark</title>
   <rect x="4" y="4" width="56" height="56" rx="16" fill="#F5EDE6" stroke="#1A1A1A" stroke-width="3"/>
   <!-- A crafted day: rising arc, horizon, and forward path form an abstract D. -->
   <path d="M18 46V18h12c10.5 0 18 5.8 18 14s-7.5 14-18 14H18Z" fill="none" stroke="#1A1A1A" stroke-width="4" stroke-linejoin="round"/>

@@ -43,6 +43,47 @@ body {
     @apply font-sans text-label font-bold uppercase tracking-stamp;
   }
 
+  .button-brutal {
+    @apply inline-flex items-center justify-center rounded-xl border-2 border-black font-sans font-bold transition-[transform,box-shadow,background-color] duration-150 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-career focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    box-shadow: 4px 4px 0 #000;
+  }
+
+  .button-brutal-primary {
+    @apply bg-career text-white;
+  }
+
+  .button-brutal-secondary {
+    @apply bg-white text-ink;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .button-brutal:not(:disabled):hover {
+      box-shadow: 5px 5px 0 #000;
+      transform: translate(-1px, -1px);
+    }
+
+    .button-brutal-primary:not(:disabled):hover {
+      background-color: #149b92;
+    }
+
+    .button-brutal-secondary:not(:disabled):hover {
+      background-color: #f8fafc;
+    }
+  }
+
+  .button-brutal:not(:disabled):active {
+    box-shadow: 2px 2px 0 #000;
+    transform: translate(2px, 2px);
+  }
+
+  .button-brutal-primary:not(:disabled):active {
+    background-color: #0c615b;
+  }
+
+  .button-brutal-secondary:not(:disabled):active {
+    background-color: #f1f5f9;
+  }
+
   /*
    * Full-viewport minimum height for page and overlay shells.
    *

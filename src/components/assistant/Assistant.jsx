@@ -155,7 +155,7 @@ export default function Assistant({
                 <RobotIcon className="h-5 w-5" accent="#1A1A1A" awake={!quiet} />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="font-sans text-body font-bold leading-tight">Daycraft guide</p>
+                <p className="font-sans text-body font-bold leading-tight">Loomora guide</p>
                 <p className="mt-0.5 font-sans text-label text-white/65">
                   {quiet ? 'Quiet mode — tips paused' : 'Here to keep you on track'}
                 </p>
@@ -195,7 +195,7 @@ export default function Assistant({
                   style={message.from === 'bot' ? { borderLeft: `3px solid ${accent}` } : undefined}
                 >
                   <span className={`mb-1 block text-label font-bold uppercase tracking-wider ${message.from === 'user' ? 'text-white/55' : 'text-ink/45'}`}>
-                    {message.from === 'user' ? 'You' : 'Daycraft guide'}
+                    {message.from === 'user' ? 'You' : 'Loomora guide'}
                   </span>
                   <span className="break-words">{message.text}</span>
                 </motion.div>

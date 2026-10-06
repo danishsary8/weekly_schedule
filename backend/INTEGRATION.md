@@ -1,4 +1,4 @@
-# Daycraft integration notes
+# Loomora integration notes
 
 The React client uses `VITE_API_URL` and sends a Sanctum bearer token through the shared Axios client. Schedule state is never globally seeded: the dashboard first loads `/day-groups`, presents the builder when the result is empty, and then reads and mutates user-owned groups directly.
 

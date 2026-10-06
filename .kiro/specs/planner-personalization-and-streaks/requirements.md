@@ -4,7 +4,7 @@
 
 ## 1. Product intent
 
-Daycraft shall become a calm, mobile-first routine planner that answers three questions without making the user configure or interpret a complex productivity system:
+Loomora shall become a calm, mobile-first routine planner that answers three questions without making the user configure or interpret a complex productivity system:
 
 1. **What should I do now?**
 2. **What is coming next?**
@@ -16,9 +16,9 @@ This spec replaces the product assumptions in `.kiro/specs/daily-routine-dashboa
 
 ## 2. Reference-product research
 
-The research is intentionally pattern-oriented: Daycraft should learn from proven behavior without copying another product's visual identity.
+The research is intentionally pattern-oriented: Loomora should learn from proven behavior without copying another product's visual identity.
 
-| Product | Useful pattern | Daycraft interpretation | Pattern not copied |
+| Product | Useful pattern | Loomora interpretation | Pattern not copied |
 |---|---|---|---|
 | [Structured](https://www.structured.app/blog/4-0) | Day/week/month timeline views and quick movement between settings and the timeline | A stable seven-day strip with a linear daily timeline; edits return users to the place they came from | Dense bottom navigation and platform-specific gestures |
 | [Structured accessibility guidance](https://structured.app/blog/neurodivergent-month) | A clean linear day reduces planning noise | One dominant path: Now → Next → Today, with secondary controls progressively disclosed | Adding more dashboard widgets merely because competitors have them |
@@ -30,7 +30,7 @@ The research is intentionally pattern-oriented: Daycraft should learn from prove
 | [Habitify](https://habitify.me/new-home) | Progress is explained with recent history and trends, not only a streak number | Pair streak count with a seven-day status strip and compassionate recovery copy | Competitive gamification, public rankings, or punishment |
 | [Habitify upcoming dates](https://feedback.habitify.me/en/changelog/habitify-android-3200-a-smoother-smarter-experience-on-android) | Show generated future dates for interval schedules | Upcoming blocks must include an explicit date/routine so users know when the next occurrence actually happens | Opaque recurrence rules |
 
-**Research conclusion:** The strongest shared pattern is not “more features.” It is a single daily focus surface, a short future horizon, low-friction capture, and progress that remains understandable after plans change. Daycraft's unique expression shall be its warm cream canvas, soft user-controlled accent colors, hand-drawn display voice, category-tinted timeline cards, and non-punitive “keep your rhythm” language.
+**Research conclusion:** The strongest shared pattern is not “more features.” It is a single daily focus surface, a short future horizon, low-friction capture, and progress that remains understandable after plans change. Loomora's unique expression shall be its warm cream canvas, soft user-controlled accent colors, hand-drawn display voice, category-tinted timeline cards, and non-punitive “keep your rhythm” language.
 
 Content from the linked sources was rephrased for compliance with licensing restrictions.
 
@@ -179,7 +179,7 @@ Content from the linked sources was rephrased for compliance with licensing rest
 3. Habit toggles and non-destructive edits SHALL update optimistically and reconcile with the server response.
 4. Destructive operations SHALL wait for server confirmation before removing data from the durable UI state.
 5. THE SYSTEM SHALL use one coherent dashboard/bootstrap response or coordinated cache to avoid independent request waterfalls for routines, categories, streak summary, and upcoming occurrences.
-6. Warm authenticated dashboard content SHOULD become useful within 3 seconds on a representative mobile connection; cold-host wake-up SHALL show explicit “Waking Daycraft…” status rather than a generic network error.
+6. Warm authenticated dashboard content SHOULD become useful within 3 seconds on a representative mobile connection; cold-host wake-up SHALL show explicit “Waking Loomora…” status rather than a generic network error.
 7. Sheets not required for initial paint SHALL be lazy-loaded where this reduces the primary bundle without delaying first interaction unreasonably.
 8. Category, routine, block, and checklist mutations SHALL invalidate only affected cache keys and SHALL not force a full-browser reload.
 9. Failed requests SHALL distinguish timeout, offline/unreachable, validation, authorization, and server failure.

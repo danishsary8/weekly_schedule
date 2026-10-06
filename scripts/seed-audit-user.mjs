@@ -1,6 +1,6 @@
 // Creates a disposable verified-looking account with one routine so the
 // responsive audit can measure the real dashboard. Prints JSON for the auditor.
-const api = process.env.DAYCRAFT_API || 'http://127.0.0.1:8000/api/v1'
+const api = process.env.LOOMORA_API || 'http://127.0.0.1:8000/api/v1'
 
 const stamp = Date.now()
 const email = `audit${stamp}@example.test`

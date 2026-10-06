@@ -1,12 +1,12 @@
-# Daycraft
+# Loomora
 
 **Craft your day, one routine at a time.**
 
-Daycraft is a calm, beautifully designed daily routine planner — build your own schedule, track your streaks, and stay on top of what matters, one day at a time.
+Loomora is a calm, beautifully designed daily routine planner — build your own schedule, track your streaks, and stay on top of what matters, one day at a time.
 
 ## Product
 
-Daycraft helps anyone shape a practical weekly rhythm, follow today’s plan, and keep daily habits visible without turning planning into another source of noise.
+Loomora helps anyone shape a practical weekly rhythm, follow today’s plan, and keep daily habits visible without turning planning into another source of noise.
 
 Current capabilities include:
 
@@ -42,8 +42,8 @@ npm run dev
 
 Development URLs:
 
-- Daycraft frontend: `http://127.0.0.1:5173`
-- Daycraft API: `http://127.0.0.1:8000/api/v1`
+- Loomora frontend: `http://127.0.0.1:5173`
+- Loomora API: `http://127.0.0.1:8000/api/v1`
 
 Production build:
 

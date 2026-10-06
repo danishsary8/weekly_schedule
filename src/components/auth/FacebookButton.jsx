@@ -8,8 +8,10 @@ import toast from 'react-hot-toast'
  * NOTE: UI-only for now with a placeholder handler until backend Facebook OAuth is configured.
  * // TODO: connect to backend Facebook OAuth endpoint once configured
  */
-export default function FacebookButton() {
+export default function FacebookButton({ mode = 'signin', intent, label }) {
   const reduceMotion = useReducedMotion()
+  const isSignUp = mode === 'signup' || intent === 'sign_up'
+  const buttonLabel = label || 'Sign in with Facebook'
 
   // TODO: connect to backend Facebook OAuth endpoint once configured
   const handleFacebookLogin = () => {
@@ -23,15 +25,15 @@ export default function FacebookButton() {
     <motion.button
       type="button"
       onClick={handleFacebookLogin}
-      whileHover={reduceMotion ? undefined : { scale: 1.01 }}
-      whileTap={reduceMotion ? undefined : { scale: 0.98 }}
-      transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
-      className="mt-2.5 flex min-h-touch-lg w-full items-center justify-center gap-3 rounded-xl bg-white px-4 font-sans text-sm font-bold text-ink ring-1 ring-black/15 transition-colors duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-cream/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1877F2]"
-      aria-label="Continue with Facebook (coming soon)"
+      whileHover={reduceMotion ? undefined : { scale: 1.005 }}
+      whileTap={reduceMotion ? undefined : { scale: 0.985 }}
+      transition={{ duration: 0.15, ease: [0.32, 0.72, 0, 1] }}
+      className="flex min-h-[44px] h-11 w-full items-center justify-center gap-2.5 rounded-xl border-2 border-black bg-white px-4 font-sans text-sm font-bold tracking-tight text-ink transition-colors duration-150 hover:bg-slate-50 active:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1877F2] focus-visible:ring-offset-1"
+      aria-label={`${buttonLabel} (coming soon)`}
     >
       {/* Official Facebook 'f' logo SVG */}
       <svg
-        className="h-5 w-5"
+        className="h-5 w-5 flex-shrink-0"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -46,7 +48,7 @@ export default function FacebookButton() {
           fill="#FFFFFF"
         />
       </svg>
-      <span>Continue with Facebook</span>
+      <span className="font-sans font-bold tracking-tight text-ink">{buttonLabel}</span>
     </motion.button>
   )
 }

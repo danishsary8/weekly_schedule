@@ -135,7 +135,7 @@ export default function ProfilePage() {
             <SettingsRow
               icon={Sparkles}
               label="Show tour again"
-              description="Take a guided walkthrough of Daycraft"
+              description="Take a guided walkthrough of Loomora"
               onClick={() => {
                 resetTour(user?.id)
                 navigate('/dashboard', { state: { runTour: true } })

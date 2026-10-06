@@ -18,9 +18,15 @@ final class GoogleAuthController extends Controller
 {
     public function __construct(private readonly GoogleAuthService $google) {}
 
-    public function redirect(): JsonResponse
+    public function redirect(Request $request): JsonResponse
     {
-        return ApiResponse::success(['url' => $this->google->authorizationUrl()]);
+        if (empty(config('services.google.client_id')) || empty(config('services.google.client_secret')) || empty(config('services.google.redirect'))) {
+            return ApiResponse::error('oauth_not_configured', 'Google sign-in is not fully configured. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REDIRECT_URI in the backend .env file.', 503);
+        }
+
+        $intent = $request->string('intent')->value() === 'sign_up' ? 'sign_up' : 'sign_in';
+
+        return ApiResponse::success(['url' => $this->google->authorizationUrl($intent)]);
     }
 
     public function callback(Request $request): JsonResponse|RedirectResponse
@@ -55,6 +61,13 @@ final class GoogleAuthController extends Controller
             return ApiResponse::error($code, $message, 422);
         }
 
-        return redirect()->away(rtrim((string) config('app.frontend_url'), '/').'/login?oauth_error='.urlencode($message));
+        $path = $code === 'account_already_exists' ? '/register' : '/login';
+        $query = http_build_query([
+            'oauth_code' => $code,
+            'oauth_provider' => 'Google',
+            'oauth_error' => $message,
+        ]);
+
+        return redirect()->away(rtrim((string) config('app.frontend_url'), '/').$path.'?'.$query);
     }
 }

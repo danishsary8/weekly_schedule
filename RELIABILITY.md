@@ -1,4 +1,4 @@
-# Daycraft reliability operations
+# Loomora reliability operations
 
 ## Current code-only safeguards
 
@@ -19,8 +19,8 @@
 
 Create a free Sentry account and two projects in the same organization:
 
-1. A **Laravel** project named `daycraft-api`.
-2. A **React** project named `daycraft-web`.
+1. A **Laravel** project named `loomora-api`.
+2. A **React** project named `loomora-web`.
 
 Render environment variables:
 
@@ -41,7 +41,7 @@ VITE_SENTRY_TRACES_SAMPLE_RATE=0.05
 VITE_SENTRY_TEST=false
 SENTRY_AUTH_TOKEN=<Sentry organization token with release/source-map access>
 SENTRY_ORG=<organization slug>
-SENTRY_PROJECT=daycraft-web
+SENTRY_PROJECT=loomora-web
 ```
 
 The SDKs send user ID only. Request bodies, cookies, query strings, auth/XSRF
@@ -57,10 +57,10 @@ Backend: from a trusted local shell with the Laravel project DSN set, run:
 php backend/artisan sentry:test
 ```
 
-Confirm `Sentry Laravel Test` appears in `daycraft-api`, then remove the local
+Confirm `Sentry Laravel Test` appears in `loomora-api`, then remove the local
 DSN. Frontend: temporarily set `VITE_SENTRY_TEST=true` in Vercel, deploy once,
-open the site, confirm `Daycraft frontend Sentry verification event` appears in
-`daycraft-web`, then set it back to `false` and redeploy. Never leave the test
+open the site, confirm `Loomora frontend Sentry verification event` appears in
+`loomora-web`, then set it back to `false` and redeploy. Never leave the test
 flag enabled because every cold load would create noise.
 
 These receipt checks cannot be completed without project DSNs and dashboard
@@ -70,7 +70,7 @@ access. SDK presence alone is not treated as proof.
 
 Create one HTTP(S) monitor:
 
-- Friendly name: `Daycraft API health`
+- Friendly name: `Loomora API health`
 - URL: `https://<render-api-host>/api/v1/health`
 - Interval: 5 minutes on the free plan
 - Method: `GET`
@@ -98,7 +98,7 @@ infrastructure not included in the current free Render setup.
 Run against a disposable environment or supply a test-user token:
 
 ```bash
-DAYCRAFT_LOAD_URL=https://<api-host>/api/v1 DAYCRAFT_LOAD_TOKEN=<test-token> node scripts/load-test.mjs
+LOOMORA_LOAD_URL=https://<api-host>/api/v1 LOOMORA_LOAD_TOKEN=<test-token> node scripts/load-test.mjs
 ```
 
 Defaults are 40 requests with concurrency 10. Without a token, the script creates

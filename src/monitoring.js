@@ -28,7 +28,7 @@ export function initializeMonitoring() {
       },
     })
     if (import.meta.env.VITE_SENTRY_TEST === 'true') {
-      Sentry.captureException(new Error('Daycraft frontend Sentry verification event'))
+      Sentry.captureException(new Error('Loomora frontend Sentry verification event'))
     }
     return Sentry
   })

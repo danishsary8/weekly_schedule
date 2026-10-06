@@ -5,4 +5,4 @@ Disallow: /auth/
 Disallow: /email-verified
 Disallow: /password/
 
-Sitemap: https://daycraft.example/sitemap.xml
+Sitemap: https://loomora.example/sitemap.xml

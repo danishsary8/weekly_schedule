@@ -1,6 +1,6 @@
-# Daycraft API
+# Loomora API
 
-Laravel 12 API for Daycraft. It provides Sanctum bearer authentication, verified-email schedule mutations, Google OAuth, password recovery, user-owned day groups, dated checklist logs, notification settings, and optional cached prayer times.
+Laravel 12 API for Loomora. It provides Sanctum bearer authentication, verified-email schedule mutations, Google OAuth, password recovery, user-owned day groups, dated checklist logs, notification settings, and optional cached prayer times.
 
 ## Run locally
 

@@ -23,9 +23,9 @@ sed -ri "s/<VirtualHost \*:[0-9]+>/<VirtualHost *:${port}>/" /etc/apache2/sites-
 # Name the connection Laravel will actually use. Unset means Laravel falls back
 # to `sqlite`, which is how a Postgres failure can report itself as
 # "(Connection: sqlite, Host: dpg-...)" — confusing enough to hide the cause.
-echo "[daycraft] DB_CONNECTION=${DB_CONNECTION:-UNSET (Laravel will default to sqlite)}"
+echo "[loomora] DB_CONNECTION=${DB_CONNECTION:-UNSET (Laravel will default to sqlite)}"
 
-echo "[daycraft] caching configuration and routes"
+echo "[loomora] caching configuration and routes"
 php artisan config:clear
 php artisan config:cache
 php artisan route:cache
@@ -45,7 +45,7 @@ export PGCONNECT_TIMEOUT="${PGCONNECT_TIMEOUT:-20}"
 # skipped migration leaves the API running against a schema-less database, which
 # answers `select 1` happily while every real query 500s. That combination is
 # genuinely confusing to debug, so it is worth a few seconds here to avoid.
-echo "[daycraft] running migrations"
+echo "[loomora] running migrations"
 migrate_ok=0
 attempt=1
 attempts=3
@@ -56,25 +56,25 @@ while [ "$attempt" -le "$attempts" ]; do
         break
     fi
 
-    echo "[daycraft] migration attempt ${attempt} of ${attempts} failed" >&2
+    echo "[loomora] migration attempt ${attempt} of ${attempts} failed" >&2
     attempt=$((attempt + 1))
 
     # Guarded rather than `[ ... ] && sleep`, which would return non-zero on the
     # final pass and terminate the script under `set -e`.
     if [ "$attempt" -le "$attempts" ]; then
-        echo "[daycraft] waiting 5s for the database to wake" >&2
+        echo "[loomora] waiting 5s for the database to wake" >&2
         sleep 5
     fi
 done
 
 if [ "$migrate_ok" -eq 1 ]; then
-    echo "[daycraft] migrations up to date"
+    echo "[loomora] migrations up to date"
 else
-    echo "[daycraft] MIGRATIONS FAILED after ${attempts} attempts." >&2
-    echo "[daycraft] Starting the web server anyway so the service stays reachable and this log survives." >&2
-    echo "[daycraft] The API will answer /api/v1/health but every data endpoint will return 500 until the schema exists." >&2
-    echo "[daycraft] Check that the database exists and that DB_URL / DB_CONNECTION point at it, then redeploy." >&2
+    echo "[loomora] MIGRATIONS FAILED after ${attempts} attempts." >&2
+    echo "[loomora] Starting the web server anyway so the service stays reachable and this log survives." >&2
+    echo "[loomora] The API will answer /api/v1/health but every data endpoint will return 500 until the schema exists." >&2
+    echo "[loomora] Check that the database exists and that DB_URL / DB_CONNECTION point at it, then redeploy." >&2
 fi
 
-echo "[daycraft] starting web server on port ${port}"
+echo "[loomora] starting web server on port ${port}"
 exec "$@"

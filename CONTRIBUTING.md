@@ -1,4 +1,4 @@
-# Contributing to Daycraft
+# Contributing to Loomora
 
 Keep changes scoped, preserve the API envelope, and run both test suites. New accounts remain empty by default and every schedule query stays scoped to its authenticated owner.
 

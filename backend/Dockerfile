@@ -36,11 +36,11 @@ RUN sed -ri 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
 
 WORKDIR /var/www/html
 COPY --from=vendor /app /var/www/html
-COPY docker/entrypoint.sh /usr/local/bin/daycraft-entrypoint
+COPY docker/entrypoint.sh /usr/local/bin/loomora-entrypoint
 
-RUN chmod +x /usr/local/bin/daycraft-entrypoint \
+RUN chmod +x /usr/local/bin/loomora-entrypoint \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R ug+rwx storage bootstrap/cache
 
-ENTRYPOINT ["daycraft-entrypoint"]
+ENTRYPOINT ["loomora-entrypoint"]
 CMD ["apache2-foreground"]

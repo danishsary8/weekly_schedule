@@ -66,13 +66,13 @@ function PageTransition({ children }) {
 function RouteMetadata({ pathname }) {
   useEffect(() => {
     const landing = pathname === '/'
-    document.title = landing ? 'Daycraft — Custom Daily Routine Planner' : pathname === '/dashboard' ? 'Your dashboard — Daycraft' : pathname === '/profile' ? 'Profile & settings — Daycraft' : 'Daycraft — Craft your day.'
+    document.title = landing ? 'Loomora — Custom Daily Routine Planner' : pathname === '/dashboard' ? 'Your dashboard — Loomora' : pathname === '/profile' ? 'Profile & settings — Loomora' : 'Loomora — Craft your day.'
     const description = document.querySelector('meta[name="description"]')
     if (description) description.content = landing
-      ? 'Build custom weekly routines, track daily progress, and stay focused on what matters now with Daycraft, a calm routine planner for everyday life.'
-      : 'Daycraft is a calm daily routine planner for building schedules, habits, and a more intentional day.'
+      ? 'Build custom weekly routines, track daily progress, and stay focused on what matters now with Loomora, a calm routine planner for everyday life.'
+      : 'Loomora is a calm daily routine planner for building schedules, habits, and a more intentional day.'
     if (landing) {
-      const absoluteImage = `${window.location.origin}/daycraft-og.png`
+      const absoluteImage = `${window.location.origin}/loomora-og.png`
       document.querySelector('meta[property="og:image"]')?.setAttribute('content', absoluteImage)
       document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', absoluteImage)
     }
@@ -121,7 +121,7 @@ export default function AppRoutes() {
   const authPending = status === 'idle' || status === 'loading'
   /*
    * One waiting surface instead of two. The splash previously ran on a timer and
-   * was followed by a separate "Preparing Daycraft…" loader, so a slow session
+   * was followed by a separate "Preparing Loomora…" loader, so a slow session
    * restore showed two different waiting screens in a row.
    */
   const showSplash = !splashFloorPassed || authPending
@@ -134,7 +134,7 @@ export default function AppRoutes() {
         {showSplash ? (
           <SplashScreen key="cold-load-splash" />
         ) : (
-          <Suspense key="routes" fallback={<FullScreenLoader label="Opening Daycraft…" />}>
+          <Suspense key="routes" fallback={<FullScreenLoader label="Opening Loomora…" />}>
             <Routes location={location} key={location.pathname}>
           <Route
             path="/login"

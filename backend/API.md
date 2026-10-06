@@ -1,6 +1,6 @@
-# Daycraft API v1
+# Loomora API v1
 
-Daycraft exposes a versioned, authenticated, user-owned routine API. Routes are prefixed with `/api/v1`.
+Loomora exposes a versioned, authenticated, user-owned routine API. Routes are prefixed with `/api/v1`.
 
 Success: `{ "data": ..., "meta"?: ... }`
 

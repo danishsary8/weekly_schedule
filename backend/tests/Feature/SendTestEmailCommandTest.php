@@ -14,7 +14,7 @@ final class SendTestEmailCommandTest extends TestCase
         config()->set('mail.default', 'resend');
         config()->set('services.resend.key', null);
 
-        $this->artisan('daycraft:mail-test', ['email' => 'owner@example.com'])
+        $this->artisan('loomora:mail-test', ['email' => 'owner@example.com'])
             ->expectsOutputToContain('RESEND_API_KEY is empty')
             ->assertFailed();
     }
@@ -24,9 +24,9 @@ final class SendTestEmailCommandTest extends TestCase
         Mail::fake();
         config()->set('mail.default', 'resend');
         config()->set('services.resend.key', 're_test_key');
-        config()->set('mail.from.address', 'hello@daycraft.example');
+        config()->set('mail.from.address', 'hello@loomora.example');
 
-        $this->artisan('daycraft:mail-test', ['email' => 'owner@example.com'])
+        $this->artisan('loomora:mail-test', ['email' => 'owner@example.com'])
             ->expectsOutputToContain('Test email accepted by Resend')
             ->assertSuccessful();
     }

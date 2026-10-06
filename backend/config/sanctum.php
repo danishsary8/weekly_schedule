@@ -52,7 +52,7 @@ return [
 
     /*
      * Token expiration policy: 30 days (43200 minutes).
-     * Rationale: Daycraft is designed for regular daily use, so forcing re-login every
+     * Rationale: Loomora is designed for regular daily use, so forcing re-login every
      * few hours would be hostile; never-expiring tokens are an unnecessary
      * standing risk if a token leaks. 30 days balances both, and logout
      * revokes immediately. Override via SANCTUM_TOKEN_EXPIRATION.

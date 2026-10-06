@@ -223,7 +223,7 @@ export default function OnboardingTour({
         aria-hidden="true"
       >
         <defs>
-          <mask id="daycraft-spotlight-mask">
+          <mask id="loomora-spotlight-mask">
             <rect x="0" y="0" width="100%" height="100%" fill="white" />
             {targetRect && (
               <motion.rect
@@ -249,7 +249,7 @@ export default function OnboardingTour({
           width="100%"
           height="100%"
           fill="rgba(26, 26, 26, 0.55)"
-          mask="url(#daycraft-spotlight-mask)"
+          mask="url(#loomora-spotlight-mask)"
           className="pointer-events-auto cursor-pointer"
           onClick={handleSkip}
         />

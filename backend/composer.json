@@ -2,8 +2,8 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "laravel/laravel",
     "type": "project",
-    "description": "Daycraft's versioned, user-owned routine API.",
-    "keywords": ["daycraft", "laravel", "routine-planner", "api"],
+    "description": "Loomora's versioned, user-owned routine API.",
+    "keywords": ["loomora", "laravel", "routine-planner", "api"],
     "license": "MIT",
     "require": {
         "php": "^8.2",

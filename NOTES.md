@@ -1,6 +1,6 @@
-# Daycraft — Engineering Handoff
+# Loomora — Engineering Handoff
 
-Daycraft is a general-purpose daily routine and habit planner built with React, Vite, Tailwind CSS and Framer Motion, backed by Laravel, PostgreSQL and Sanctum.
+Loomora is a general-purpose daily routine and habit planner built with React, Vite, Tailwind CSS and Framer Motion, backed by Laravel, PostgreSQL and Sanctum.
 
 ## Current architecture
 
@@ -30,9 +30,9 @@ See `README.md` for setup and `backend/API.md` for the current endpoint contract
 - Added `terms_accepted_at` for password and Google registrations.
 - Added permanent account deletion at `DELETE /api/v1/account` with type-to-confirm UI.
 - Deletion removes all user-owned schedules, checklist history, settings, prayer cache, tokens, reset records, and sessions.
-- No cookie banner was added because authentication uses localStorage bearer tokens and Daycraft sets no first-party cookies.
+- No cookie banner was added because authentication uses localStorage bearer tokens and Loomora sets no first-party cookies.
 - Verified: 42 backend tests pass (219 assertions) and the frontend production build passes.
-- Legal text is an early-stage first draft; replace `privacy@daycraft.app` and obtain legal review before real public or commercial use.
+- Legal text is an early-stage first draft; replace `privacy@loomora.app` and obtain legal review before real public or commercial use.
 
 ## Latest work — Phase G preparation
 
@@ -49,7 +49,7 @@ See `README.md` for setup and `backend/API.md` for the current endpoint contract
 - Added a logged-out marketing homepage at `/`; authenticated visitors are redirected to `/dashboard`.
 - Added an on-brand hero dashboard preview, four-step explanation, six verified feature cards, and final signup CTA.
 - Added landing-specific title, description, Open Graph/Twitter metadata, and a real 1200×630 PNG share image.
-- Expanded sitemap routes and robots rules; replace the reserved `daycraft.example` sitemap host after Vercel assigns the real URL.
+- Expanded sitemap routes and robots rules; replace the reserved `loomora.example` sitemap host after Vercel assigns the real URL.
 - Added a repeatable Edge responsive audit covering 375px, 768px, 1440px, reduced motion, overflow, and root routing.
 - Verified the Vite production build passes. Contact addresses remain provisional placeholders.
 
@@ -67,4 +67,4 @@ See `README.md` for setup and `backend/API.md` for the current endpoint contract
 Phase I is complete locally: backend controllers were restored to the FormRequest/Service/Resource architecture, schedule CRUD and account flows were separated into services, frontend checklist persistence moved into a tested hook, and current API/contribution documentation replaced stale scaffolding. Backend coverage increased from 50 to 54 tests (388 assertions), and a new frontend Vitest suite adds 7 tests for day-group creation, persisted checklist toggles/rollback, and live/overnight time logic. `php artisan test`, `npm run test`, and `npm run build` pass. Composer audit is clean after updating `league/commonmark` to 2.9.0; npm has no high/critical findings, with one moderate React Router redirect advisory mitigated by fixed internal navigation targets.
 # Phase K handoff (copy-ready)
 
-Phase K is implemented and verified locally with first-party analytics stored in Daycraft's own PostgreSQL database. It collects allow-listed pageviews and aggregate signup, activation, checklist, deletion, and notification-permission events without user IDs, email, free text, location, IP, user agent, cookies, or third-party pixels. Server-side events fire only after successful state changes; UUID/HMAC deduplication prevents retry duplicates. A backend-gated report is available at `/internal/analytics` after setting `ANALYTICS_ADMIN_EMAILS`. Backend: 58 tests / 424 assertions. Frontend: 10 tests. `php artisan test`, `npm run test`, and `npm run build` pass. Production still requires deploying the migration and setting `ANALYTICS_ENABLED=true` plus `ANALYTICS_ADMIN_EMAILS`; live dashboard receipt cannot be claimed until that deployment is performed.
+Phase K is implemented and verified locally with first-party analytics stored in Loomora's own PostgreSQL database. It collects allow-listed pageviews and aggregate signup, activation, checklist, deletion, and notification-permission events without user IDs, email, free text, location, IP, user agent, cookies, or third-party pixels. Server-side events fire only after successful state changes; UUID/HMAC deduplication prevents retry duplicates. A backend-gated report is available at `/internal/analytics` after setting `ANALYTICS_ADMIN_EMAILS`. Backend: 58 tests / 424 assertions. Frontend: 10 tests. `php artisan test`, `npm run test`, and `npm run build` pass. Production still requires deploying the migration and setting `ANALYTICS_ENABLED=true` plus `ANALYTICS_ADMIN_EMAILS`; live dashboard receipt cannot be claimed until that deployment is performed.

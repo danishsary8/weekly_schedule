@@ -5,7 +5,7 @@
 
 ## 1. Design goals
 
-This design turns Daycraft from a single-date routine viewer into a dependable personal planning system while preserving the product’s calm daily focus.
+This design turns Loomora from a single-date routine viewer into a dependable personal planning system while preserving the product’s calm daily focus.
 
 The architecture must make five promises true:
 
@@ -204,7 +204,7 @@ This makes lazy generation historically stable without requiring a paid cron ser
 4. Future dates are never persisted as streak occurrences, so future template edits need no historical rewrite.
 5. On a later visit, dates skipped during an absence are generated using the last template version because mutation paths always advanced the cursor before changing that template.
 
-This is exact for all changes made through Daycraft and requires no always-on scheduler.
+This is exact for all changes made through Loomora and requires no always-on scheduler.
 
 ## 5. Category migration strategy
 
@@ -475,7 +475,7 @@ Existing files may be moved only with import-safe relocation. Components should 
 
 ```text
 ┌──────────────────────────────┐
-│ Daycraft · date       avatar │
+│ Loomora · date       avatar │
 │ Sun  Mon  Tue  Wed  Thu ...  │  horizontal week strip
 ├──────────────────────────────┤
 │ NOW / UP NEXT                │

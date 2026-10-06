@@ -1,0 +1,69 @@
+.animated-gradient-text {
+  position: relative;
+  margin: 0;
+  display: inline-flex;
+  max-width: fit-content;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  font-weight: inherit;
+  overflow: hidden;
+  cursor: pointer;
+  background: transparent;
+  transition: box-shadow 0.25s ease, transform 0.2s ease;
+}
+
+.animated-gradient-text.with-border {
+  padding: 0.45rem 1.15rem;
+  min-height: 2.625rem;
+  border-radius: 0.75rem;
+  transition: box-shadow 0.25s ease, transform 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .animated-gradient-text.with-border {
+    padding: 0.5rem 1.25rem;
+    min-height: 2.75rem;
+  }
+}
+
+.gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  padding: 2px;
+  box-sizing: border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  z-index: 0;
+  pointer-events: none;
+  background-color: transparent;
+  transition: opacity 0.25s ease;
+}
+
+/* Hover-border-only: hidden by default, visible square border on hover with 100% transparent background */
+.animated-gradient-text.hover-border-only .gradient-overlay {
+  opacity: 0;
+}
+
+.animated-gradient-text.hover-border-only:hover .gradient-overlay,
+.animated-gradient-text.hover-border-only:focus-visible .gradient-overlay {
+  opacity: 1;
+}
+
+.text-content {
+  display: inline-block;
+  position: relative;
+  z-index: 2;
+  font-weight: inherit;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}

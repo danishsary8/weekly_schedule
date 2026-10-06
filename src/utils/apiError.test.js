@@ -25,7 +25,7 @@ describe('describeApiError', () => {
     // This is the case the old copy got wrong: no response means the server was
     // never reached, so "could not save" pointed the user at the wrong problem.
     expect(describeApiError(new Error('Network Error')))
-      .toBe('Cannot reach Daycraft. Check your internet connection, then try again.')
+      .toBe('Cannot reach Loomora. Check your internet connection, then try again.')
   })
 
   describe('errors already normalised by api/client.js', () => {

@@ -1,11 +1,11 @@
-const baseUrl = (process.env.DAYCRAFT_LOAD_URL || 'http://127.0.0.1:8010/api/v1').replace(/\/$/, '')
-const total = Number(process.env.DAYCRAFT_LOAD_REQUESTS || 40)
-const concurrency = Number(process.env.DAYCRAFT_LOAD_CONCURRENCY || 10)
-let token = process.env.DAYCRAFT_LOAD_TOKEN
+const baseUrl = (process.env.LOOMORA_LOAD_URL || 'http://127.0.0.1:8010/api/v1').replace(/\/$/, '')
+const total = Number(process.env.LOOMORA_LOAD_REQUESTS || 40)
+const concurrency = Number(process.env.LOOMORA_LOAD_CONCURRENCY || 10)
+let token = process.env.LOOMORA_LOAD_TOKEN
 let temporaryAccount = false
 
 /** Held in one place because cleanup must re-authenticate with it (see API.md). */
-const DISPOSABLE_PASSWORD = 'DaycraftLoad123'
+const DISPOSABLE_PASSWORD = 'LoomoraLoad123'
 
 if (!token) {
   const stamp = `${Date.now()}-${Math.random().toString(16).slice(2)}`

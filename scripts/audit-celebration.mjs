@@ -15,9 +15,9 @@ const raw = await readFile(process.argv[2] || '.audit-seed.json')
 const text = raw[0] === 0xff && raw[1] === 0xfe ? raw.toString('utf16le') : raw.toString('utf8').replace(/^\uFEFF/, '')
 const seed = JSON.parse(text.trim())
 
-const origin = process.env.DAYCRAFT_WEB || 'http://127.0.0.1:4173'
+const origin = process.env.LOOMORA_WEB || 'http://127.0.0.1:4173'
 const edge = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
-const profile = await mkdtemp(join(tmpdir(), 'daycraft-celebrate-'))
+const profile = await mkdtemp(join(tmpdir(), 'loomora-celebrate-'))
 const port = 9445
 const browser = spawn(
   edge,
